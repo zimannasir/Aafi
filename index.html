@@ -1,0 +1,1213 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aafi and Aara Steps — Daily Practice</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#ffffff; --ink:#1f2a44; --muted:#6b7690;
+    --brand:#4f6df5; --brand-dark:#3a52d6; --good:#1faa6c; --good-bg:#e6f7ef;
+    --bad:#e0485a; --bad-bg:#fdecee; --warn:#f0a500;
+    --maths:#4f6df5; --english:#f0663a; --line:#e6eaf2; --shadow:0 10px 30px rgba(31,42,68,.08);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;line-height:1.45}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px 80px}
+  .hidden{display:none!important}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:14px;font-weight:700}
+  .btn{background:var(--brand);color:#fff;padding:14px 20px;font-size:16px;box-shadow:0 6px 16px rgba(79,109,245,.28);transition:transform .06s ease, filter .2s}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:#eef1f8;color:var(--ink);box-shadow:none}
+  .btn.big{width:100%;padding:18px;font-size:18px;border-radius:16px}
+  .btn.wide{width:100%}
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;margin-bottom:16px;border:1px solid var(--line)}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:20px;margin:0 0 10px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .row{display:flex;gap:12px;align-items:center}
+  .row.wrap{flex-wrap:wrap}
+  .spread{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+  /* header */
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+  .logo .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#7d63f0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+  .streak{background:#fff4e0;color:#a86b00;font-weight:800;padding:8px 12px;border-radius:12px;font-size:14px;border:1px solid #ffe6bf}
+
+  /* subject cards */
+  .subject{border-radius:var(--r);padding:20px;color:#fff;position:relative;overflow:hidden}
+  .subject.maths{background:linear-gradient(135deg,#4f6df5,#6b8bff)}
+  .subject.english{background:linear-gradient(135deg,#f0663a,#ff8a5c)}
+  .subject h2{color:#fff}
+  .subject .lvl{opacity:.92;font-size:14px;margin-bottom:14px}
+  .progress{height:10px;background:rgba(255,255,255,.35);border-radius:999px;overflow:hidden;margin:10px 0 16px}
+  .progress > i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .5s}
+  .subject .btn{background:#fff}
+  .subject.maths .btn{color:var(--brand-dark)}
+  .subject.english .btn{color:#c2451f}
+  .done-tag{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+
+  /* practice */
+  .qbar{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .qcount{font-weight:800;color:var(--muted)}
+  .bar{flex:1;height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--brand);transition:width .3s}
+  .stage{font-size:13px;font-weight:700}
+  .stage.correcting{color:var(--bad)}
+  .question{font-size:30px;font-weight:800;text-align:center;margin:26px 0 8px;line-height:1.3}
+  .qhint{text-align:center;color:var(--muted);margin-bottom:22px}
+  .answer{width:100%;font-size:26px;text-align:center;padding:16px;border:2px solid var(--line);border-radius:14px;outline:none;font-weight:700}
+  .answer:focus{border-color:var(--brand)}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.choices{grid-template-columns:1fr}}
+  .choice{background:#f3f5fb;border:2px solid transparent;border-radius:14px;padding:16px;font-size:18px;font-weight:700;text-align:center;color:var(--ink)}
+  .choice:hover{border-color:#d5ddf5}
+  .choice.pick{border-color:var(--brand);background:#eaf0ff}
+  .choice.right{border-color:var(--good);background:var(--good-bg);color:#0f7a4c}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-bg);color:#b02a3a}
+  .choice[disabled]{cursor:default}
+
+  .feedback{margin-top:18px;border-radius:14px;padding:16px;font-weight:600;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:var(--good-bg);color:#0f7a4c;border:1px solid #bfe9d3}
+  .feedback.no{background:var(--bad-bg);color:#b02a3a;border:1px solid #f6c8ce}
+  .feedback .head{font-size:17px;font-weight:800;margin-bottom:4px}
+  .feedback .exp{color:var(--ink);font-weight:500;margin-top:6px;font-size:14px}
+
+  /* summary */
+  .big-num{font-size:54px;font-weight:900;line-height:1}
+  .statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:18px 0}
+  .stat{background:#f6f8fc;border-radius:14px;padding:14px;text-align:center}
+  .stat b{font-size:24px;display:block}
+  .medal{font-size:60px;text-align:center;margin:6px 0}
+  .mistake-item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+  .mistake-item .q{font-weight:700}
+  .levelup{background:linear-gradient(135deg,#1faa6c,#3fd18b);color:#fff;border-radius:16px;padding:18px;text-align:center;margin-top:8px}
+
+  .center{text-align:center}
+  .grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+  .grade-opt{background:#f3f5fb;border:2px solid transparent;border-radius:14px;padding:16px 8px;text-align:center;font-weight:700}
+  .grade-opt.pick{border-color:var(--brand);background:#eaf0ff}
+  .grade-opt small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px}
+  input.name{width:100%;font-size:18px;padding:14px;border:2px solid var(--line);border-radius:14px;outline:none}
+  input.name:focus{border-color:var(--brand)}
+  .footlink{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
+  .footlink a{color:var(--brand);cursor:pointer;text-decoration:underline}
+  /* learner switcher */
+  .pbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .pchip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);color:var(--ink);
+    padding:7px 14px 7px 7px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:var(--shadow)}
+  .pchip .pav{width:24px;height:24px;border-radius:50%;background:#eef1f8;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .pchip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .pchip.active .pav{background:rgba(255,255,255,.25);color:#fff}
+  .pchip.add{color:var(--brand);padding:7px 14px;border-style:dashed;box-shadow:none}
+  .cloudbadge{display:inline-block}
+  .map-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+  .map-row:last-child{border-bottom:none}
+  .map-ic{width:26px;height:26px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .map-row.locked{opacity:.5}
+  kbd{background:#eef1f8;border-radius:6px;padding:2px 7px;font-size:12px;border:1px solid var(--line)}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="logo"><span class="dot">✦</span> Aafi &amp; Aara Steps</div>
+    <div id="streakBox" class="streak hidden">🔥 <span id="streakNum">0</span> day streak</div>
+  </div>
+  <div id="app"></div>
+  <div class="footlink" id="foot"></div>
+</div>
+
+<script>
+/* =========================================================================
+   Aafi and Aara Steps — a Kumon-style daily practice app (English + Maths, Grades 1–6)
+   Single file, no dependencies. Multiple learners; progress saved in localStorage
+   (with optional cloud backup). Each learner (sibling) has isolated progress.
+   ========================================================================= */
+
+const app = document.getElementById('app');
+const foot = document.getElementById('foot');
+
+/* ---------- multi-learner storage model ----------
+   DB = { activeId, profiles:[ profile... ] }   (one profile per sibling)     */
+const AAS_KEY = 'aafi_aara_steps_v1';
+const LEGACY_KEY = 'brightsteps_v1';
+const uid = ()=> 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+function loadDB(){
+  try{ const raw=JSON.parse(localStorage.getItem(AAS_KEY));
+    if(raw && Array.isArray(raw.profiles)){ raw.profiles.forEach(p=>{ if(!p.log)p.log=[]; }); return raw; }
+  }catch(e){}
+  // migrate a single-profile save from the old app name, if present
+  try{ const old=JSON.parse(localStorage.getItem(LEGACY_KEY));
+    if(old && old.name){ if(!old.log)old.log=[]; old.id=uid(); return {activeId:old.id, profiles:[old]}; }
+  }catch(e){}
+  return {activeId:null, profiles:[]};
+}
+function saveDB(){ localStorage.setItem(AAS_KEY, JSON.stringify(DB)); cloudMaybeSync(); }
+function activeProfile(){ return DB.profiles.find(p=>p.id===DB.activeId) || null; }
+function setActive(id){ DB.activeId=id; S=activeProfile(); saveDB(); renderHome(); }
+
+/* ---------- small helpers ---------- */
+const rnd = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr => arr[rnd(0,arr.length-1)];
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const todayStr = ()=> new Date().toISOString().slice(0,10);
+const norm = s => String(s).trim().toLowerCase().replace(/\s+/g,' ');
+
+/* Build MCQ with distractors */
+function mc(q, answer, distractors, explain){
+  const choices = shuffle([answer, ...distractors]);
+  return { q, a:String(answer), type:'mcq', choices, explain };
+}
+
+/* =========================================================================
+   MATHS CURRICULUM — ordered ladder of skills (Grades 1–6).
+   Each level has a generator that returns a fresh question every call.
+   ========================================================================= */
+const MATHS = [
+  {g:1, title:'Number bonds to 10', gen:()=>{const a=rnd(1,9); return {q:`${a} + ⬚ = 10`, a:String(10-a), type:'input', explain:`10 − ${a} = ${10-a}`};}},
+  {g:1, title:'Adding within 10', gen:()=>{const a=rnd(1,8),b=rnd(1,9-a); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
+  {g:1, title:'Taking away within 10', gen:()=>{const a=rnd(2,10),b=rnd(1,a); return {q:`${a} − ${b} = ?`, a:String(a-b), type:'input'};}},
+  {g:1, title:'Adding within 20', gen:()=>{const a=rnd(5,15),b=rnd(2,20-a); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
+  {g:1, title:'Taking away within 20', gen:()=>{const a=rnd(10,20),b=rnd(1,a); return {q:`${a} − ${b} = ?`, a:String(a-b), type:'input'};}},
+  {g:1, title:'Counting on and back', gen:()=>{const a=rnd(11,98); return Math.random()<.4 ? {q:`What number comes just before ${a}?`, a:String(a-1), type:'input'} : {q:`What number comes just after ${a}?`, a:String(a+1), type:'input'};}},
+  {g:2, title:'Place value (tens & ones)', gen:()=>{const t=rnd(2,9),o=rnd(0,9),n=t*10+o; return Math.random()<.5 ? {q:`In the number ${n}, what is the digit ${t} worth?`, a:String(t*10), type:'input', explain:`${t} is in the tens place, so it is worth ${t*10}.`} : {q:`How many tens are in ${n}?`, a:String(t), type:'input', explain:`${n} = ${t} tens and ${o} ones.`};}},
+  {g:2, title:'Comparing numbers', gen:()=>{let a=rnd(10,99),b=rnd(10,99); while(b===a)b=rnd(10,99); return Math.random()<.5 ? {q:`Which is greater: ${a} or ${b}? (write it)`, a:String(Math.max(a,b)), type:'input'} : {q:`Which is smaller: ${a} or ${b}? (write it)`, a:String(Math.min(a,b)), type:'input'};}},
+  {g:2, title:'2-digit + 1-digit', gen:()=>{const a=rnd(11,89),b=rnd(2,9); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
+  {g:2, title:'2-digit + 2-digit (carrying)', gen:()=>{const a=rnd(15,79),b=rnd(15,79); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input', explain:'Add the ones first, carry the ten if it goes over 9.'};}},
+  {g:2, title:'2-digit − 2-digit (borrowing)', gen:()=>{let a=rnd(30,99),b=rnd(11,a-1); return {q:`${a} − ${b} = ?`, a:String(a-b), type:'input', explain:'If the top digit is smaller, borrow 10 from the next column.'};}},
+  {g:2, title:'Times tables: 2, 5, 10', gen:()=>{const t=pick([2,5,10]),n=rnd(2,12); return {q:`${t} × ${n} = ?`, a:String(t*n), type:'input', explain:`${t} added ${n} times.`};}},
+  {g:3, title:'Times tables: 3 and 4', gen:()=>{const t=pick([3,4]),n=rnd(2,12); return {q:`${t} × ${n} = ?`, a:String(t*n), type:'input'};}},
+  {g:3, title:'Times tables to 12 (mixed)', gen:()=>{const t=rnd(2,12),n=rnd(2,12); return {q:`${t} × ${n} = ?`, a:String(t*n), type:'input'};}},
+  {g:3, title:'Division facts', gen:()=>{const b=rnd(2,12),ans=rnd(2,12); return {q:`${b*ans} ÷ ${b} = ?`, a:String(ans), type:'input', explain:`Because ${b} × ${ans} = ${b*ans}.`};}},
+  {g:3, title:'3-digit addition', gen:()=>{const a=rnd(120,850),b=rnd(120,850); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
+  {g:3, title:'Rounding to the nearest 10', gen:()=>{const n=rnd(11,98),r=Math.round(n/10)*10; return {q:`Round ${n} to the nearest 10.`, a:String(r), type:'input', explain:`The ones digit decides: 5 or more rounds up. ${n} → ${r}.`};}},
+  {g:4, title:'Long multiplication (2×1)', gen:()=>{const a=rnd(12,49),b=rnd(3,9); return {q:`${a} × ${b} = ?`, a:String(a*b), type:'input', explain:`${a}×${b}: multiply the ones and tens, then add.`};}},
+  {g:4, title:'Division with remainders', gen:()=>{const b=rnd(3,9),q=rnd(3,12),r=rnd(1,b-1); const n=b*q+r; return {q:`${n} ÷ ${b} = ?  (write as "${q} r ${r}" style)`, a:`${q} r ${r}`, type:'input', explain:`${b}×${q}=${b*q}, and ${n}−${b*q}=${r} left over.`};}},
+  {g:4, title:'Fractions of amounts', gen:()=>{const d=pick([2,3,4,5,10]),m=rnd(2,9),whole=d*m; return {q:`What is 1/${d} of ${whole}?`, a:String(whole/d), type:'input', explain:`Divide ${whole} by ${d}.`};}},
+  {g:4, title:'Equivalent fractions', gen:()=>{const base=pick([[1,2],[1,3],[2,3],[1,4],[3,4],[1,5]]),m=rnd(2,5); return {q:`Fill the gap: ${base[0]}/${base[1]} = ⬚/${base[1]*m}`, a:String(base[0]*m), type:'input', explain:`Multiply top and bottom by ${m}: ${base[0]}×${m} = ${base[0]*m}.`};}},
+  {g:4, title:'Perimeter of a rectangle', gen:()=>{const w=rnd(2,9),h=rnd(2,9); return {q:`A rectangle is ${w} cm by ${h} cm. What is its perimeter? (cm)`, a:String(2*(w+h)), type:'input', explain:`Add all four sides: 2 × (${w}+${h}) = ${2*(w+h)}.`};}},
+  {g:5, title:'Adding decimals', gen:()=>{const a=(rnd(10,89)/10),b=(rnd(10,89)/10); return {q:`${a.toFixed(1)} + ${b.toFixed(1)} = ?`, a:(a+b).toFixed(1), type:'input', explain:'Line up the decimal points, then add.'};}},
+  {g:5, title:'Adding fractions (same denominator)', gen:()=>{const d=pick([4,5,6,8,10]);let a=rnd(1,d-2),b=rnd(1,d-a-0); if(a+b>=d)b=d-a-1; if(b<1)b=1; return {q:`${a}/${d} + ${b}/${d} = ?  (write as x/${d})`, a:`${a+b}/${d}`, type:'input', explain:'Same denominator: just add the top numbers.'};}},
+  {g:5, title:'Multiplying by 10 and 100', gen:()=>{const d=rnd(11,99)/10,by=pick([10,100]),ans=Number((d*by).toFixed(2)); return {q:`${d.toFixed(1)} × ${by} = ?`, a:String(ans), type:'input', explain:`× ${by} moves every digit ${by===10?'one place':'two places'} to the left.`};}},
+  {g:5, title:'Percentages of amounts', gen:()=>{const p=pick([10,20,25,50]),base=pick([20,40,60,80,100,120,200]); return {q:`What is ${p}% of ${base}?`, a:String(base*p/100), type:'input', explain:`${p}% = ${p}/100. ${base} × ${p} ÷ 100.`};}},
+  {g:5, title:'Area of a rectangle', gen:()=>{const w=rnd(3,12),h=rnd(2,9); return {q:`A rectangle is ${w} cm by ${h} cm. What is its area? (cm²)`, a:String(w*h), type:'input', explain:`Area = length × width = ${w} × ${h} = ${w*h}.`};}},
+  {g:6, title:'Order of operations (BODMAS)', gen:()=>{const a=rnd(2,9),b=rnd(2,9),c=rnd(2,9); return {q:`${a} + ${b} × ${c} = ?`, a:String(a+b*c), type:'input', explain:`Do × before +: ${b}×${c}=${b*c}, then +${a}.`};}},
+  {g:6, title:'Find the missing number (algebra)', gen:()=>{const x=rnd(2,12); if(Math.random()<.5){const b=rnd(2,15); return {q:`If x + ${b} = ${x+b}, what is x?`, a:String(x), type:'input', explain:`Subtract ${b} from both sides: ${x+b} − ${b} = ${x}.`};} const a=rnd(2,9); return {q:`If ${a} × x = ${a*x}, what is x?`, a:String(x), type:'input', explain:`${a*x} ÷ ${a} = ${x}.`};}},
+  {g:6, title:'Word problems', gen:()=>{
+      const price=rnd(2,9), qty=rnd(3,8), paid=pick([20,50]);
+      const total=price*qty, change=paid-total;
+      if(change>0 && Math.random()<.5)
+        return {q:`A pen costs £${price}. You buy ${qty} and pay with £${paid}. How much change? (£)`, a:String(change), type:'input', explain:`${qty}×£${price}=£${total}; £${paid}−£${total}=£${change}.`};
+      const groups=rnd(3,8), each=rnd(3,9);
+      return {q:`${groups} boxes hold ${each} balls each. How many balls in total?`, a:String(groups*each), type:'input', explain:`${groups}×${each}=${groups*each}.`};
+  }},
+];
+
+/* =========================================================================
+   ENGLISH CURRICULUM — item banks per level (Grades 1–6).
+   Sessions sample from these; MCQs are shuffled each time.
+   ========================================================================= */
+const ENGLISH = [
+  /* ---------------- GRADE 1 ---------------- */
+  {g:1, title:'Complete sentences', items:[
+    ()=>mc('Which one is a complete sentence?', 'The dog ran.', ['The big dog.','Ran fast.','Under the bed.'], 'A sentence needs a naming part and a telling part.'),
+    ()=>mc('Which one is a complete sentence?', 'Birds can fly.', ['Little birds.','In the sky.','Can fly.'], 'It tells who and what they do.'),
+    ()=>mc('Which one is a complete sentence?', 'I like milk.', ['A glass of.','Like milk.','My cold hands.'], 'Who + does what.'),
+    ()=>mc('Which is written correctly?', 'The sun is hot.', ['the sun is hot','The sun is hot','the sun is hot.'], 'Capital at the start and a full stop at the end.'),
+    ()=>mc('Which is a telling sentence (statement)?', 'My cat is soft.', ['Is my cat soft?','Run to me!','the cat'], 'A statement ends with a full stop.'),
+    ()=>mc('Pick the sentence that makes sense.', 'The fish swims.', ['Swims the fish up.','Fish the swims.','The the fish swims.'], 'Words must be in an order that makes sense.'),
+    ()=>mc('Which is a complete sentence?', 'Sam has a hat.', ['Sam a hat.','has a hat','A red hat.'], 'It has a naming part (Sam) and a telling part.'),
+  ]},
+  {g:1, title:'Naming words (nouns)', items:[
+    ()=>mc('Which word names a person?', 'teacher', ['jump','happy','under'], 'A noun names a person, place, animal or thing.'),
+    ()=>mc('Which word names an animal?', 'rabbit', ['run','soft','quickly'], 'rabbit is a naming word.'),
+    ()=>mc('Which word names a place?', 'school', ['sing','loud','they'], 'A place is a noun.'),
+    ()=>mc('Which word names a thing?', 'ball', ['throw','red','fast'], 'ball is a thing you can name.'),
+    ()=>mc('Find the noun: "The boy runs."', 'boy', ['runs','the','fast'], 'boy names a person.'),
+    ()=>mc('Find the noun: "A bird sings."', 'bird', ['sings','a','sweetly'], 'bird names an animal.'),
+    ()=>mc('Which is a naming word?', 'garden', ['dig','pretty','slowly'], 'garden is a place/thing.'),
+    ()=>mc('Which word is a noun?', 'cake', ['bake','yummy','soon'], 'cake is a thing.'),
+  ]},
+  {g:1, title:'One and more than one', items:[
+    ()=>({q:'Write the plural of "cat"', a:'cats', type:'input', explain:'Most nouns just add -s.'}),
+    ()=>({q:'Write the plural of "hat"', a:'hats', type:'input'}),
+    ()=>({q:'Write the plural of "tree"', a:'trees', type:'input'}),
+    ()=>({q:'Write the plural of "cup"', a:'cups', type:'input'}),
+    ()=>mc('More than one "bus" is…', 'buses', ['buss','busies','bus'], 'Words ending in s add -es.'),
+    ()=>mc('More than one "fox" is…', 'foxes', ['foxs','foxies','foxxes'], 'Words ending in x add -es.'),
+    ()=>mc('More than one "dish" is…', 'dishes', ['dishs','dishies','dish'], 'Words ending in sh add -es.'),
+    ()=>mc('More than one "class" is…', 'classes', ['classs','classies','class'], 'Words ending in ss add -es.'),
+  ]},
+  {g:1, title:'Capital letters', items:[
+    ()=>mc('Which is correct?', 'My friend is Ben.', ['My friend is ben.','my friend is Ben.','my friend is ben.'], 'Names of people start with a capital.'),
+    ()=>mc('Which is correct?', 'We rest on Sunday.', ['We rest on sunday.','we rest on Sunday.','We rest on sunday'], 'Days of the week start with a capital.'),
+    ()=>mc('Which is correct?', 'It is cold in December.', ['It is cold in december.','it is cold in December.','It is cold in december'], 'Months start with a capital.'),
+    ()=>mc('Choose the word that needs a capital.', 'monday', ['happy','table','seven'], 'Monday is a day — it needs a capital.'),
+    ()=>mc('Which word always has a capital letter?', 'I', ['me','you','we'], 'The word "I" is always a capital.'),
+    ()=>mc('Which is correct?', 'Can Tom come?', ['can Tom come?','Can tom come?','can tom come?'], 'Start with a capital; Tom is a name.'),
+    ()=>mc('Pick the word that needs a capital.', 'sarah', ['dog','park','red'], 'Sarah is a person’s name.'),
+  ]},
+  {g:1, title:'Describing words (adjectives)', items:[
+    ()=>mc('Pick the describing word: "a ⬚ cake"', 'sweet', ['cake','eats','table'], 'An adjective describes the cake.'),
+    ()=>mc('Which word describes size?', 'big', ['run','dog','sing'], 'big tells the size.'),
+    ()=>mc('Which word describes colour?', 'red', ['jump','loud','soon'], 'red is a colour word.'),
+    ()=>mc('Finish: "This box is ⬚ than that one."', 'bigger', ['big','biggest','more big'], 'Comparing two things: add -er.'),
+    ()=>mc('Finish: "She is the ⬚ runner of all."', 'fastest', ['faster','fast','most fast'], 'The best of all: add -est.'),
+    ()=>mc('Which word tells how something feels?', 'soft', ['walk','they','table'], 'soft tells how it feels.'),
+    ()=>mc('Pick the adjective: "a ⬚ mouse"', 'tiny', ['squeaks','runs','mouse'], 'tiny describes the mouse.'),
+  ]},
+  {g:1, title:'Verbs (doing words)', items:[
+    ()=>mc('Which word is a verb (action)?', 'jump', ['chair','happy','blue'], 'A verb is a doing word.'),
+    ()=>mc('Choose: "I ⬚ a book."', 'read', ['reads','reading','reader'], 'With "I" we use "read".'),
+    ()=>mc('Choose: "He ⬚ happy."', 'is', ['are','am','be'], 'With "he" we use "is".'),
+    ()=>mc('Choose: "They ⬚ friends."', 'are', ['is','am','be'], 'With "they" we use "are".'),
+    ()=>mc('Choose: "I ⬚ tired."', 'am', ['is','are','be'], 'With "I" we use "am".'),
+    ()=>mc('Past tense: "Yesterday we ⬚ to the zoo."', 'went', ['go','goes','going'], 'go → went (past).'),
+    ()=>mc('Past tense: "She ⬚ at home last night."', 'was', ['is','are','were'], 'One person in the past → was.'),
+    ()=>mc('Find the verb: "The frog hops."', 'hops', ['frog','the','green'], 'hops is the action.'),
+  ]},
+  {g:1, title:'Spelling: sounds & letters', items:[
+    ()=>({q:'Fill the vowel: h_t  (you wear it on your head)', a:'hat', type:'input', explain:'h-a-t = hat.'}),
+    ()=>({q:'Fill the vowel: b_g  (you carry things in it)', a:'bag', type:'input'}),
+    ()=>({q:'Fill the vowel: p_n  (you write with it)', a:'pen', type:'input'}),
+    ()=>({q:'Fill the vowel: h_p  (jump on one leg)', a:'hop', type:'input'}),
+    ()=>mc('Which spelling is correct?', 'ship', ['sip','shp','shipp'], 'sh makes one sound: sh-i-p.'),
+    ()=>mc('Which spelling is correct?', 'chin', ['cin','chn','chinn'], 'ch makes one sound: ch-i-n.'),
+    ()=>mc('Which spelling is correct?', 'that', ['dat','taht','thet'], 'th makes one sound: th-a-t.'),
+    ()=>mc('Which spelling is correct?', 'fish', ['fis','fsh','fishh'], 'ends with sh: f-i-sh.'),
+  ]},
+  /* ---------------- GRADE 2 ---------------- */
+  {g:2, title:'Sentence types & end marks', items:[
+    ()=>mc('Which end mark for a question? "What is your name⬚"', '?', ['.','!',','], 'Questions end with a question mark.'),
+    ()=>mc('Which end mark? "I am so excited⬚"', '!', ['.','?',';'], 'Strong feeling → exclamation mark.'),
+    ()=>mc('Which end mark? "We had lunch⬚"', '.', ['?','!',','], 'A statement ends with a full stop.'),
+    ()=>mc('Which is a question?', 'Where is my bag?', ['I lost my bag.','Find my bag!','My blue bag.'], 'A question asks something.'),
+    ()=>mc('Which is a command?', 'Close the door.', ['The door is open.','Is the door open?','What a door!'], 'A command tells someone to do something.'),
+    ()=>mc('Which is an exclamation?', 'What a great day!', ['It is a day.','Is it day?','Day time.'], 'An exclamation shows strong feeling.'),
+    ()=>mc('End this: "Please sit down⬚"', '.', ['?','!',':'], 'A polite command ends with a full stop.'),
+  ]},
+  {g:2, title:'Singular & plural nouns', items:[
+    ()=>mc('Plural of "baby":', 'babies', ['babys','babyes','babis'], 'consonant + y → change y to i, add es.'),
+    ()=>mc('Plural of "story":', 'stories', ['storys','storyes','storeys'], 'y → ies.'),
+    ()=>mc('Plural of "bench":', 'benches', ['benchs','benchies','bench'], 'ch → add es.'),
+    ()=>mc('Plural of "boy":', 'boys', ['boies','boyes','bois'], 'vowel + y → just add s.'),
+    ()=>({q:'Write the plural of "key"', a:'keys', type:'input', explain:'vowel + y → add s.'}),
+    ()=>mc('Plural of "glass":', 'glasses', ['glasss','glassies','glas'], 'ss → add es.'),
+    ()=>mc('Plural of "lady":', 'ladies', ['ladys','ladyes','laddies'], 'y → ies.'),
+  ]},
+  {g:2, title:'Proper nouns & possessives', items:[
+    ()=>mc('Which is a proper noun?', 'London', ['city','river','street'], 'A proper noun names a special place — capital letter.'),
+    ()=>mc('Which needs a capital letter?', 'india', ['country','map','big'], 'India is a country — a proper noun.'),
+    ()=>mc('Show that the bone belongs to the dog:', "the dog's bone", ['the dogs bone','the dog bone','the dogs bones'], "One owner → add apostrophe s."),
+    ()=>mc('Show the toy belongs to Sam:', "Sam's toy", ['Sams toy','Sam toy','Sams toys'], "Sam's = belonging to Sam."),
+    ()=>mc('Which is a proper noun?', 'Monday', ['day','week','today'], 'Monday is a special name.'),
+    ()=>mc('The cat that belongs to Mia:', "Mia's cat", ['Mias cat','Mia cat','Mias cats'], "Add apostrophe s to show it belongs to Mia."),
+    ()=>mc('Which word is a proper noun?', 'Africa', ['land','hot','place'], 'Africa is a special place name.'),
+  ]},
+  {g:2, title:'Pronouns', items:[
+    ()=>mc('Replace "Tom": "___ is my friend."', 'He', ['She','It','They'], 'Tom is a boy → he.'),
+    ()=>mc('Replace "Anna": "___ likes cake."', 'She', ['He','It','They'], 'Anna is a girl → she.'),
+    ()=>mc('Replace "the ball": "___ is round."', 'It', ['He','She','They'], 'A thing → it.'),
+    ()=>mc('Replace "Tom and Anna": "___ are playing."', 'They', ['He','She','It'], 'More than one → they.'),
+    ()=>mc('Replace "the books": "Put ___ away."', 'them', ['it','him','her'], 'more than one thing → them.'),
+    ()=>mc('Choose: "Give the pen to ___."', 'me', ['I','my','mine'], 'After "to" we use me.'),
+    ()=>mc('Replace "my sister and I": "___ went home."', 'We', ['They','Us','I'], 'Includes me → we.'),
+  ]},
+  {g:2, title:'Adjectives for the senses', items:[
+    ()=>mc('Which word tells how something tastes?', 'sweet', ['loud','bright','rough'], 'Taste words: sweet, sour, salty.'),
+    ()=>mc('Which word tells how something sounds?', 'loud', ['shiny','smooth','sweet'], 'Sound words: loud, quiet, noisy.'),
+    ()=>mc('Which word tells how something looks?', 'shiny', ['sour','loud','smooth'], 'Look words: shiny, bright, colourful.'),
+    ()=>mc('Which word tells how something feels?', 'smooth', ['sweet','loud','bright'], 'Feel words: smooth, rough, soft.'),
+    ()=>mc('Which word tells how something smells?', 'fresh', ['loud','round','tall'], 'Smell words: fresh, sweet, smoky.'),
+    ()=>mc('Pick a sense word: "a ⬚ bell"', 'ringing', ['seven','my','went'], 'A ringing bell — a sound word.'),
+  ]},
+  {g:2, title:'Verb tenses & contractions', items:[
+    ()=>mc('Present tense: "She ⬚ every day."', 'reads', ['read','reading','readed'], 'she + verb → add s.'),
+    ()=>({q:'Past tense of "walk": Yesterday I ⬚.', a:'walked', type:'input', explain:'Regular verbs add -ed.'}),
+    ()=>({q:'Past tense of "jump": The dog ⬚.', a:'jumped', type:'input'}),
+    ()=>mc('Past tense of "run":', 'ran', ['runned','runed','running'], 'run is irregular → ran.'),
+    ()=>mc('Past tense of "eat":', 'ate', ['eated','eatted','eaten'], 'eat is irregular → ate.'),
+    ()=>mc('Contraction for "do not":', "don't", ['dont',"do'nt",'donot'], "The apostrophe replaces the o."),
+    ()=>mc('Contraction for "I am":', "I'm", ['Im','Iam',"I'am"], "I'm = I am."),
+    ()=>mc('Contraction for "we will":', "we'll", ['well','wewill',"we'l"], "we'll = we will."),
+  ]},
+  {g:2, title:'Spelling: long vowel sounds', items:[
+    ()=>mc('Which spelling is correct?', 'rain', ['rane','rian','raen'], 'ai → the long-a sound.'),
+    ()=>mc('Which spelling is correct?', 'boat', ['bote','baot','bowt'], 'oa → the long-o sound.'),
+    ()=>mc('Which spelling is correct?', 'night', ['nite','niht','nyght'], 'igh → the long-i sound.'),
+    ()=>mc('Which spelling is correct?', 'green', ['grean','gren','griin'], 'ee → the long-e sound.'),
+    ()=>mc('Which spelling is correct?', 'cake', ['caik','cak','kake'], 'a_e → the long-a sound.'),
+    ()=>mc('Which spelling is correct?', 'moon', ['mun','mune','moone'], 'oo → the /oo/ sound.'),
+    ()=>mc('Which spelling is correct?', 'play', ['plai','ple','plae'], 'ay → long-a at the end.'),
+  ]},
+  /* ---------------- GRADE 3 ---------------- */
+  {g:3, title:'Subjects & predicates', items:[
+    ()=>mc('What is the subject? "The tall boy ran home."', 'The tall boy', ['ran home','ran','home'], 'The subject is who or what the sentence is about.'),
+    ()=>mc('What is the predicate? "My dog barks loudly."', 'barks loudly', ['My dog','My','dog'], 'The predicate tells what the subject does.'),
+    ()=>mc('Choose the subject: "Birds build nests."', 'Birds', ['build','nests','build nests'], 'Birds is who the sentence is about.'),
+    ()=>mc('Choose the predicate: "The rain fell all night."', 'fell all night', ['The rain','rain','The'], 'It tells what the rain did.'),
+    ()=>mc('Which is the naming part (subject)? "Our teacher smiled."', 'Our teacher', ['smiled','Our','smiled kindly'], 'Who the sentence is about.'),
+    ()=>mc('Complete with a predicate: "The little kitten ⬚."', 'slept in the box', ['the soft kitten','under the warm','and the big dog'], 'A predicate must tell what it did.'),
+  ]},
+  {g:3, title:'Common & proper nouns', items:[
+    ()=>mc('Which is a proper noun?', 'Paris', ['city','country','town'], 'Proper nouns name a specific place — capital letter.'),
+    ()=>mc('Which is a common noun?', 'river', ['Nile','Thames','Amazon'], 'A common noun is a general name.'),
+    ()=>mc('Proper noun for a day:', 'Friday', ['weekend','day','today'], 'Friday is a specific day.'),
+    ()=>mc('Plural of "child":', 'children', ['childs','childes','childrens'], 'child → children (irregular).'),
+    ()=>mc('Plural of "mouse":', 'mice', ['mouses','mices','mouse'], 'mouse → mice (irregular).'),
+    ()=>mc('Plural of "foot":', 'feet', ['foots','feets','footes'], 'foot → feet (irregular).'),
+    ()=>mc('Plural of "tooth":', 'teeth', ['tooths','teeths','toothes'], 'tooth → teeth (irregular).'),
+  ]},
+  {g:3, title:'Subject & object pronouns', items:[
+    ()=>mc('Choose: "___ and I went to the park."', 'She', ['Her','Me','Him'], 'Subject pronoun before the verb → she.'),
+    ()=>mc('Choose: "Mum gave the sweets to ___."', 'us', ['we','they','I'], 'After "to" use the object pronoun us.'),
+    ()=>mc('Choose: "___ are winning the game."', 'They', ['Them','Us','Her'], 'Subject → they.'),
+    ()=>mc('Choose: "Please help ___."', 'me', ['I','we','they'], 'Object of help → me.'),
+    ()=>mc('Choose: "___ is my best friend."', 'He', ['Him','Them','Us'], 'Subject → he.'),
+    ()=>mc('Choose: "The teacher praised ___."', 'him', ['he','they','we'], 'Object → him.'),
+  ]},
+  {g:3, title:'Adjectives that compare', items:[
+    ()=>mc('Compare two: "This rope is ⬚ than that one."', 'longer', ['longest','long','more long'], 'Two things → -er.'),
+    ()=>mc('Best of all: "It was the ⬚ day of the year."', 'hottest', ['hotter','hot','most hot'], 'More than two → -est.'),
+    ()=>mc('Choose: "A lion is ⬚ than a cat."', 'bigger', ['biggest','big','more big'], 'Comparing two → -er.'),
+    ()=>mc('Choose: "She is the ⬚ girl in the class."', 'tallest', ['taller','tall','more tall'], 'The most of all → -est.'),
+    ()=>mc('Choose: "This bag is ⬚ than mine."', 'heavier', ['heaviest','heavy','more heavy'], 'y → i, add -er.'),
+    ()=>mc('Choose: "That was the ⬚ film ever."', 'funniest', ['funnier','funny','most funny'], 'y → i, add -est.'),
+  ]},
+  {g:3, title:'Articles: a, an, the', items:[
+    ()=>mc('Choose: "I saw ⬚ elephant."', 'an', ['a','the','one'], 'Use "an" before a vowel sound.'),
+    ()=>mc('Choose: "She has ⬚ umbrella."', 'an', ['a','the','some'], 'umbrella starts with a vowel sound → an.'),
+    ()=>mc('Choose: "He ate ⬚ banana."', 'a', ['an','the','some'], 'banana starts with a consonant sound → a.'),
+    ()=>mc('Choose: "Look at ⬚ moon tonight."', 'the', ['a','an','some'], 'There is only one moon → the.'),
+    ()=>mc('Choose: "I need ⬚ hour to finish."', 'an', ['a','the','one'], 'hour sounds like it starts with a vowel → an.'),
+    ()=>mc('Choose: "We saw ⬚ old castle."', 'an', ['a','the','some'], 'old starts with a vowel sound → an.'),
+  ]},
+  {g:3, title:'Verb tenses & adverbs', items:[
+    ()=>mc('Future tense: "Tomorrow I ⬚ visit Gran."', 'will', ['am','did','was'], 'will + verb = future.'),
+    ()=>mc('Past tense: "We ⬚ a film last night."', 'watched', ['watch','watches','will watch'], 'Past → -ed.'),
+    ()=>mc('Which word is an adverb (how)?', 'quickly', ['quick','quicker','quickness'], 'Adverbs often end in -ly and tell how.'),
+    ()=>mc('Find the adverb: "She sang beautifully."', 'beautifully', ['sang','she','song'], 'It tells how she sang.'),
+    ()=>mc('Choose the adverb: "He ran ___."', 'fast', ['run','runner','running'], 'fast tells how he ran.'),
+    ()=>mc('Present tense: "The baby ⬚ now."', 'sleeps', ['slept','will sleep','sleeping'], '"now" → present tense.'),
+  ]},
+  {g:3, title:'Homophones', items:[
+    ()=>mc('___ going home now.', "They're", ['Their','There','Theyr'], "They're = they are."),
+    ()=>mc('I left my coat over ___.', 'there', ["they're",'their','thair'], 'there = a place.'),
+    ()=>mc('The children lost ___ shoes.', 'their', ['there',"they're",'thier'], 'their = belonging to them.'),
+    ()=>mc('I have ___ apples.', 'two', ['to','too','tou'], 'two = the number 2.'),
+    ()=>mc('Are you coming ___?', 'too', ['to','two','tow'], 'too = also / as well.'),
+    ()=>mc('We walked ___ school.', 'to', ['too','two','tioo'], 'to = towards.'),
+    ()=>mc('___ my best friend.', "You're", ['Your','Youre','Yor'], "You're = you are."),
+    ()=>mc('Is this ___ bag?', 'your', ["you're",'yore','yur'], 'your = belonging to you.'),
+  ]},
+  {g:3, title:'Compound words & synonyms', items:[
+    ()=>mc('Join to make a word: sun + flower =', 'sunflower', ['sun flower','sunnflower','sunflour'], 'Two words joined → one compound word.'),
+    ()=>mc('Join: rain + bow =', 'rainbow', ['rain bow','rainboe','ranebow'], 'rain + bow = rainbow.'),
+    ()=>mc('Which is a compound word?', 'football', ['running','pretty','under'], 'foot + ball = football.'),
+    ()=>mc('A synonym for "happy" is…', 'glad', ['sad','tired','angry'], 'Same meaning.'),
+    ()=>mc('A synonym for "big" is…', 'huge', ['tiny','thin','short'], 'Same meaning.'),
+    ()=>mc('A synonym for "shut" is…', 'close', ['open','door','window'], 'shut and close mean the same.'),
+    ()=>mc('Split the compound word "toothbrush":', 'tooth + brush', ['too + thbrush','toot + hbrush','to + othbrush'], 'tooth + brush.'),
+  ]},
+  /* ---------------- GRADE 4 ---------------- */
+  {g:4, title:'Sentence types & prepositions', items:[
+    ()=>mc('A sentence that gives a command is…', 'imperative', ['declarative','interrogative','exclamatory'], 'Imperative = a command.'),
+    ()=>mc('A sentence that asks a question is…', 'interrogative', ['declarative','imperative','exclamatory'], 'Interrogative = a question.'),
+    ()=>mc('A sentence that states a fact is…', 'declarative', ['interrogative','imperative','exclamatory'], 'Declarative = a statement.'),
+    ()=>mc('Find the preposition: "The cat sat under the table."', 'under', ['cat','sat','table'], 'Prepositions show position: under, on, in.'),
+    ()=>mc('Find the preposition: "We walked across the bridge."', 'across', ['walked','we','bridge'], 'across shows where.'),
+    ()=>mc('Choose a preposition: "The keys are ___ the drawer."', 'in', ['run','happy','quickly'], 'in shows position.'),
+    ()=>mc('Find the preposition: "She hid behind the door."', 'behind', ['hid','she','door'], 'behind shows position.'),
+  ]},
+  {g:4, title:'Possessive & reflexive pronouns', items:[
+    ()=>mc('Choose: "That book is ___."', 'mine', ['my','me','I'], 'mine shows it belongs to me.'),
+    ()=>mc('Choose: "The dog wagged ___ tail."', 'its', ["it's","its'",'it'], 'its = belonging to it (no apostrophe).'),
+    ()=>mc('Choose: "I made this ___."', 'myself', ['meself','my self','mineself'], 'reflexive → myself.'),
+    ()=>mc('Choose: "They painted the fence ___."', 'themselves', ['theirselves','themself','themselfs'], 'reflexive plural → themselves.'),
+    ()=>mc('Choose: "Is this pen ___?"', 'yours', ['your','you','youres'], 'yours = belonging to you.'),
+    ()=>mc('Choose: "He hurt ___ while running."', 'himself', ['hisself','heself','himselves'], 'reflexive → himself.'),
+  ]},
+  {g:4, title:'Comparing with adjectives', items:[
+    ()=>mc('Choose (good): "This is ___ than that."', 'better', ['gooder','best','more good'], 'good → better → best.'),
+    ()=>mc('Choose (good): "It was the ___ day of my life."', 'best', ['goodest','better','most good'], 'good → best.'),
+    ()=>mc('Choose (bad): "My cold is ___ today."', 'worse', ['badder','worst','more bad'], 'bad → worse → worst.'),
+    ()=>mc('Choose (bad): "That was the ___ film ever."', 'worst', ['baddest','worse','most bad'], 'bad → worst.'),
+    ()=>mc('Choose (fast): "A cheetah is ___ than a horse."', 'faster', ['fastest','more fast','fasterer'], 'one-syllable → -er.'),
+    ()=>mc('Choose (difficult): "This puzzle is ___ than that one."', 'more difficult', ['difficulter','most difficult','difficultest'], 'long word → use "more".'),
+  ]},
+  {g:4, title:'Action, linking & irregular verbs', items:[
+    ()=>mc('Which is a linking verb? "She is happy."', 'is', ['she','happy','very'], 'Linking verbs (is/am/are/was) join the subject to a description.'),
+    ()=>mc('Which is an action verb?', 'kicked', ['was','seems','is'], 'kicked shows an action.'),
+    ()=>mc('Past tense of "bring":', 'brought', ['bringed','brang','broughted'], 'irregular → brought.'),
+    ()=>mc('Past tense of "catch":', 'caught', ['catched','caughted','cought'], 'irregular → caught.'),
+    ()=>mc('Past tense of "think":', 'thought', ['thinked','thunk','thoughted'], 'irregular → thought.'),
+    ()=>mc('Past tense of "teach":', 'taught', ['teached','taughted','tuaght'], 'irregular → taught.'),
+    ()=>mc('Which sentence has a linking verb?', 'The soup was hot.', ['The dog ran fast.','She kicked the ball.','Birds fly south.'], 'was links soup to hot.'),
+  ]},
+  {g:4, title:'Adverbs & confusing words', items:[
+    ()=>mc('Choose (comparison): "I want more cake ___ pie."', 'than', ['then','that','thn'], 'than is used to compare.'),
+    ()=>mc('Choose (time): "First we ate, ___ we played."', 'then', ['than','thin','thane'], 'then = next in time.'),
+    ()=>mc('Choose: "Please ___ my apology."', 'accept', ['except','exept','acsept'], 'accept = to receive.'),
+    ()=>mc('Choose: "Everyone came ___ Tom."', 'except', ['accept','exept','acept'], 'except = apart from.'),
+    ()=>mc('Which word is an adverb?', 'silently', ['silent','silence','silender'], 'silently tells how (adverb).'),
+    ()=>mc('Choose the adverb: "The turtle moved ___."', 'slowly', ['slow','slower','slowness'], 'slowly tells how it moved.'),
+  ]},
+  {g:4, title:'Plurals & suffixes -ful / -less', items:[
+    ()=>mc('Plural of "leaf":', 'leaves', ['leafs','leafes','leefs'], 'f → ves.'),
+    ()=>mc('Plural of "knife":', 'knives', ['knifes','knifs','knive'], 'fe → ves.'),
+    ()=>mc('Plural of "city":', 'cities', ['citys','cityes','cites'], 'y → ies.'),
+    ()=>mc('"care" + "ful" =', 'careful', ['carefull','carful','carefil'], '-ful has one l.'),
+    ()=>mc('"hope" + "less" =', 'hopeless', ['hopless','hopeles','hopelless'], 'keep the e: hope+less.'),
+    ()=>mc('Which means "full of joy"?', 'joyful', ['joyless','joyfull','joyfil'], '-ful = full of.'),
+    ()=>mc('Which means "without fear"?', 'fearless', ['fearful','fearles','fearlless'], '-less = without.'),
+  ]},
+  {g:4, title:'Antonyms & synonyms', items:[
+    ()=>mc('Opposite of "ancient":', 'modern', ['old','antique','aged'], 'ancient ↔ modern.'),
+    ()=>mc('Opposite of "generous":', 'selfish', ['kind','giving','helpful'], 'generous ↔ selfish.'),
+    ()=>mc('Opposite of "victory":', 'defeat', ['win','success','trophy'], 'victory ↔ defeat.'),
+    ()=>mc('Synonym for "brave":', 'courageous', ['scared','weak','shy'], 'Same meaning as brave.'),
+    ()=>mc('Synonym for "tired":', 'exhausted', ['awake','fresh','lively'], 'Same meaning as tired.'),
+    ()=>mc('Synonym for "cold":', 'freezing', ['warm','hot','boiling'], 'Same meaning as cold.'),
+  ]},
+  /* ---------------- GRADE 5 ---------------- */
+  {g:5, title:'Joining sentences', items:[
+    ()=>mc('Best joining word: "I was tired, ___ I kept running."', 'but', ['so','because','and'], 'but shows contrast.'),
+    ()=>mc('Best joining word: "It rained, ___ we stayed inside."', 'so', ['but','or','although'], 'so shows a result.'),
+    ()=>mc('Best joining word: "She smiled ___ she was happy."', 'because', ['but','or','so'], 'because gives the reason.'),
+    ()=>mc('Which is a compound sentence?', 'I like tea, and she likes coffee.', ['The small cat slept.','Running in the park.','After the long day.'], 'Two complete ideas joined by "and".'),
+    ()=>mc('Choose a conjunction: "You can have juice ___ water."', 'or', ['so','because','but'], 'or shows a choice.'),
+    ()=>mc('Which word starts a subordinate clause?', 'although', ['and','but','or'], 'although begins a dependent clause.'),
+  ]},
+  {g:5, title:'Pronoun case', items:[
+    ()=>mc('Choose (subject): "___ and I are going."', 'She', ['Her','Me','Us'], 'Subject pronoun → she.'),
+    ()=>mc('Choose (object): "Between you and ___ ..."', 'me', ['I','we','they'], 'After a preposition → me.'),
+    ()=>mc('Choose: "This gift is for ___."', 'them', ['they','their','theirs'], 'object of "for" → them.'),
+    ()=>mc('Choose: "___ finished the race first."', 'He', ['Him','His','Them'], 'Subject → he.'),
+    ()=>mc('Choose: "The winner is ___."', 'she', ['her','hers','herself'], 'After "is" use the subject form → she.'),
+    ()=>mc('Whose is it? "The prize is ___."', 'ours', ['our','us','ourselves'], 'ours = belonging to us.'),
+  ]},
+  {g:5, title:'Perfect tense & agreement', items:[
+    ()=>mc('Choose: "I have ___ my homework."', 'done', ['did','doed','done did'], 'have + past participle (done).'),
+    ()=>mc('Choose: "She has ___ to Spain."', 'gone', ['went','goed','going'], 'has + gone (past participle).'),
+    ()=>mc('Choose: "They have ___ the book."', 'written', ['wrote','writed','writing'], 'have + written.'),
+    ()=>mc('Agreement: "Each of the boys ___ a bag."', 'has', ['have','are','were'], 'Each is singular → has.'),
+    ()=>mc('Agreement: "Neither answer ___ correct."', 'is', ['are','were','been'], 'Neither (singular) → is.'),
+    ()=>mc('Choose: "We have ___ this film before."', 'seen', ['saw','seed','seeing'], 'have + seen.'),
+  ]},
+  {g:5, title:'Prefixes', items:[
+    ()=>mc('"un" + "kind" means…', 'not kind', ['very kind','kind again','kind before'], 'un- = not.'),
+    ()=>mc('Which prefix means "again"? "___build the wall."', 're', ['un','dis','mis'], 're- = again.'),
+    ()=>mc('Which prefix means "wrongly"? "___spell a word."', 'mis', ['re','pre','un'], 'mis- = wrongly.'),
+    ()=>mc('Which prefix means "before"? "___view the film."', 'pre', ['re','dis','mis'], 'pre- = before.'),
+    ()=>mc('"dis" + "agree" means…', 'not agree', ['agree again','agree fully','agree before'], 'dis- = not/opposite.'),
+    ()=>mc('Add a prefix meaning "not": "___possible"', 'im', ['re','pre','over'], 'im- before p → impossible.'),
+  ]},
+  {g:5, title:'Tricky spelling', items:[
+    ()=>mc('Which is correct?', 'receive', ['recieve','receeve','reseive'], 'i before e except after c.'),
+    ()=>mc('Which is correct?', 'necessary', ['neccessary','necesary','neccesary'], 'one c, two s.'),
+    ()=>mc('Which is correct?', 'separate', ['seperate','separete','sepparate'], 'there is "a rat" in sepArate.'),
+    ()=>mc('Which is correct?', 'definitely', ['definately','definetly','definitly'], 'contains "finite".'),
+    ()=>mc('Which is correct?', 'believe', ['beleive','beleve','belive'], 'i before e: bel-ie-ve.'),
+    ()=>mc('Which is correct?', 'address', ['adress','addres','adres'], 'double d, double s.'),
+    ()=>mc('Which is correct?', 'February', ['Febuary','Februrary','Febraury'], "don't forget the first r: Feb-r-uary."),
+  ]},
+  {g:5, title:'Vocabulary in context', items:[
+    ()=>mc('"The path was treacherous." Treacherous means…', 'dangerous', ['safe','flat','wide'], 'treacherous = dangerous.'),
+    ()=>mc('"She was reluctant to go." Reluctant means…', 'unwilling', ['eager','happy','ready'], 'reluctant = unwilling.'),
+    ()=>mc('"An abundant harvest." Abundant means…', 'plentiful', ['tiny','poor','late'], 'abundant = plenty.'),
+    ()=>mc('"He spoke in a feeble voice." Feeble means…', 'weak', ['loud','strong','angry'], 'feeble = weak.'),
+    ()=>mc('"A vivid memory." Vivid means…', 'clear and bright', ['faint','boring','false'], 'vivid = clear and lively.'),
+    ()=>mc('"They demolished the shed." Demolished means…', 'knocked down', ['built','painted','moved'], 'demolish = destroy.'),
+  ]},
+  /* ---------------- GRADE 6 ---------------- */
+  {g:6, title:'Sentence structure', items:[
+    ()=>mc('Which is a complex sentence?', 'When the bell rang, we left.', ['We left the room.','We packed and we left.','Leaving the room.'], 'It has a main clause + a subordinate clause.'),
+    ()=>mc('Which is a compound sentence?', 'I cooked, and he cleaned.', ['Because it was late.','The tired, hungry team.','When we arrived home.'], 'Two main clauses joined by a conjunction.'),
+    ()=>mc('Find the subordinate clause: "Although it was late, she read on."', 'Although it was late', ['she read on','she read','it was'], 'It cannot stand alone.'),
+    ()=>mc('Which conjunction joins unequal clauses?', 'because', ['and','but','or'], 'because introduces a dependent clause.'),
+    ()=>mc('A compound-complex sentence has…', 'two main clauses and a subordinate clause', ['one clause only','two subjects only','no verb'], 'It mixes compound and complex.'),
+  ]},
+  {g:6, title:'Verb forms & tenses', items:[
+    ()=>mc('Past participle of "begin":', 'begun', ['began','beginned','begin'], 'begin / began / begun.'),
+    ()=>mc('Past tense of "begin":', 'began', ['begun','beginned','begin'], 'Simple past → began.'),
+    ()=>mc('Past participle of "swim":', 'swum', ['swam','swimmed','swimed'], 'swim / swam / swum.'),
+    ()=>mc('Choose (reach): "By noon, they had ___ the peak."', 'reached', ['reach','reaches','reaching'], 'had + reached (past perfect).'),
+    ()=>mc('Progressive form: "She ___ reading now."', 'is', ['was','has','will'], 'is + verb-ing = present progressive.'),
+    ()=>mc('Past participle of "take":', 'taken', ['took','taked','taking'], 'take / took / taken.'),
+  ]},
+  {g:6, title:'Advanced punctuation', items:[
+    ()=>mc('Correctly punctuated speech:', '"Wait!" she shouted.', ['"Wait"! she shouted.','"Wait!" she shouted','Wait! "she shouted."'], 'Punctuation goes inside the speech marks.'),
+    ()=>mc('Which uses a colon correctly?', 'Bring these: a pen, a book, and a ruler.', ['Bring these, a pen: a book.','Bring: these a pen.','Bring these a pen: and book.'], 'A colon introduces a list.'),
+    ()=>mc('Correctly punctuated:', 'My sister, who is ten, sings well.', ['My sister who is ten sings well.','My sister, who is ten sings, well.','My sister who, is ten, sings well.'], 'Commas set off the extra information.'),
+    ()=>mc('Choose the correct sentence:', 'He said, "I will help you."', ['He said "I will help you".','He, said "I will help you."','He said "I will help you."'], 'Comma before speech; full stop inside.'),
+    ()=>mc('Which apostrophe is correct (many owners)?', "the girls' team", ["the girl's team","the girls team","the girlses team"], 'Plural ending in s → apostrophe after the s.'),
+  ]},
+  {g:6, title:'Word roots & vocabulary', items:[
+    ()=>mc('"aqua" means…', 'water', ['fire','air','earth'], 'aquarium, aquatic — water.'),
+    ()=>mc('"tele" means…', 'far / distant', ['small','loud','fast'], 'telephone, television — over a distance.'),
+    ()=>mc('"port" means…', 'carry', ['see','write','build'], 'transport, portable — to carry.'),
+    ()=>mc('"scrib/script" means…', 'write', ['read','count','speak'], 'scribble, manuscript — to write.'),
+    ()=>mc('"The evidence was irrefutable." It means…', 'impossible to disprove', ['easy to ignore','clearly false','slightly true'], 'ir- (not) + refutable.'),
+    ()=>mc('"A benevolent king." Benevolent means…', 'kind', ['cruel','lazy','foolish'], 'bene = good/well.'),
+  ]},
+  {g:6, title:'Reading comprehension', items:[
+    ()=>mc('Read: "The market buzzed with voices as traders called out prices and the smell of spices filled the air." Which sense is NOT described?', 'Taste', ['Sound','Smell','Sight'], 'We hear voices, smell spices, see the market — but not taste.'),
+    ()=>mc('Read: "Maya checked her bag three times and made a list for everything before the trip." Maya is most likely…', 'careful and organised', ['careless','lazy','forgetful'], 'Checking and listing shows carefulness.'),
+    ()=>mc('Read: "The old bridge groaned under the weight, and cracks spread across the stone." What is the writer suggesting?', 'The bridge may collapse', ['The bridge is brand new','The bridge is safe','Nothing is wrong'], 'Groaning and cracks warn of danger.'),
+    ()=>mc('Read: "Despite losing, the team walked off smiling, proud of how far they had come." How did the team feel?', 'Content despite the loss', ['Furious','Ashamed','Bored'], 'Smiling and proud shows contentment.'),
+    ()=>mc('Read: "Clouds gathered, the wind picked up, and the birds fell silent." This mostly builds a feeling of…', 'tension before a storm', ['calm and joy','sleepiness','celebration'], 'These clues signal an approaching storm.'),
+  ]},
+];
+
+/* =========================================================================
+   STATE
+   ========================================================================= */
+function freshState(name, grade){
+  const startIdx = (ladder)=>{ const i=ladder.findIndex(l=>l.g===grade); return i<0?0:i; };
+  return {
+    id: uid(), name, grade,
+    maths:{ level: startIdx(MATHS), attempts:0, mastered:0 },
+    english:{ level: startIdx(ENGLISH), attempts:0, mastered:0 },
+    streak:0, lastActive:null, xp:0,
+    corrections:{ maths:[], english:[] }, // carried-over mistakes to redo next time
+    doneToday:{ date:null, maths:false, english:false },
+    log:[]  // session history for the parent dashboard: {date, sub, title, grade, acc, right, total, fixed, mistakes:[...]}
+  };
+}
+function save(){ saveDB(); }          // persist the whole DB (active profile is a reference inside it)
+let DB = loadDB();
+let S = activeProfile();
+
+/* streak / daily bookkeeping */
+function touchDay(){
+  const t = todayStr();
+  if(S.doneToday.date !== t){ S.doneToday = {date:t, maths:false, english:false}; }
+  if(S.lastActive !== t){
+    const yest = new Date(Date.now()-864e5).toISOString().slice(0,10);
+    S.streak = (S.lastActive===yest) ? S.streak+1 : 1;
+    S.lastActive = t;
+  }
+}
+
+/* =========================================================================
+   RENDER: onboarding
+   ========================================================================= */
+let pendingGrade = 1;
+function renderOnboard(canCancel){
+  document.getElementById('streakBox').classList.add('hidden');
+  pendingGrade = 1;
+  const adding = DB.profiles.length>0;
+  app.innerHTML = `
+    <div class="card">
+      ${canCancel?`<div class="spread" style="margin-bottom:8px"><span></span><button class="btn ghost" id="cancel">← Back</button></div>`:''}
+      <h1>${adding?'Add a learner 👧🧒':'Welcome to Aafi &amp; Aara Steps ✦'}</h1>
+      <p class="muted">${adding?'Each learner gets their own personalised progress, streak and level.':'A few minutes of English and Maths every day — small steps that add up. Let\'s set up the first learner.'}</p>
+      <label class="small muted" style="font-weight:700">Learner's name</label>
+      <input class="name" id="nameIn" placeholder="e.g. Aafi or Aara" style="margin:6px 0 18px" autocomplete="off">
+      <label class="small muted" style="font-weight:700">Starting school year / grade</label>
+      <div class="grade-grid" id="grades">
+        ${[1,2,3,4,5,6].map(g=>`<div class="grade-opt${g===pendingGrade?' pick':''}" data-g="${g}">Grade ${g}<small>${['Ages 5–6','Ages 6–7','Ages 7–8','Ages 8–9','Ages 9–10','Ages 10–11'][g-1]}</small></div>`).join('')}
+      </div>
+      <p class="small muted">Don't worry about picking the perfect level — the app adjusts as you go. If it's too easy or too hard, we move up or repeat automatically.</p>
+      <button class="btn big" id="startBtn">${adding?'Add learner →':'Start learning →'}</button>
+    </div>`;
+  document.querySelectorAll('.grade-opt').forEach(el=>el.onclick=()=>{
+    pendingGrade = +el.dataset.g;
+    document.querySelectorAll('.grade-opt').forEach(x=>x.classList.remove('pick'));
+    el.classList.add('pick');
+  });
+  document.getElementById('startBtn').onclick=()=>{
+    const name = (document.getElementById('nameIn').value||'').trim() || 'Learner';
+    const p = freshState(name, pendingGrade);
+    DB.profiles.push(p); DB.activeId = p.id; S = p; save(); renderHome();
+  };
+  const c=document.getElementById('cancel'); if(c) c.onclick=renderHome;
+  foot.innerHTML = '';
+}
+
+/* =========================================================================
+   RENDER: home / dashboard
+   ========================================================================= */
+function subjectCard(sub){
+  const ladder = sub==='maths'?MATHS:ENGLISH;
+  const st = S[sub];
+  const lvl = ladder[st.level];
+  const pct = Math.round((st.level/(ladder.length))*100);
+  const done = S.doneToday.date===todayStr() && S.doneToday[sub];
+  const pending = S.corrections[sub].length;
+  return `
+    <div class="subject ${sub}">
+      ${done?'<div class="done-tag">✓ Done today</div>':''}
+      <h2>${sub==='maths'?'🔢 Maths':'📖 English'}</h2>
+      <div class="lvl">Level ${st.level+1} of ${ladder.length} · Grade ${lvl.g}<br><b>${lvl.title}</b></div>
+      <div class="progress"><i style="width:${pct}%"></i></div>
+      ${pending?`<div class="small" style="margin:-6px 0 10px">📌 ${pending} correction${pending>1?'s':''} to fix first</div>`:''}
+      <button class="btn wide" data-start="${sub}">${done?'Practice again':'Start today\'s worksheet'}</button>
+    </div>`;
+}
+function learnerBar(){
+  const chips = DB.profiles.map(p=>{
+    const initial = (p.name.trim()[0]||'?').toUpperCase();
+    return `<button class="pchip${p.id===DB.activeId?' active':''}" data-pid="${p.id}"><span class="pav">${initial}</span>${p.name}</button>`;
+  }).join('');
+  return `<div class="pbar">${chips}<button class="pchip add" id="addP">＋ Add learner</button></div>`;
+}
+function renderHome(){
+  touchDay(); save();
+  const sb=document.getElementById('streakBox'); sb.classList.remove('hidden');
+  document.getElementById('streakNum').textContent=S.streak;
+  const both = S.doneToday.date===todayStr() && S.doneToday.maths && S.doneToday.english;
+  app.innerHTML = `
+    ${learnerBar()}
+    <div class="card" style="background:linear-gradient(135deg,#eef2ff,#fff);">
+      <div class="spread">
+        <div>
+          <h1 style="margin-bottom:2px">Hi ${S.name} 👋</h1>
+          <p class="muted" style="margin:0">${both?'🎉 Both worksheets done today — brilliant work!':'Ready for today\'s practice? Pick a subject below.'}</p>
+        </div>
+        <div class="center">
+          <div class="big-num" style="font-size:34px;color:var(--brand)">${S.xp}</div>
+          <div class="small muted">XP</div>
+        </div>
+      </div>
+    </div>
+    ${subjectCard('maths')}
+    ${subjectCard('english')}
+  `;
+  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
+  document.querySelectorAll('.pchip[data-pid]').forEach(b=>b.onclick=()=>setActive(b.dataset.pid));
+  document.getElementById('addP').onclick=()=>renderOnboard(true);
+  foot.innerHTML = `${cloudStatusLine()} <a id="parentLink">👪 Parent dashboard</a> · <a id="mapLink">Level map</a> · <a id="cloudLink">☁️ Backup &amp; cloud</a> · <a id="removeLink">Remove learner</a>`;
+  document.getElementById('parentLink').onclick=renderParent;
+  document.getElementById('mapLink').onclick=renderMap;
+  document.getElementById('cloudLink').onclick=renderCloud;
+  document.getElementById('removeLink').onclick=removeActiveLearner;
+}
+function removeActiveLearner(){
+  if(!confirm('Remove '+S.name+' and delete their progress from this device? This cannot be undone.')) return;
+  DB.profiles = DB.profiles.filter(p=>p.id!==DB.activeId);
+  DB.activeId = DB.profiles[0] ? DB.profiles[0].id : null;
+  S = activeProfile(); saveDB();
+  if(S) renderHome(); else renderOnboard();
+}
+
+/* level map */
+function renderMap(){
+  const block=(sub)=>{
+    const ladder=sub==='maths'?MATHS:ENGLISH; const cur=S[sub].level;
+    return `<div class="card"><h2>${sub==='maths'?'🔢 Maths ladder':'📖 English ladder'}</h2>
+      ${ladder.map((l,i)=>`<div class="map-row ${i>cur?'locked':''}">
+        <span class="map-ic" style="background:${i<cur?'var(--good)':i===cur?'var(--brand)':'#c3cbe0'}">${i<cur?'✓':i===cur?'▸':'🔒'}</span>
+        <div><b>${l.title}</b> <span class="small muted">· Grade ${l.g}</span></div>
+      </div>`).join('')}</div>`;
+  };
+  app.innerHTML = `<div class="card"><div class="spread"><h1 style="margin:0">Level map</h1><button class="btn ghost" id="back">← Back</button></div>
+    <p class="muted small">Green = mastered · Blue = current · Locked levels open as you progress.</p></div>
+    ${block('maths')}${block('english')}`;
+  document.getElementById('back').onclick=renderHome;
+  foot.innerHTML='';
+}
+
+/* =========================================================================
+   PARENT DASHBOARD — which skills are strong and which need work
+   ========================================================================= */
+function subjectSnapshot(sub){
+  const ladder=sub==='maths'?MATHS:ENGLISH, st=S[sub];
+  const entries=(S.log||[]).filter(e=>e.sub===sub);
+  const r=entries.reduce((s,e)=>s+e.right,0), t=entries.reduce((s,e)=>s+e.total,0);
+  const acc=t?Math.round(r/t*100):0, lvl=ladder[st.level], pct=Math.round((st.level/ladder.length)*100);
+  const col = !entries.length?'var(--muted)':acc>=80?'var(--good)':acc>=60?'var(--warn)':'var(--bad)';
+  return `<div class="card">
+    <div class="spread"><h2 style="margin:0">${sub==='maths'?'🔢 Maths':'📖 English'}</h2><span class="small muted">${entries.length} worksheet${entries.length===1?'':'s'}</span></div>
+    <div class="row" style="padding:8px 0 4px">
+      <div style="flex:1">
+        <div class="small muted">Current level (${st.level+1} of ${ladder.length})</div>
+        <b>${lvl.title}</b> <span class="small muted">· Grade ${lvl.g}</span>
+      </div>
+      <div class="center"><div style="font-size:22px;font-weight:900;color:${col}">${entries.length?acc+'%':'—'}</div><div class="small muted">first-try</div></div>
+    </div>
+    <div class="progress" style="background:var(--line);margin:8px 0 6px"><i style="width:${pct}%;background:${sub==='maths'?'var(--maths)':'var(--english)'}"></i></div>
+    <div class="small muted">${st.mastered} level${st.mastered===1?'':'s'} mastered so far.</div>
+  </div>`;
+}
+
+function renderParent(){
+  const log = S.log||[];
+  const fmtDate = ds => { const d=new Date(ds+'T00:00:00'); return isNaN(d)?ds:d.toLocaleDateString(undefined,{day:'numeric',month:'short'}); };
+  const icon = sub => sub==='maths'?'🔢':'📖';
+  const pill = acc => { const [bg,fg,label] = acc>=85?['#e6f7ef','#0f7a4c','Strong']:acc>=70?['#fff4e0','#a86b00','Developing']:['#fdecee','#b02a3a','Needs work']; return `<span class="pill" style="background:${bg};color:${fg}">${label} · ${acc}%</span>`; };
+
+  const sessions=log.length, days=new Set(log.map(e=>e.date)).size;
+  const totRight=log.reduce((s,e)=>s+e.right,0), totQ=log.reduce((s,e)=>s+e.total,0);
+  const overallAcc=totQ?Math.round(totRight/totQ*100):0;
+  const weekSessions=log.filter(e=>(e.ts||0)>=Date.now()-7*864e5).length;
+
+  // aggregate per skill
+  const skills={};
+  log.forEach(e=>{ const k=e.sub+'|'+e.title; if(!skills[k]) skills[k]={sub:e.sub,title:e.title,grade:e.grade,right:0,total:0,sessions:0}; const s=skills[k]; s.right+=e.right; s.total+=e.total; s.sessions++; });
+  const skillArr=Object.values(skills).map(s=>({...s, acc:s.total?Math.round(s.right/s.total*100):0}));
+  const needs=skillArr.filter(s=>s.acc<80).sort((a,b)=>a.acc-b.acc);
+  const strong=skillArr.filter(s=>s.acc>=85).sort((a,b)=>b.acc-a.acc);
+
+  // recent mistakes (newest first, max 12)
+  let mistakes=[];
+  for(let i=log.length-1;i>=0 && mistakes.length<12;i--){ const e=log[i]; (e.mistakes||[]).forEach(m=>{ if(mistakes.length<12) mistakes.push({...m, sub:e.sub, date:e.date}); }); }
+  const recent=log.slice(-8).reverse();
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="spread"><h1 style="margin:0">👪 Parent dashboard</h1><button class="btn ghost" id="back">← Back</button></div>
+      <p class="muted" style="margin:6px 0 0">${S.name}'s progress · starting grade ${S.grade}</p>
+    </div>
+    ${sessions===0 ? `<div class="card center"><div class="medal">📊</div><h2>No practice yet</h2><p class="muted">Once ${S.name} finishes a worksheet, this page shows exactly which skills are strong and which need more practice.</p><button class="btn" id="back2">← Back to home</button></div>` : `
+    <div class="card">
+      <div class="statgrid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat"><b>🔥 ${S.streak}</b><span class="small muted">day streak</span></div>
+        <div class="stat"><b>${sessions}</b><span class="small muted">worksheets</span></div>
+        <div class="stat"><b>${overallAcc}%</b><span class="small muted">first-try avg</span></div>
+        <div class="stat"><b>${weekSessions}</b><span class="small muted">this week</span></div>
+      </div>
+      <p class="small muted" style="margin:2px 0 0">Practised on ${days} day${days===1?'':'s'} · ${S.xp} XP earned. "First-try" = correct before any correction.</p>
+    </div>
+    ${subjectSnapshot('maths')}
+    ${subjectSnapshot('english')}
+    <div class="card">
+      <h2>🎯 Skills to practise next</h2>
+      ${needs.length ? `<p class="small muted" style="margin-top:-6px">Ranked by first-try accuracy, lowest first — these are worth revisiting.</p>
+        ${needs.slice(0,8).map(s=>`<div class="map-row">
+          <span class="map-ic" style="background:${s.acc>=70?'var(--warn)':'var(--bad)'}">${icon(s.sub)}</span>
+          <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${s.sub==='maths'?'Maths':'English'} · Grade ${s.grade} · ${s.sessions} attempt${s.sessions>1?'s':''}</span></div>
+          ${pill(s.acc)}
+        </div>`).join('')}`
+        : `<div class="mistake-item center" style="border-color:var(--good);background:var(--good-bg)"><b>✨ Every practised skill is at 80% or better — great work!</b></div>`}
+    </div>
+    ${strong.length?`<div class="card"><h2>💪 Strong skills</h2>
+      ${strong.slice(0,6).map(s=>`<div class="map-row"><span class="map-ic" style="background:var(--good)">${icon(s.sub)}</span>
+        <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${s.sub==='maths'?'Maths':'English'} · Grade ${s.grade}</span></div>${pill(s.acc)}</div>`).join('')}</div>`:''}
+    <div class="card">
+      <h2>📌 Recent mistakes</h2>
+      ${mistakes.length? mistakes.map(m=>`<div class="mistake-item"><div class="q">${icon(m.sub)} ${m.q}</div>
+        <div class="small"><span style="color:var(--bad)">Answered: ${m.given||'—'}</span> · <span style="color:var(--good)">Correct: ${m.a}</span> <span class="muted">· ${fmtDate(m.date)}</span></div></div>`).join('')
+        : `<p class="muted small">No mistakes recorded recently — nice!</p>`}
+    </div>
+    <div class="card">
+      <h2>🗓️ Recent worksheets</h2>
+      ${recent.map(e=>`<div class="map-row">
+        <span class="map-ic" style="background:${e.acc>=80?'var(--good)':e.acc>=60?'var(--warn)':'var(--bad)'}">${icon(e.sub)}</span>
+        <div style="flex:1"><b>${e.title}</b> <span class="small muted">· ${fmtDate(e.date)}${e.levelChange==='up'?' · ⬆️ levelled up':e.levelChange==='repeat'?' · 🔁 repeating':''}</span></div>
+        <span class="small" style="font-weight:800;color:${e.acc>=80?'var(--good)':e.acc>=60?'var(--warn)':'var(--bad)'}">${e.acc}%</span>
+      </div>`).join('')}
+    </div>
+    `}
+  `;
+  const b=document.getElementById('back'); if(b) b.onclick=renderHome;
+  const b2=document.getElementById('back2'); if(b2) b2.onclick=renderHome;
+  foot.innerHTML='';
+}
+
+/* =========================================================================
+   SESSION ENGINE — worksheet + correction loop
+   ========================================================================= */
+const QUESTIONS_PER_SET = 10;
+const MASTER_PCT = 80;   // first-try accuracy to level up
+const REPEAT_PCT = 60;   // below this, repeat the level
+
+let SES = null;
+
+function buildQuestions(sub){
+  const ladder=sub==='maths'?MATHS:ENGLISH; const lvl=ladder[S[sub].level];
+  let qs=[];
+  if(sub==='maths'){
+    for(let i=0;i<QUESTIONS_PER_SET;i++) qs.push(lvl.gen());
+  }else{
+    let pool=shuffle(lvl.items.map(fn=>fn()));
+    while(pool.length<QUESTIONS_PER_SET) pool=pool.concat(shuffle(lvl.items.map(fn=>fn())));
+    qs=pool.slice(0,QUESTIONS_PER_SET);
+  }
+  return qs;
+}
+
+function startSession(sub){
+  touchDay();
+  const carried = S.corrections[sub].map(c=>({...c, carried:true})); // yesterday's mistakes first
+  SES = {
+    sub,
+    main: [...carried, ...buildQuestions(sub)],
+    idx:0,
+    retry:[],           // wrong-this-session, to be re-done at the end
+    stage: carried.length? 'correct-carry':'main',
+    firstTryRight:0, firstTryTotal:0,
+    mistakes:[],        // for the summary
+    answeredThisQ:false
+  };
+  renderQuestion();
+}
+
+function currentQ(){
+  if(SES.stage==='retry') return SES.retry[0];
+  return SES.main[SES.idx];
+}
+function totalMain(){ return SES.main.length; }
+
+function renderQuestion(){
+  const q=currentQ();
+  const inCorrection = (SES.stage==='retry' || q.carried);
+  const progressCount = SES.stage==='retry' ? `Fixing ${SES.retry.length} left` : `${Math.min(SES.idx+1,totalMain())} / ${totalMain()}`;
+  const pct = SES.stage==='retry' ? 100 : Math.round((SES.idx/totalMain())*100);
+  SES.answeredThisQ=false;
+  app.innerHTML = `
+    <div class="card">
+      <div class="qbar">
+        <span class="qcount">${SES.sub==='maths'?'🔢':'📖'}</span>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <span class="stage ${inCorrection?'correcting':''}">${inCorrection?'✎ Correction':progressCount}</span>
+      </div>
+      ${inCorrection?'<p class="small" style="color:var(--bad);margin:6px 0 -6px;font-weight:700">Let\'s fix this one — take your time.</p>':''}
+      <div class="question">${q.q}</div>
+      ${q.type==='mcq'
+        ? `<div class="choices" id="choices">${q.choices.map(c=>`<button class="choice" data-c="${encodeURIComponent(c)}">${c}</button>`).join('')}</div>`
+        : `<input class="answer" id="ans" autocomplete="off" autocapitalize="off" placeholder="Type your answer">
+           <p class="qhint small">Press <kbd>Enter</kbd> to check</p>`}
+      <div class="feedback" id="fb"></div>
+      <div id="next" style="margin-top:16px"></div>
+    </div>`;
+
+  if(q.type==='mcq'){
+    document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>submitMC(decodeURIComponent(b.dataset.c), b));
+  }else{
+    const inp=document.getElementById('ans');
+    inp.focus();
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(!SES.answeredThisQ) submitInput(); else advance(); }});
+  }
+}
+
+function judge(correct, q, userAns){
+  SES.answeredThisQ=true;
+  const fb=document.getElementById('fb');
+  const isFirstMain = (SES.stage!=='retry');
+  if(isFirstMain){ SES.firstTryTotal++; if(correct) SES.firstTryRight++; }
+
+  if(correct){
+    S.xp += (SES.stage==='retry'?1:2); save();
+    fb.className='feedback show ok';
+    fb.innerHTML=`<div class="head">✅ Correct!</div>${q.explain?`<div class="exp">${q.explain}</div>`:''}`;
+    if(SES.stage==='retry'){
+      SES.retry.shift(); // fixed one
+      // remove from carried corrections store if it was one
+    }
+  }else{
+    fb.className='feedback show no';
+    fb.innerHTML=`<div class="head">Not quite.</div>The correct answer is <b>${q.a}</b>.${q.explain?`<div class="exp">${q.explain}</div>`:''}`;
+    // record mistake for summary + queue a retry (only queue once per unique question)
+    if(SES.stage!=='retry'){
+      SES.mistakes.push({q:q.q, a:q.a, given:userAns});
+      SES.retry.push(q);
+    }
+  }
+  const nx=document.getElementById('next');
+  const last = isLastStep();
+  nx.innerHTML=`<button class="btn wide" id="nextBtn">${last?'See results →':'Next →'}</button>`;
+  document.getElementById('nextBtn').onclick=advance;
+  document.getElementById('nextBtn').focus();
+}
+
+function isLastStep(){
+  if(SES.stage==='retry') return SES.retry.length<=1; // this is the last retry (will be shifted on correct)
+  // main not finished, or main finished but retries exist
+  const mainLeft = SES.idx < totalMain()-1;
+  if(mainLeft) return false;
+  return SES.retry.length===0; // last main and nothing to fix
+}
+
+function submitInput(){
+  const val=document.getElementById('ans').value;
+  if(val.trim()==='') return;
+  const q=currentQ();
+  const correct = norm(val)===norm(q.a) || norm(val).replace(/\s/g,'')===norm(q.a).replace(/\s/g,'');
+  judge(correct,q,val);
+}
+function submitMC(choice, btn){
+  const q=currentQ();
+  // Multiple-choice answers are picked from the given options, so match EXACTLY.
+  // (Case and punctuation matter here — e.g. "Capital letters" questions.)
+  const correct = choice===q.a;
+  document.querySelectorAll('.choice').forEach(b=>{
+    b.disabled=true;
+    const c=decodeURIComponent(b.dataset.c);
+    if(c===q.a) b.classList.add('right');
+    else if(b===btn) b.classList.add('wrong');
+  });
+  judge(correct,q,choice);
+}
+
+function advance(){
+  if(SES.stage!=='retry'){
+    SES.idx++;
+    if(SES.idx>=totalMain()){
+      // main done → move to retry stage if there are mistakes
+      if(SES.retry.length){ SES.stage='retry'; renderQuestion(); return; }
+      return finish();
+    }
+    renderQuestion();
+  }else{
+    // in retry: if the last answer was correct it was shifted already; if wrong, it stays (re-ask)
+    if(SES.retry.length===0) return finish();
+    renderQuestion();
+  }
+}
+
+/* =========================================================================
+   FINISH — grade the set, update mastery, save corrections
+   ========================================================================= */
+function finish(){
+  const sub=SES.sub;
+  const acc = SES.firstTryTotal? Math.round(SES.firstTryRight/SES.firstTryTotal*100):100;
+  const ladder=sub==='maths'?MATHS:ENGLISH;
+  const practiced = ladder[S[sub].level]; // capture BEFORE any level-up
+  S[sub].attempts++;
+  // mark done today
+  if(S.doneToday.date!==todayStr()) S.doneToday={date:todayStr(),maths:false,english:false};
+  S.doneToday[sub]=true;
+
+  // Any questions the learner still couldn't fix are impossible here (retry loop forces correction),
+  // so corrections store is cleared for carried items; brand-new persistent corrections aren't needed
+  // because everything was corrected in-session. We keep the store for future extension:
+  S.corrections[sub]=[];
+
+  let levelChange='none';
+  if(acc>=MASTER_PCT && S[sub].level < ladder.length-1){ S[sub].level++; S[sub].mastered++; levelChange='up'; S.xp+=10; }
+  else if(acc>=MASTER_PCT && S[sub].level===ladder.length-1){ levelChange='max'; S.xp+=10; }
+  else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+
+  // record this session for the parent dashboard (keep the most recent 80)
+  S.log.push({
+    date: todayStr(), ts: Date.now(), sub,
+    title: practiced.title, grade: practiced.g,
+    acc, right: SES.firstTryRight, total: SES.firstTryTotal,
+    fixed: SES.mistakes.length, levelChange,
+    mistakes: SES.mistakes.map(m=>({q:m.q, a:m.a, given:m.given}))
+  });
+  if(S.log.length>80) S.log = S.log.slice(-80);
+  save();
+
+  const medal = acc>=90?'🥇':acc>=80?'🥈':acc>=60?'🥉':'💪';
+  const msg = acc>=90?'Outstanding!':acc>=80?'Great job!':acc>=60?'Good effort!':'Keep going — you\'ll get it!';
+  let banner='';
+  if(levelChange==='up') banner=`<div class="levelup">⬆️ Level up! You’ve moved on to<br><b>${ladder[S[sub].level].title}</b></div>`;
+  else if(levelChange==='max') banner=`<div class="levelup">🏆 You’ve reached the top level in ${sub==='maths'?'Maths':'English'}!</div>`;
+  else if(levelChange==='repeat') banner=`<div class="levelup" style="background:linear-gradient(135deg,#f0a500,#ffc44d)">🔁 We’ll practise this level again to make it stick.</div>`;
+
+  const mistakesHtml = SES.mistakes.length
+    ? `<h2 style="margin-top:20px">📌 Mistakes you fixed</h2>
+       <p class="small muted" style="margin-top:-6px">You corrected every one of these — that’s how learning sticks.</p>
+       ${SES.mistakes.map(m=>`<div class="mistake-item"><div class="q">${m.q}</div>
+         <div class="small"><span style="color:var(--bad)">Your first try: ${m.given||'—'}</span> · <span style="color:var(--good)">Correct: ${m.a}</span></div></div>`).join('')}`
+    : `<div class="mistake-item center" style="border-color:var(--good);background:var(--good-bg)"><b>✨ No mistakes — a perfect worksheet!</b></div>`;
+
+  app.innerHTML=`
+    <div class="card center">
+      <div class="medal">${medal}</div>
+      <h1 style="margin-bottom:0">${msg}</h1>
+      <p class="muted">${SES.sub==='maths'?'Maths':'English'} · ${ladder[SES.firstTryTotal? Math.max(0,S[sub].level-(levelChange==='up'?1:0)):S[sub].level].title}</p>
+      <div class="statgrid">
+        <div class="stat"><b>${acc}%</b><span class="small muted">first-try score</span></div>
+        <div class="stat"><b>${SES.firstTryRight}/${SES.firstTryTotal}</b><span class="small muted">right first time</span></div>
+        <div class="stat"><b>${SES.mistakes.length}</b><span class="small muted">fixed</span></div>
+      </div>
+      ${banner}
+    </div>
+    <div class="card">${mistakesHtml}</div>
+    <button class="btn big" id="home">Back to home →</button>`;
+  document.getElementById('home').onclick=renderHome;
+  foot.innerHTML='';
+  // update streak display
+  document.getElementById('streakNum').textContent=S.streak;
+}
+
+/* =========================================================================
+   CLOUD & BACKUP
+   - Manual backup: export/import a JSON file (works everywhere, incl. file://).
+     A backup file can simply be kept in your Google Drive folder.
+   - Optional auto-sync to YOUR Google Drive (private appDataFolder). This uses
+     Google sign-in, which Google only permits from a real web address — so it
+     requires the app to be opened via http(s)://localhost or a hosted URL, plus
+     your own free Google OAuth Client ID pasted below. It will not run from a
+     double-clicked file:// page (Google blocks that).
+   ========================================================================= */
+const DRIVE_FILE = 'aafi_aara_steps.json';
+const GDRIVE = { token:null, tokenClient:null, fileId:null, syncing:false, timer:null };
+function cloudCfg(){ if(!DB.cloud) DB.cloud={clientId:'', enabled:false, lastSync:null}; return DB.cloud; }
+
+function cloudStatusLine(){
+  const c=DB.cloud;
+  if(c && c.enabled && GDRIVE.token) return 'Saved on this device · ☁️ synced to Google Drive.';
+  if(c && c.enabled) return 'Saved here · ☁️ Drive sync on (open Backup to reconnect).';
+  return 'Progress saved on this device.';
+}
+/* debounced auto-upload, only when Drive is connected this session */
+function cloudMaybeSync(){
+  const c=DB.cloud;
+  if(!(c && c.enabled && GDRIVE.token)) return;
+  clearTimeout(GDRIVE.timer);
+  GDRIVE.timer=setTimeout(driveUpload, 1500);
+}
+
+/* ----- manual backup (no setup, works from file://) ----- */
+function cloudExport(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='aafi-aara-steps-backup-'+todayStr()+'.json'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function cloudImport(file){
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const d=JSON.parse(rd.result);
+    if(d && Array.isArray(d.profiles) && d.profiles.length){
+      DB=d; DB.profiles.forEach(p=>{ if(!p.log)p.log=[]; });
+      DB.activeId = (DB.activeId && DB.profiles.some(p=>p.id===DB.activeId)) ? DB.activeId : DB.profiles[0].id;
+      S=activeProfile(); saveDB();
+      alert('Restored progress for '+DB.profiles.length+' learner(s).'); renderHome();
+    } else alert('That file does not look like an Aafi & Aara Steps backup.');
+  }catch(e){ alert('Sorry — that file could not be read.'); } };
+  rd.readAsText(file);
+}
+
+/* ----- Google Drive auto-sync ----- */
+function driveLoadGis(cb){
+  if(window.google && google.accounts && google.accounts.oauth2) return cb();
+  const s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client'; s.async=true; s.defer=true;
+  s.onload=cb; s.onerror=()=>alert('Could not load Google sign-in — please check your internet connection.');
+  document.head.appendChild(s);
+}
+function driveConnect(){
+  const c=cloudCfg();
+  if(location.protocol==='file:'){ alert('Google Drive sign-in cannot run from a file:// page (Google blocks it).\n\nOpen the app from a web address first — see the setup steps on this screen — then connect.'); return; }
+  if(!c.clientId){ alert('Please paste your Google OAuth Client ID first (see the setup steps).'); return; }
+  driveLoadGis(()=>{
+    try{
+      GDRIVE.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id:c.clientId,
+        scope:'https://www.googleapis.com/auth/drive.appdata',
+        callback:(resp)=>{ if(resp && resp.access_token){ GDRIVE.token=resp.access_token; c.enabled=true; saveDB(); driveSyncOnConnect(); }
+                           else alert('Google sign-in did not return access.'); }
+      });
+      GDRIVE.tokenClient.requestAccessToken({prompt:''});
+    }catch(e){ alert('Could not start Google sign-in: '+e.message); }
+  });
+}
+function driveDisconnect(){ GDRIVE.token=null; cloudCfg().enabled=false; saveDB(); renderCloud(); }
+
+async function driveFindFile(){
+  const q=encodeURIComponent("name='"+DRIVE_FILE+"'");
+  const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q="+q+"&fields=files(id,modifiedTime)",{headers:{Authorization:'Bearer '+GDRIVE.token}});
+  const j=await r.json(); return (j.files && j.files[0]) || null;
+}
+async function driveUpload(){
+  if(!GDRIVE.token || GDRIVE.syncing) return;
+  GDRIVE.syncing=true;
+  try{
+    let f = GDRIVE.fileId ? {id:GDRIVE.fileId} : await driveFindFile();
+    const boundary='aas'+Date.now();
+    const meta = f ? {} : {name:DRIVE_FILE, parents:['appDataFolder']};
+    const multipart =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n`+
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(DB)}\r\n--${boundary}--`;
+    const url = f
+      ? 'https://www.googleapis.com/upload/drive/v3/files/'+f.id+'?uploadType=multipart'
+      : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+    const r=await fetch(url,{method:f?'PATCH':'POST',headers:{Authorization:'Bearer '+GDRIVE.token,'Content-Type':'multipart/related; boundary='+boundary},body:multipart});
+    const j=await r.json();
+    if(j.id){ GDRIVE.fileId=j.id; cloudCfg().lastSync=new Date().toISOString(); localStorage.setItem(AAS_KEY, JSON.stringify(DB)); }
+    else console.warn('Drive upload response:', j);
+  }catch(e){ console.warn('Drive upload failed', e); }
+  GDRIVE.syncing=false;
+  if(document.getElementById('cloudScreen')) renderCloud();
+}
+async function driveSyncOnConnect(){
+  try{
+    const f=await driveFindFile();
+    if(f){
+      const r=await fetch('https://www.googleapis.com/drive/v3/files/'+f.id+'?alt=media',{headers:{Authorization:'Bearer '+GDRIVE.token}});
+      const remote=await r.json(); GDRIVE.fileId=f.id;
+      if(remote && Array.isArray(remote.profiles) && remote.profiles.length){
+        if(confirm('Google Drive already has saved progress.\n\nOK = load it onto this device.\nCancel = keep this device’s progress and overwrite Drive.')){
+          DB=remote; DB.profiles.forEach(p=>{ if(!p.log)p.log=[]; }); cloudCfg().enabled=true;
+          DB.activeId=(DB.activeId && DB.profiles.some(p=>p.id===DB.activeId))?DB.activeId:DB.profiles[0].id;
+          S=activeProfile(); localStorage.setItem(AAS_KEY, JSON.stringify(DB));
+        } else { await driveUpload(); }
+      } else { await driveUpload(); }
+    } else { await driveUpload(); }
+  }catch(e){ console.warn(e); }
+  renderCloud();
+}
+
+function renderCloud(){
+  const c=cloudCfg();
+  const onFile = location.protocol==='file:';
+  const connected = c.enabled && GDRIVE.token;
+  const last = c.lastSync ? new Date(c.lastSync).toLocaleString() : '—';
+  app.innerHTML=`
+    <div id="cloudScreen">
+    <div class="card"><div class="spread"><h1 style="margin:0">☁️ Backup &amp; cloud</h1><button class="btn ghost" id="back">← Back</button></div>
+      <p class="muted" style="margin:6px 0 0">Keep every learner’s progress safe and move it between devices.</p></div>
+
+    <div class="card">
+      <h2>💾 Backup file (works everywhere)</h2>
+      <p class="small muted" style="margin-top:-6px">Saves all learners to one file. Keep it in your Google Drive folder, then import it on any device to restore. No setup needed.</p>
+      <div class="row wrap">
+        <button class="btn" id="expBtn">⬇️ Export backup</button>
+        <button class="btn ghost" id="impBtn">⬆️ Import backup</button>
+        <input type="file" id="impFile" accept="application/json,.json" style="display:none">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="spread"><h2 style="margin:0">🔗 Google Drive auto-sync</h2>
+        <span class="pill" style="background:${connected?'var(--good-bg)':'#eef1f8'};color:${connected?'#0f7a4c':'var(--muted)'}">${connected?'Connected':'Not connected'}</span></div>
+      <p class="small muted">Automatically saves to a private folder in <b>your</b> Google Drive after every worksheet. Last sync: ${last}.</p>
+      ${onFile?`<div class="mistake-item" style="border-color:#f6c8ce;background:var(--bad-bg)"><b>⚠️ You’ve opened the app by double-clicking the file.</b><div class="small" style="margin-top:4px">Google only allows sign-in from a web address, so auto-sync is disabled here. Use the backup file above, or open the app via a local web address (setup steps below) to enable auto-sync.</div></div>`:''}
+      <label class="small muted" style="font-weight:700;display:block;margin-top:8px">Your Google OAuth Client ID</label>
+      <input class="name" id="cid" placeholder="xxxxxxxx.apps.googleusercontent.com" value="${(c.clientId||'').replace(/"/g,'&quot;')}" style="margin:6px 0 12px;font-size:14px">
+      <div class="row wrap">
+        ${connected
+          ? `<button class="btn" id="syncNow">⟳ Sync now</button><button class="btn ghost" id="disc">Disconnect</button>`
+          : `<button class="btn" id="conn">Connect Google Drive</button>`}
+      </div>
+      <details style="margin-top:14px"${onFile?'':' open'}>
+        <summary class="small" style="cursor:pointer;font-weight:700;color:var(--brand)">One-time setup steps</summary>
+        <ol class="small muted" style="margin:8px 0 0;padding-left:18px;line-height:1.7">
+          <li><b>Open the app from a web address, not the file.</b> Double-click <b>“Start Aafi and Aara Steps.bat”</b> in this folder — it opens the app at <b>http://localhost:8000/</b>. (Keep the little server window open while using it.)</li>
+          <li>Go to <b>console.cloud.google.com</b> → create a free project.</li>
+          <li>APIs &amp; Services → <b>Enable</b> the “Google Drive API”.</li>
+          <li>APIs &amp; Services → OAuth consent screen → set it up (External is fine) and add your own Google account as a <b>Test user</b>.</li>
+          <li>Credentials → Create <b>OAuth client ID</b> → application type <b>“Web application”</b>.</li>
+          <li>Under <b>“Authorised JavaScript origins”</b> add exactly <b>http://localhost:8000</b> (must match the address above).</li>
+          <li>Copy the <b>Client ID</b>, paste it in the box above, then click <b>Connect Google Drive</b>.</li>
+        </ol>
+        <p class="small muted" style="margin:8px 0 0">After this, every worksheet auto-saves to a private folder in your Drive. A sign-in lasts about an hour; just click Connect again next session (your progress is always safe on this device too).</p>
+      </details>
+    </div>
+    </div>`;
+  document.getElementById('back').onclick=renderHome;
+  document.getElementById('expBtn').onclick=cloudExport;
+  document.getElementById('impBtn').onclick=()=>document.getElementById('impFile').click();
+  document.getElementById('impFile').onchange=(e)=>{ if(e.target.files[0]) cloudImport(e.target.files[0]); };
+  const cid=document.getElementById('cid'); cid.onchange=()=>{ cloudCfg().clientId=cid.value.trim(); saveDB(); };
+  const conn=document.getElementById('conn'); if(conn) conn.onclick=()=>{ cloudCfg().clientId=cid.value.trim(); saveDB(); driveConnect(); };
+  const disc=document.getElementById('disc'); if(disc) disc.onclick=driveDisconnect;
+  const sn=document.getElementById('syncNow'); if(sn) sn.onclick=driveUpload;
+  foot.innerHTML='';
+}
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
+if(!S && DB.profiles.length){ DB.activeId=DB.profiles[0].id; S=activeProfile(); }
+if(S && S.name){ renderHome(); } else { renderOnboard(); }
+</script>
