@@ -20,6 +20,8 @@
   .btn:hover{filter:brightness(1.05)}
   .btn:active{transform:translateY(1px)}
   .btn.ghost{background:#eef1f8;color:var(--ink);box-shadow:none}
+  .btn.danger{background:var(--bad);box-shadow:none}
+  .btn.danger.soft{background:var(--bad-bg);color:var(--bad)}
   .btn.big{width:100%;padding:18px;font-size:18px;border-radius:16px}
   .btn.wide{width:100%}
   .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;margin-bottom:16px;border:1px solid var(--line)}
@@ -64,6 +66,10 @@
   .qhint{text-align:center;color:var(--muted);margin-bottom:22px}
   .answer{width:100%;font-size:26px;text-align:center;padding:16px;border:2px solid var(--line);border-radius:14px;outline:none;font-weight:700}
   .answer:focus{border-color:var(--brand)}
+  .scratch{margin-top:14px}
+  .scratch-canvas{width:100%;height:220px;border:2px dashed var(--line);border-radius:14px;background:#fff;touch-action:none;display:block;cursor:crosshair}
+  .scratch-tools .btn{margin-left:6px}
+  #scratchToggle.active{background:#eaf0ff;color:var(--brand)}
   .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:520px){.choices{grid-template-columns:1fr}}
   .choice{background:#f3f5fb;border:2px solid transparent;border-radius:14px;padding:16px;font-size:18px;font-weight:700;text-align:center;color:var(--ink)}
@@ -103,7 +109,12 @@
   .pbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .pchip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);color:var(--ink);
     padding:7px 14px 7px 7px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:var(--shadow)}
-  .pchip .pav{width:24px;height:24px;border-radius:50%;background:#eef1f8;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .pchip .pav{width:24px;height:24px;border-radius:50%;background:#eef1f8;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;overflow:hidden;flex:none}
+  .pav img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+  .avatar-btn{background:none;border:none;padding:0;cursor:pointer;position:relative;line-height:0}
+  .avatar-btn .cam{position:absolute;right:-2px;bottom:-2px;background:var(--brand);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+  .avatar-pick{width:80px;height:80px;border-radius:50%;border:2px dashed var(--brand);background:#eef1f8;font-size:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin:0 auto}
+  .avatar-pick img{width:100%;height:100%;object-fit:cover;border-radius:50%}
   .pchip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
   .pchip.active .pav{background:rgba(255,255,255,.25);color:#fff}
   .pchip.add{color:var(--brand);padding:7px 14px;border-style:dashed;box-shadow:none}
@@ -705,15 +716,20 @@ function touchDay(){
    RENDER: onboarding
    ========================================================================= */
 let pendingGrade = 1;
+let pendingPhoto = null;
 function renderOnboard(canCancel){
   document.getElementById('streakBox').classList.add('hidden');
-  pendingGrade = 1;
+  pendingGrade = 1; pendingPhoto = null;
   const adding = DB.profiles.length>0;
   app.innerHTML = `
     <div class="card">
       ${canCancel?`<div class="spread" style="margin-bottom:8px"><span></span><button class="btn ghost" id="cancel">← Back</button></div>`:''}
       <h1>${adding?'Add a learner 👧🧒':'Welcome to Aafi &amp; Aara Steps ✦'}</h1>
       <p class="muted">${adding?'Each learner gets their own personalised progress, streak and level.':'A few minutes of English and Maths every day — small steps that add up. Let\'s set up the first learner.'}</p>
+      <div class="center" style="margin:6px 0 14px">
+        <button type="button" class="avatar-pick" id="photoBtn">📷</button>
+        <div class="small muted" style="margin-top:6px">Tap to add a photo (optional)</div>
+      </div>
       <label class="small muted" style="font-weight:700">Learner's name</label>
       <input class="name" id="nameIn" placeholder="e.g. Aafi or Aara" style="margin:6px 0 18px" autocomplete="off">
       <label class="small muted" style="font-weight:700">Starting school year / grade</label>
@@ -728,9 +744,11 @@ function renderOnboard(canCancel){
     document.querySelectorAll('.grade-opt').forEach(x=>x.classList.remove('pick'));
     el.classList.add('pick');
   });
+  document.getElementById('photoBtn').onclick=()=>pickPhoto(d=>{ pendingPhoto=d; document.getElementById('photoBtn').innerHTML=`<img src="${d}" alt="">`; });
   document.getElementById('startBtn').onclick=()=>{
     const name = (document.getElementById('nameIn').value||'').trim() || 'Learner';
     const p = freshState(name, pendingGrade);
+    if(pendingPhoto) p.photo = pendingPhoto;
     DB.profiles.push(p); DB.activeId = p.id; S = p; save(); renderHome();
   };
   const c=document.getElementById('cancel'); if(c) c.onclick=renderHome;
@@ -757,11 +775,32 @@ function subjectCard(sub){
       <button class="btn wide" data-start="${sub}">${done?'Practice again':'Start today\'s worksheet'}</button>
     </div>`;
 }
+/* ---- profile photos ---- */
+function avatarHTML(p, px){
+  const initial=(p.name.trim()[0]||'?').toUpperCase();
+  const style = px?`style="width:${px}px;height:${px}px;font-size:${Math.round(px*0.42)}px"`:'';
+  return p.photo ? `<span class="pav" ${style}><img src="${p.photo}" alt=""></span>`
+                 : `<span class="pav" ${style}>${initial}</span>`;
+}
+/* open the picker, downscale to a small square JPEG (keeps storage/Drive light) */
+function pickPhoto(cb){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{ const img=new Image();
+      img.onload=()=>{ const s=Math.min(img.width,img.height), c=document.createElement('canvas'); c.width=c.height=160;
+        c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,160,160);
+        cb(c.toDataURL('image/jpeg',0.82)); };
+      img.onerror=()=>alert('Sorry — that image could not be read.'); img.src=rd.result; };
+    rd.readAsDataURL(f); };
+  inp.click();
+}
+function changePhoto(id){ const p=DB.profiles.find(x=>x.id===id); if(!p) return; pickPhoto(d=>{ p.photo=d; saveDB(); renderHome(); }); }
+
 function learnerBar(){
-  const chips = DB.profiles.map(p=>{
-    const initial = (p.name.trim()[0]||'?').toUpperCase();
-    return `<button class="pchip${p.id===DB.activeId?' active':''}" data-pid="${p.id}"><span class="pav">${initial}</span>${p.name}</button>`;
-  }).join('');
+  const chips = DB.profiles.map(p=>
+    `<button class="pchip${p.id===DB.activeId?' active':''}" data-pid="${p.id}">${avatarHTML(p)}${p.name}</button>`
+  ).join('');
   return `<div class="pbar">${chips}<button class="pchip add" id="addP">＋ Add learner</button></div>`;
 }
 function renderHome(){
@@ -773,9 +812,12 @@ function renderHome(){
     ${learnerBar()}
     <div class="card" style="background:linear-gradient(135deg,#eef2ff,#fff);">
       <div class="spread">
-        <div>
-          <h1 style="margin-bottom:2px">Hi ${S.name} 👋</h1>
-          <p class="muted" style="margin:0">${allDone?'🎉 All worksheets done today — brilliant work!':'Ready for today\'s practice? Pick a subject below.'}</p>
+        <div class="row" style="gap:12px">
+          <button class="avatar-btn" id="homeAvatar" title="Change photo">${avatarHTML(S,54)}<span class="cam">📷</span></button>
+          <div>
+            <h1 style="margin-bottom:2px">Hi ${S.name} 👋</h1>
+            <p class="muted" style="margin:0">${allDone?'🎉 All worksheets done today — brilliant work!':'Ready for today\'s practice? Pick a subject below.'}</p>
+          </div>
         </div>
         <div class="center">
           <div class="big-num" style="font-size:34px;color:var(--brand)">${S.xp}</div>
@@ -790,6 +832,7 @@ function renderHome(){
   document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
   document.querySelectorAll('.pchip[data-pid]').forEach(b=>b.onclick=()=>setActive(b.dataset.pid));
   document.getElementById('addP').onclick=()=>renderOnboard(true);
+  document.getElementById('homeAvatar').onclick=()=>changePhoto(S.id);
   foot.innerHTML = `${cloudStatusLine()} <a id="parentLink">👪 Parent dashboard</a> · <a id="mapLink">Level map</a> · <a id="cloudLink">☁️ Backup &amp; cloud</a> · <a id="removeLink">Remove learner</a>`;
   document.getElementById('parentLink').onclick=renderParent;
   document.getElementById('mapLink').onclick=renderMap;
@@ -914,10 +957,31 @@ function renderParent(){
       </div>`).join('')}
     </div>
     `}
+    <div class="card" style="border-color:#f6c8ce">
+      <h2 style="color:var(--bad);margin-bottom:4px">⚠️ Reset progress</h2>
+      <p class="small muted" style="margin-top:0">Wipe all of ${S.name}'s levels, streak, XP and history back to the start. Their name, photo and grade are kept. This cannot be undone.</p>
+      <button class="btn danger" id="resetProg">↺ Reset ${S.name}'s progress</button>
+    </div>
   `;
   const b=document.getElementById('back'); if(b) b.onclick=renderHome;
   const b2=document.getElementById('back2'); if(b2) b2.onclick=renderHome;
+  document.getElementById('resetProg').onclick=resetProgress;
   foot.innerHTML='';
+}
+/* reset the active learner's progress — TWO confirmations required */
+function resetProgress(){
+  const name=S.name;
+  if(!confirm(`Reset ALL of ${name}'s progress?\n\nThis clears every level, streak, XP and mistake history and starts fresh. Their profile and photo are kept.`)) return;
+  const typed=prompt(`This cannot be undone.\n\nType ${name}'s name below to confirm the reset:`);
+  if(typed===null) return;
+  if(norm(typed)!==norm(name)){ alert('That did not match the name — reset cancelled. Nothing was changed.'); return; }
+  SUBJECT_KEYS.forEach(sub=>{ const i=SUBJECTS[sub].ladder.findIndex(l=>l.g===S.grade); S[sub]={ level:i<0?0:i, attempts:0, mastered:0 }; });
+  S.xp=0; S.streak=0; S.lastActive=null; S.log=[];
+  S.corrections={ maths:[], english:[], reading:[] };
+  S.doneToday={ date:null, maths:false, english:false, reading:false };
+  saveDB();
+  alert(`${name}'s progress has been reset to the start.`);
+  renderParent();
 }
 
 /* =========================================================================
@@ -982,7 +1046,19 @@ function renderQuestion(){
       ${q.type==='mcq'
         ? `<div class="choices" id="choices">${q.choices.map(c=>`<button class="choice" data-c="${encodeURIComponent(c)}">${c}</button>`).join('')}</div>`
         : `<input class="answer" id="ans" autocomplete="off" autocapitalize="off" placeholder="Type your answer">
-           <p class="qhint small">Press <kbd>Enter</kbd> to check</p>`}
+           <p class="qhint small">Press <kbd>Enter</kbd> to check</p>
+           ${SES.sub==='maths' ? `
+           <div class="scratch">
+             <div class="spread" style="margin-bottom:6px">
+               <button type="button" class="btn ghost" id="scratchToggle" style="padding:8px 14px;font-size:14px">✏️ Scratchpad</button>
+               <span class="scratch-tools hidden" id="scratchTools">
+                 <button type="button" class="btn ghost" id="scratchUndo" style="padding:8px 12px;font-size:13px">↶ Undo</button>
+                 <button type="button" class="btn ghost" id="scratchClear" style="padding:8px 12px;font-size:13px">Clear</button>
+               </span>
+             </div>
+             <canvas id="scratchPad" class="scratch-canvas hidden"></canvas>
+             <p class="qhint small scratch-hint hidden" id="scratchHint">Work it out here with your finger or stylus, then type the answer above.</p>
+           </div>` : ''}`}
       <div class="feedback" id="fb"></div>
       <div id="next" style="margin-top:16px"></div>
     </div>`;
@@ -993,7 +1069,35 @@ function renderQuestion(){
     const inp=document.getElementById('ans');
     inp.focus();
     inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(!SES.answeredThisQ) submitInput(); else advance(); }});
+    setupScratchpad();
   }
+}
+
+/* stylus/finger scratchpad for working out maths (answer is still typed) */
+function setupScratchpad(){
+  const pad=document.getElementById('scratchPad'); if(!pad) return;
+  const toggle=document.getElementById('scratchToggle'), tools=document.getElementById('scratchTools'), hint=document.getElementById('scratchHint');
+  const ctx=pad.getContext('2d');
+  let strokes=[], cur=null, drawing=false, sized=false;
+  function size(){
+    const w=pad.clientWidth||pad.parentElement.clientWidth||300, cssH=220, dpr=window.devicePixelRatio||1;
+    pad.width=w*dpr; pad.height=cssH*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=3; ctx.strokeStyle='#1f2a44';
+    redraw();
+  }
+  function redraw(){ ctx.clearRect(0,0,pad.width,pad.height); strokes.forEach(s=>{ if(s.length<2) return; ctx.beginPath(); s.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke(); }); }
+  function pos(e){ const r=pad.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+  pad.addEventListener('pointerdown',e=>{ e.preventDefault(); drawing=true; cur=[pos(e)]; strokes.push(cur); try{pad.setPointerCapture(e.pointerId);}catch(_){} });
+  pad.addEventListener('pointermove',e=>{ if(!drawing) return; e.preventDefault(); const p=pos(e), prev=cur[cur.length-1]; cur.push(p); ctx.beginPath(); ctx.moveTo(prev.x,prev.y); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+  const stop=()=>{ drawing=false; cur=null; };
+  pad.addEventListener('pointerup',stop); pad.addEventListener('pointercancel',stop); pad.addEventListener('pointerleave',stop);
+  toggle.onclick=()=>{
+    const open = pad.classList.toggle('hidden')===false;
+    tools.classList.toggle('hidden',!open); hint.classList.toggle('hidden',!open); toggle.classList.toggle('active',open);
+    if(open && !sized){ sized=true; requestAnimationFrame(size); }
+  };
+  document.getElementById('scratchClear').onclick=()=>{ strokes=[]; redraw(); };
+  document.getElementById('scratchUndo').onclick=()=>{ strokes.pop(); redraw(); };
 }
 
 function judge(correct, q, userAns){
@@ -1132,8 +1236,13 @@ function finish(){
       ${banner}
     </div>
     <div class="card">${mistakesHtml}</div>
-    <button class="btn big" id="home">Back to home →</button>`;
+    ${acc>=MASTER_PCT ? `<p class="center small muted" style="margin:-4px 0 10px">Finding it easy? Tap “Do another” to keep climbing — each one you master moves ${S.name} up a level.</p>`:''}
+    <div class="row" style="gap:10px">
+      <button class="btn big" id="again" style="flex:1">Do another →</button>
+      <button class="btn big ghost" id="home" style="flex:1">Home</button>
+    </div>`;
   document.getElementById('home').onclick=renderHome;
+  document.getElementById('again').onclick=()=>startSession(sub);
   foot.innerHTML='';
   // update streak display
   document.getElementById('streakNum').textContent=S.streak;
