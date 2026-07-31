@@ -6,7 +6,7 @@
     --bg:#f4f7fb; --card:#ffffff; --ink:#1f2a44; --muted:#6b7690;
     --brand:#4f6df5; --brand-dark:#3a52d6; --good:#1faa6c; --good-bg:#e6f7ef;
     --bad:#e0485a; --bad-bg:#fdecee; --warn:#f0a500;
-    --maths:#4f6df5; --english:#f0663a; --line:#e6eaf2; --shadow:0 10px 30px rgba(31,42,68,.08);
+    --maths:#4f6df5; --english:#f0663a; --reading:#16a34a; --line:#e6eaf2; --shadow:0 10px 30px rgba(31,42,68,.08);
     --r:18px;
   }
   *{box-sizing:border-box}
@@ -42,6 +42,7 @@
   .subject{border-radius:var(--r);padding:20px;color:#fff;position:relative;overflow:hidden}
   .subject.maths{background:linear-gradient(135deg,#4f6df5,#6b8bff)}
   .subject.english{background:linear-gradient(135deg,#f0663a,#ff8a5c)}
+  .subject.reading{background:linear-gradient(135deg,#16a34a,#4ade80)}
   .subject h2{color:#fff}
   .subject .lvl{opacity:.92;font-size:14px;margin-bottom:14px}
   .progress{height:10px;background:rgba(255,255,255,.35);border-radius:999px;overflow:hidden;margin:10px 0 16px}
@@ -49,6 +50,7 @@
   .subject .btn{background:#fff}
   .subject.maths .btn{color:var(--brand-dark)}
   .subject.english .btn{color:#c2451f}
+  .subject.reading .btn{color:#15803d}
   .done-tag{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
 
   /* practice */
@@ -140,11 +142,11 @@ const uid = ()=> 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,
 
 function loadDB(){
   try{ const raw=JSON.parse(localStorage.getItem(AAS_KEY));
-    if(raw && Array.isArray(raw.profiles)){ raw.profiles.forEach(p=>{ if(!p.log)p.log=[]; }); return raw; }
+    if(raw && Array.isArray(raw.profiles)){ raw.profiles.forEach(migrateProfile); return raw; }
   }catch(e){}
   // migrate a single-profile save from the old app name, if present
   try{ const old=JSON.parse(localStorage.getItem(LEGACY_KEY));
-    if(old && old.name){ if(!old.log)old.log=[]; old.id=uid(); return {activeId:old.id, profiles:[old]}; }
+    if(old && old.name){ old.id=uid(); migrateProfile(old); return {activeId:old.id, profiles:[old]}; }
   }catch(e){}
   return {activeId:null, profiles:[]};
 }
@@ -566,6 +568,97 @@ const ENGLISH = [
 ];
 
 /* =========================================================================
+   READING CURRICULUM — original passages + questions (Grades 1–6).
+   Skills mined from Comprehension Skills 1–5, Basic Reading 1–5 and Peter &
+   Jane: main idea → details/sequence → context clues → inference →
+   compare / fact-vs-opinion → summarising & figurative language →
+   author's purpose & tone. Passages are original (safe on a public link).
+   ========================================================================= */
+const READING = [
+  {g:1, title:'Reading: main idea & details', items:[
+    ()=>mc('Read: "Pip is a small dog. Pip likes to run and play. Pip likes to nap in the sun." What is this about?', 'A dog named Pip', ['A cat','A sunny day','A ball'], 'Every sentence is about Pip the dog.'),
+    ()=>mc('Read: "The frog is green. It can hop very high. It lives by the pond." Where does the frog live?', 'By the pond', ['In a tree','In a box','On the sun'], 'The last sentence tells us.'),
+    ()=>mc('Read: "Sam has a red hat. He wears it in the rain." Why does Sam wear the hat?', 'To keep dry in the rain', ['To go to bed','To eat lunch','To swim'], 'He wears it in the rain.'),
+    ()=>mc('Read: "Ben and Jane like to play. They kick the ball. They laugh and run." What do Ben and Jane do?', 'They play with a ball', ['They sleep','They cook','They read'], 'They kick the ball and run.'),
+    ()=>mc('Read: "The hen sat on her eggs. Soon the eggs went crack. Out came the chicks!" What came out of the eggs?', 'Chicks', ['Frogs','Fish','Cats'], 'Chicks hatch from a hen’s eggs.'),
+    ()=>mc('Read: "I can see a big bus. The bus is red. It takes us to school." What colour is the bus?', 'Red', ['Blue','Green','Yellow'], 'The bus is red.'),
+    ()=>mc('Read: "It is hot today. We put on hats. We drink cool water." Why do they drink cool water?', 'Because it is hot', ['Because it is cold','Because it is dark','Because it rains'], 'It is hot, so cool water helps.'),
+    ()=>mc('Read: "We went to the park. We played on the swings. Then we had ice cream." What did they do last?', 'Had ice cream', ['Went to the park','Played on swings','Went to bed'], '"Then" tells us ice cream was last.'),
+    ()=>mc('Read: "A duck can swim. A duck can walk. A duck says quack!" What sound does a duck make?', 'Quack', ['Moo','Woof','Meow'], 'A duck says quack.'),
+    ()=>mc('Read: "Jane has a new bike. It is blue and fast. She rides it to the shop." Where does Jane ride her bike?', 'To the shop', ['To the moon','To school','To bed'], 'She rides it to the shop.'),
+  ]},
+  {g:2, title:'Reading: details & sequence', items:[
+    ()=>mc('Read: "First, Mia poured the milk. Next, she added the oats. Last, she ate her breakfast." What did Mia do first?', 'Poured the milk', ['Added the oats','Ate breakfast','Washed up'], '"First" signals the first step.'),
+    ()=>mc('Read: "The snail is very slow. It carries its shell on its back. The shell keeps it safe." How does the shell help the snail?', 'It keeps it safe', ['It helps it run','It gives it food','It makes noise'], 'The passage says the shell keeps it safe.'),
+    ()=>mc('Read: "Tom planted a seed. He watered it every day. After a week, a green shoot appeared." What made the shoot grow?', 'Watering it every day', ['Leaving it dry','Hiding it','Eating it'], 'He watered it daily and it grew.'),
+    ()=>mc('Read: "Owls sleep in the day and hunt at night. Their big eyes help them see in the dark." When do owls hunt?', 'At night', ['In the morning','At noon','In the day'], 'Owls hunt at night.'),
+    ()=>mc('Read: "The ice cream melted because the sun was hot." Why did the ice cream melt?', 'The sun was hot', ['It was cold','It was old','It was small'], '"because" gives the reason.'),
+    ()=>mc('Read: "Spiders are not insects. Insects have six legs, but spiders have eight." How many legs does a spider have?', 'Eight', ['Six','Four','Two'], 'Spiders have eight legs.'),
+    ()=>mc('Read: "When the bell rang, the children lined up. Then they walked quietly to class." What did the children do right after the bell?', 'Lined up', ['Ran home','Ate lunch','Fell asleep'], 'They lined up when the bell rang.'),
+    ()=>mc('Read: "Bats sleep upside down. They hang from their feet in dark caves." Where do bats sleep?', 'In dark caves', ['On sunny beaches','In warm nests','Under water'], 'They hang in dark caves.'),
+    ()=>mc('Read: "Lily was sad when it rained and could not go out. Then the sun came out and she cheered." Why did Lily cheer?', 'The sun came out so she could go outside', ['It kept raining','She lost her toy','It got dark'], 'The sun let her go outside.'),
+    ()=>mc('Read: "Bees make honey. First they gather nectar from flowers. Then they store it in the hive." What do bees gather first?', 'Nectar from flowers', ['Honey from shops','Water from ponds','Leaves from trees'], 'They gather nectar first, then store it.'),
+  ]},
+  {g:3, title:'Reading: context clues & inference', items:[
+    ()=>mc('Read: "The path was slippery, so we tried not to slip and fall." "Slippery" means…', 'easy to slide on', ['very dry','very warm','very loud'], 'The clue is "slip and fall".'),
+    ()=>mc('Read: "The room was immaculate — not a speck of dust anywhere." "Immaculate" means…', 'perfectly clean', ['very messy','very dark','very old'], 'No dust = perfectly clean.'),
+    ()=>mc('Read: "Jack put on his boots, grabbed an umbrella, and pulled up his hood." What was the weather probably like?', 'Rainy', ['Hot and dry','Snowy and calm','Sunny'], 'Umbrella and hood suggest rain.'),
+    ()=>mc('Read: "The crowd roared and threw their hats in the air as the team scored." How did the crowd feel?', 'Excited and happy', ['Bored','Angry','Sleepy'], 'Roaring and cheering shows excitement.'),
+    ()=>mc('Read: "Deserts are arid places where rain almost never falls." "Arid" means…', 'dry', ['wet','crowded','cold'], 'Rain almost never falls → dry.'),
+    ()=>mc('Read: "Sara yawned, rubbed her eyes, and asked what time it was." Sara is probably…', 'tired', ['hungry','angry','scared'], 'Yawning and rubbing eyes = tired.'),
+    ()=>mc('Read: "The chef was furious when the soup was served cold." "Furious" means…', 'very angry', ['very pleased','very calm','very tired'], 'Cold soup made the chef very angry.'),
+    ()=>mc('Read: "Every shelf was empty and the lights were off. A sign read: Closed." What can you tell about the shop?', 'It was not open', ['It was busy','It was new','It was full'], 'Empty shelves and a Closed sign.'),
+    ()=>mc('Read: "The ancient castle had crumbling walls and towers hundreds of years old." "Ancient" means…', 'very old', ['brand new','very small','very clean'], 'Hundreds of years old = ancient.'),
+    ()=>mc('Read: "Maya packed her suitcase, checked her passport, and set an early alarm." What is Maya about to do?', 'Go on a trip', ['Cook dinner','Go to school','Clean her room'], 'Suitcase and passport suggest travelling.'),
+  ]},
+  {g:4, title:'Reading: inference, compare & fact/opinion', items:[
+    ()=>mc('Read: "Unlike frogs, which need water, toads can live in drier places." How are toads different from frogs?', 'Toads can live in drier places', ['Toads need more water','Toads cannot hop','Toads are fish'], 'The word "unlike" signals the difference.'),
+    ()=>mc('Read: "The abandoned house had broken windows, and weeds grew waist-high in the garden." What can you infer?', 'No one has lived there for a long time', ['Someone cleaned it today','It was just built','A party is on'], 'Broken windows and tall weeds imply neglect.'),
+    ()=>mc('Which of these is an OPINION?', 'Chocolate ice cream is the best flavour.', ['Ice cream is a frozen food.','Ice cream can melt.','Some ice cream is made from milk.'], 'A "best" claim is a personal opinion.'),
+    ()=>mc('Which of these is a FACT?', 'Water freezes at 0 degrees Celsius.', ['Winter is the nicest season.','Blue is a boring colour.','Everyone loves snow.'], 'It can be checked and proven.'),
+    ()=>mc('Read: "Penguins have wings but cannot fly. Instead, they use them like flippers to swim." What do penguins use their wings for?', 'Swimming', ['Flying high','Building nests','Making noise'], 'They use wings like flippers to swim.'),
+    ()=>mc('Read: "By the time we reached the top, my legs ached and I was gasping for breath." What can you infer about the climb?', 'It was hard work', ['It was very easy','It was downhill','It was short'], 'Aching legs and gasping suggest a tough climb.'),
+    ()=>mc('Read: "Camels store fat in their humps, which helps them survive long trips without food." How do humps help camels?', 'They store energy for long journeys', ['They hold water bottles','They help them fly','They only keep them cool'], 'Stored fat = energy when food is scarce.'),
+    ()=>mc('Read: "Cats and lions both have whiskers and sharp claws, but lions are far larger." Name one way they are alike.', 'They both have whiskers and claws', ['They are the same size','Both live in houses','Neither has claws'], 'Whiskers and claws are shared.'),
+    ()=>mc('Read: "The sky turned dark, thunder rumbled, and everyone hurried indoors." What probably happened next?', 'A storm', ['A sunny picnic','A snowman','Only a rainbow'], 'Dark sky and thunder point to a storm.'),
+    ()=>mc('Which is an OPINION?', 'Reading is more fun than maths.', ['Books have pages.','Maths uses numbers.','A library lends books.'], '"More fun" is a personal view.'),
+  ]},
+  {g:5, title:'Reading: summarising & figurative language', items:[
+    ()=>mc('Read: "Some police in Paris patrol on inline skates, weaving through heavy traffic to reach trouble fast." Best main idea?', 'Skates help some Paris police do their job', ['Paris has heavy traffic','Skating is a fun hobby','Police wear helmets'], 'It is mainly about how skates help police work.'),
+    ()=>mc('Read: "Racing cyclists wear smooth suits and use sleek frames so the air slips past them easily." Best summary?', 'Cyclists use special gear to reduce air resistance', ['Cyclists like the colour silver','Bike races are boring','Cyclists never train'], 'It sums up why the gear is used.'),
+    ()=>mc('"The wind whispered through the trees." This is an example of…', 'personification', ['a fact','a question','a spelling rule'], 'Wind is given a human action (whispering).'),
+    ()=>mc('"Her smile was as bright as the sun." This comparison using "as" is a…', 'simile', ['metaphor','command','fact'], 'A simile compares using "like" or "as".'),
+    ()=>mc('Read: "I could not believe my luck — front-row seats!" This is told from which point of view?', 'First person (I / me)', ['Third person','No point of view','The reader’s'], 'The word "I" signals first person.'),
+    ()=>mc('Read: "Recycling saves energy, cuts waste, and protects wildlife. Everyone can help by sorting their rubbish." What is the author trying to do?', 'Persuade readers to recycle', ['Tell a scary story','Sell a toy','Give a recipe'], 'It lists benefits to encourage recycling.'),
+    ()=>mc('Read: "The old bridge groaned under the lorry, and fresh cracks snaked across the stone." What does this suggest?', 'The bridge may be unsafe', ['The bridge is brand new','Nothing is wrong','The bridge is a boat'], '"Groaned" and "cracks" hint at danger.'),
+    ()=>mc('Which sentence states a FACT?', 'The Sahara is the largest hot desert on Earth.', ['Deserts are the most exciting places.','Sand is nicer than snow.','Everyone should visit a desert.'], 'It can be checked and proven true.'),
+    ()=>mc('"The city never sleeps." This mostly means…', 'the city is always busy', ['the city has no beds','no one may sleep','the city is closed'], 'It is figurative — always active.'),
+    ()=>mc('Read: "First the caterpillar eats leaves, then it forms a chrysalis, and finally it emerges as a butterfly." Best summary?', 'A caterpillar changes into a butterfly in stages', ['Butterflies eat leaves only','Chrysalises are green','Caterpillars are fast'], 'It captures the whole sequence briefly.'),
+  ]},
+  {g:6, title:'Reading: author’s purpose & tone', items:[
+    ()=>mc('Read: "Though the reviews were harsh, Ana framed the clipping and hung it proudly on her wall." What does this suggest about Ana?', 'She is resilient and not easily discouraged', ['She cannot read','She agreed with the critics','She was giving up'], 'Displaying harsh reviews proudly shows resilience.'),
+    ()=>mc('Read: "The instructions were needlessly complex, burying one simple step under a dozen confusing ones." What is the tone?', 'Critical / frustrated', ['Cheerful','Neutral and factual','Admiring'], '"Needlessly" and "confusing" show frustration.'),
+    ()=>mc('Read: "Buy now! Limited stock! You’d be foolish to miss this once-in-a-lifetime deal!" What is the author’s main purpose?', 'To persuade you to buy', ['To inform about history','To entertain with a poem','To explain how something works'], 'Urgent sales language aims to persuade.'),
+    ()=>mc('Read: "Scientists measured the glacier each year and recorded that it had retreated two metres annually." The author’s main purpose is…', 'To inform with facts', ['To sell a product','To tell a joke','To frighten readers'], 'Measured data = informing.'),
+    ()=>mc('Read: "He called the meal ‘interesting’, then pushed the plate away after a single bite." What does the writer imply?', 'He did not really like the meal', ['He loved the meal','He was very hungry','He cooked it himself'], 'Pushing it away after one bite implies dislike.'),
+    ()=>mc('"Time is a thief." This metaphor suggests that…', 'time takes things away from us', ['thieves are slow','clocks are often stolen','time can be caught'], 'Time "steals" moments from us.'),
+    ()=>mc('Read: "The committee will reconvene once further data has been gathered and reviewed." The tone is…', 'formal', ['playful','angry','sad'], '"Reconvene" and "data" are formal words.'),
+    ()=>mc('Read: "As the last guest left, Noor sank into a chair and finally let out the breath she had been holding all evening." What can you infer?', 'She had felt tense all evening', ['She was bored the whole time','She wanted more guests','She had been asleep'], 'Holding her breath all evening implies tension.'),
+    ()=>mc('Read: "Sure, waking at 5am to revise sounded absolutely delightful." The writer is using…', 'sarcasm', ['a plain fact','a simile','an instruction'], 'The real meaning is the opposite of "delightful".'),
+    ()=>mc('Read: "The article gave clear steps, diagrams, and safety tips for wiring a plug." What kind of text is this?', 'An instructional / how-to text', ['A fairy tale','A persuasive advert','A personal diary'], 'Steps, diagrams and tips = instructions.'),
+  ]},
+];
+
+/* subject registry — makes Maths, English and Reading interchangeable */
+const SUBJECTS = {
+  maths:   { label:'Maths',   icon:'🔢', ladder:MATHS },
+  english: { label:'English', icon:'📖', ladder:ENGLISH },
+  reading: { label:'Reading', icon:'📚', ladder:READING },
+};
+const SUBJECT_KEYS = ['maths','english','reading'];
+function ladderOf(sub){ return SUBJECTS[sub].ladder; }
+
+/* =========================================================================
    STATE
    ========================================================================= */
 function freshState(name, grade){
@@ -574,11 +667,24 @@ function freshState(name, grade){
     id: uid(), name, grade,
     maths:{ level: startIdx(MATHS), attempts:0, mastered:0 },
     english:{ level: startIdx(ENGLISH), attempts:0, mastered:0 },
+    reading:{ level: startIdx(READING), attempts:0, mastered:0 },
     streak:0, lastActive:null, xp:0,
-    corrections:{ maths:[], english:[] }, // carried-over mistakes to redo next time
-    doneToday:{ date:null, maths:false, english:false },
+    corrections:{ maths:[], english:[], reading:[] }, // carried-over mistakes to redo next time
+    doneToday:{ date:null, maths:false, english:false, reading:false },
     log:[]  // session history for the parent dashboard: {date, sub, title, grade, acc, right, total, fixed, mistakes:[...]}
   };
+}
+/* ensure older saved profiles gain any newly-added subjects/fields */
+function migrateProfile(p){
+  if(!p.log) p.log=[];
+  if(!p.corrections) p.corrections={};
+  if(!p.doneToday) p.doneToday={date:null};
+  SUBJECT_KEYS.forEach(sub=>{
+    if(!p[sub]){ const i=SUBJECTS[sub].ladder.findIndex(l=>l.g===p.grade); p[sub]={ level:i<0?0:i, attempts:0, mastered:0 }; }
+    if(!p.corrections[sub]) p.corrections[sub]=[];
+    if(p.doneToday[sub]===undefined) p.doneToday[sub]=false;
+  });
+  return p;
 }
 function save(){ saveDB(); }          // persist the whole DB (active profile is a reference inside it)
 let DB = loadDB();
@@ -587,7 +693,7 @@ let S = activeProfile();
 /* streak / daily bookkeeping */
 function touchDay(){
   const t = todayStr();
-  if(S.doneToday.date !== t){ S.doneToday = {date:t, maths:false, english:false}; }
+  if(S.doneToday.date !== t){ S.doneToday = {date:t, maths:false, english:false, reading:false}; }
   if(S.lastActive !== t){
     const yest = new Date(Date.now()-864e5).toISOString().slice(0,10);
     S.streak = (S.lastActive===yest) ? S.streak+1 : 1;
@@ -635,7 +741,7 @@ function renderOnboard(canCancel){
    RENDER: home / dashboard
    ========================================================================= */
 function subjectCard(sub){
-  const ladder = sub==='maths'?MATHS:ENGLISH;
+  const ladder = ladderOf(sub);
   const st = S[sub];
   const lvl = ladder[st.level];
   const pct = Math.round((st.level/(ladder.length))*100);
@@ -644,7 +750,7 @@ function subjectCard(sub){
   return `
     <div class="subject ${sub}">
       ${done?'<div class="done-tag">✓ Done today</div>':''}
-      <h2>${sub==='maths'?'🔢 Maths':'📖 English'}</h2>
+      <h2>${SUBJECTS[sub].icon} ${SUBJECTS[sub].label}</h2>
       <div class="lvl">Level ${st.level+1} of ${ladder.length} · Grade ${lvl.g}<br><b>${lvl.title}</b></div>
       <div class="progress"><i style="width:${pct}%"></i></div>
       ${pending?`<div class="small" style="margin:-6px 0 10px">📌 ${pending} correction${pending>1?'s':''} to fix first</div>`:''}
@@ -662,14 +768,14 @@ function renderHome(){
   touchDay(); save();
   const sb=document.getElementById('streakBox'); sb.classList.remove('hidden');
   document.getElementById('streakNum').textContent=S.streak;
-  const both = S.doneToday.date===todayStr() && S.doneToday.maths && S.doneToday.english;
+  const allDone = S.doneToday.date===todayStr() && SUBJECT_KEYS.every(k=>S.doneToday[k]);
   app.innerHTML = `
     ${learnerBar()}
     <div class="card" style="background:linear-gradient(135deg,#eef2ff,#fff);">
       <div class="spread">
         <div>
           <h1 style="margin-bottom:2px">Hi ${S.name} 👋</h1>
-          <p class="muted" style="margin:0">${both?'🎉 Both worksheets done today — brilliant work!':'Ready for today\'s practice? Pick a subject below.'}</p>
+          <p class="muted" style="margin:0">${allDone?'🎉 All worksheets done today — brilliant work!':'Ready for today\'s practice? Pick a subject below.'}</p>
         </div>
         <div class="center">
           <div class="big-num" style="font-size:34px;color:var(--brand)">${S.xp}</div>
@@ -679,6 +785,7 @@ function renderHome(){
     </div>
     ${subjectCard('maths')}
     ${subjectCard('english')}
+    ${subjectCard('reading')}
   `;
   document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
   document.querySelectorAll('.pchip[data-pid]').forEach(b=>b.onclick=()=>setActive(b.dataset.pid));
@@ -700,8 +807,8 @@ function removeActiveLearner(){
 /* level map */
 function renderMap(){
   const block=(sub)=>{
-    const ladder=sub==='maths'?MATHS:ENGLISH; const cur=S[sub].level;
-    return `<div class="card"><h2>${sub==='maths'?'🔢 Maths ladder':'📖 English ladder'}</h2>
+    const ladder=ladderOf(sub); const cur=S[sub].level;
+    return `<div class="card"><h2>${SUBJECTS[sub].icon} ${SUBJECTS[sub].label} ladder</h2>
       ${ladder.map((l,i)=>`<div class="map-row ${i>cur?'locked':''}">
         <span class="map-ic" style="background:${i<cur?'var(--good)':i===cur?'var(--brand)':'#c3cbe0'}">${i<cur?'✓':i===cur?'▸':'🔒'}</span>
         <div><b>${l.title}</b> <span class="small muted">· Grade ${l.g}</span></div>
@@ -709,7 +816,7 @@ function renderMap(){
   };
   app.innerHTML = `<div class="card"><div class="spread"><h1 style="margin:0">Level map</h1><button class="btn ghost" id="back">← Back</button></div>
     <p class="muted small">Green = mastered · Blue = current · Locked levels open as you progress.</p></div>
-    ${block('maths')}${block('english')}`;
+    ${block('maths')}${block('english')}${block('reading')}`;
   document.getElementById('back').onclick=renderHome;
   foot.innerHTML='';
 }
@@ -718,13 +825,14 @@ function renderMap(){
    PARENT DASHBOARD — which skills are strong and which need work
    ========================================================================= */
 function subjectSnapshot(sub){
-  const ladder=sub==='maths'?MATHS:ENGLISH, st=S[sub];
+  const ladder=ladderOf(sub), st=S[sub];
   const entries=(S.log||[]).filter(e=>e.sub===sub);
   const r=entries.reduce((s,e)=>s+e.right,0), t=entries.reduce((s,e)=>s+e.total,0);
   const acc=t?Math.round(r/t*100):0, lvl=ladder[st.level], pct=Math.round((st.level/ladder.length)*100);
   const col = !entries.length?'var(--muted)':acc>=80?'var(--good)':acc>=60?'var(--warn)':'var(--bad)';
+  const barCol = sub==='maths'?'var(--maths)':sub==='english'?'var(--english)':'var(--reading)';
   return `<div class="card">
-    <div class="spread"><h2 style="margin:0">${sub==='maths'?'🔢 Maths':'📖 English'}</h2><span class="small muted">${entries.length} worksheet${entries.length===1?'':'s'}</span></div>
+    <div class="spread"><h2 style="margin:0">${SUBJECTS[sub].icon} ${SUBJECTS[sub].label}</h2><span class="small muted">${entries.length} worksheet${entries.length===1?'':'s'}</span></div>
     <div class="row" style="padding:8px 0 4px">
       <div style="flex:1">
         <div class="small muted">Current level (${st.level+1} of ${ladder.length})</div>
@@ -732,7 +840,7 @@ function subjectSnapshot(sub){
       </div>
       <div class="center"><div style="font-size:22px;font-weight:900;color:${col}">${entries.length?acc+'%':'—'}</div><div class="small muted">first-try</div></div>
     </div>
-    <div class="progress" style="background:var(--line);margin:8px 0 6px"><i style="width:${pct}%;background:${sub==='maths'?'var(--maths)':'var(--english)'}"></i></div>
+    <div class="progress" style="background:var(--line);margin:8px 0 6px"><i style="width:${pct}%;background:${barCol}"></i></div>
     <div class="small muted">${st.mastered} level${st.mastered===1?'':'s'} mastered so far.</div>
   </div>`;
 }
@@ -740,7 +848,7 @@ function subjectSnapshot(sub){
 function renderParent(){
   const log = S.log||[];
   const fmtDate = ds => { const d=new Date(ds+'T00:00:00'); return isNaN(d)?ds:d.toLocaleDateString(undefined,{day:'numeric',month:'short'}); };
-  const icon = sub => sub==='maths'?'🔢':'📖';
+  const icon = sub => (SUBJECTS[sub] ? SUBJECTS[sub].icon : '•');
   const pill = acc => { const [bg,fg,label] = acc>=85?['#e6f7ef','#0f7a4c','Strong']:acc>=70?['#fff4e0','#a86b00','Developing']:['#fdecee','#b02a3a','Needs work']; return `<span class="pill" style="background:${bg};color:${fg}">${label} · ${acc}%</span>`; };
 
   const sessions=log.length, days=new Set(log.map(e=>e.date)).size;
@@ -777,19 +885,20 @@ function renderParent(){
     </div>
     ${subjectSnapshot('maths')}
     ${subjectSnapshot('english')}
+    ${subjectSnapshot('reading')}
     <div class="card">
       <h2>🎯 Skills to practise next</h2>
       ${needs.length ? `<p class="small muted" style="margin-top:-6px">Ranked by first-try accuracy, lowest first — these are worth revisiting.</p>
         ${needs.slice(0,8).map(s=>`<div class="map-row">
           <span class="map-ic" style="background:${s.acc>=70?'var(--warn)':'var(--bad)'}">${icon(s.sub)}</span>
-          <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${s.sub==='maths'?'Maths':'English'} · Grade ${s.grade} · ${s.sessions} attempt${s.sessions>1?'s':''}</span></div>
+          <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${SUBJECTS[s.sub].label} · Grade ${s.grade} · ${s.sessions} attempt${s.sessions>1?'s':''}</span></div>
           ${pill(s.acc)}
         </div>`).join('')}`
         : `<div class="mistake-item center" style="border-color:var(--good);background:var(--good-bg)"><b>✨ Every practised skill is at 80% or better — great work!</b></div>`}
     </div>
     ${strong.length?`<div class="card"><h2>💪 Strong skills</h2>
       ${strong.slice(0,6).map(s=>`<div class="map-row"><span class="map-ic" style="background:var(--good)">${icon(s.sub)}</span>
-        <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${s.sub==='maths'?'Maths':'English'} · Grade ${s.grade}</span></div>${pill(s.acc)}</div>`).join('')}</div>`:''}
+        <div style="flex:1"><b>${s.title}</b> <span class="small muted">· ${SUBJECTS[s.sub].label} · Grade ${s.grade}</span></div>${pill(s.acc)}</div>`).join('')}</div>`:''}
     <div class="card">
       <h2>📌 Recent mistakes</h2>
       ${mistakes.length? mistakes.map(m=>`<div class="mistake-item"><div class="q">${icon(m.sub)} ${m.q}</div>
@@ -821,7 +930,7 @@ const REPEAT_PCT = 60;   // below this, repeat the level
 let SES = null;
 
 function buildQuestions(sub){
-  const ladder=sub==='maths'?MATHS:ENGLISH; const lvl=ladder[S[sub].level];
+  const ladder=ladderOf(sub); const lvl=ladder[S[sub].level];
   let qs=[];
   if(sub==='maths'){
     for(let i=0;i<QUESTIONS_PER_SET;i++) qs.push(lvl.gen());
@@ -864,7 +973,7 @@ function renderQuestion(){
   app.innerHTML = `
     <div class="card">
       <div class="qbar">
-        <span class="qcount">${SES.sub==='maths'?'🔢':'📖'}</span>
+        <span class="qcount">${SUBJECTS[SES.sub].icon}</span>
         <div class="bar"><i style="width:${pct}%"></i></div>
         <span class="stage ${inCorrection?'correcting':''}">${inCorrection?'✎ Correction':progressCount}</span>
       </div>
@@ -968,7 +1077,7 @@ function advance(){
 function finish(){
   const sub=SES.sub;
   const acc = SES.firstTryTotal? Math.round(SES.firstTryRight/SES.firstTryTotal*100):100;
-  const ladder=sub==='maths'?MATHS:ENGLISH;
+  const ladder=ladderOf(sub);
   const practiced = ladder[S[sub].level]; // capture BEFORE any level-up
   S[sub].attempts++;
   // mark done today
@@ -1000,7 +1109,7 @@ function finish(){
   const msg = acc>=90?'Outstanding!':acc>=80?'Great job!':acc>=60?'Good effort!':'Keep going — you\'ll get it!';
   let banner='';
   if(levelChange==='up') banner=`<div class="levelup">⬆️ Level up! You’ve moved on to<br><b>${ladder[S[sub].level].title}</b></div>`;
-  else if(levelChange==='max') banner=`<div class="levelup">🏆 You’ve reached the top level in ${sub==='maths'?'Maths':'English'}!</div>`;
+  else if(levelChange==='max') banner=`<div class="levelup">🏆 You’ve reached the top level in ${SUBJECTS[sub].label}!</div>`;
   else if(levelChange==='repeat') banner=`<div class="levelup" style="background:linear-gradient(135deg,#f0a500,#ffc44d)">🔁 We’ll practise this level again to make it stick.</div>`;
 
   const mistakesHtml = SES.mistakes.length
@@ -1014,7 +1123,7 @@ function finish(){
     <div class="card center">
       <div class="medal">${medal}</div>
       <h1 style="margin-bottom:0">${msg}</h1>
-      <p class="muted">${SES.sub==='maths'?'Maths':'English'} · ${ladder[SES.firstTryTotal? Math.max(0,S[sub].level-(levelChange==='up'?1:0)):S[sub].level].title}</p>
+      <p class="muted">${SUBJECTS[SES.sub].label} · ${ladder[SES.firstTryTotal? Math.max(0,S[sub].level-(levelChange==='up'?1:0)):S[sub].level].title}</p>
       <div class="statgrid">
         <div class="stat"><b>${acc}%</b><span class="small muted">first-try score</span></div>
         <div class="stat"><b>${SES.firstTryRight}/${SES.firstTryTotal}</b><span class="small muted">right first time</span></div>
