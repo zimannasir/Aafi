@@ -126,6 +126,32 @@
   .map-ic{width:26px;height:26px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
   .map-row.locked{opacity:.5}
   kbd{background:#eef1f8;border-radius:6px;padding:2px 7px;font-size:12px;border:1px solid var(--line)}
+  /* games */
+  .game-cta{background:linear-gradient(135deg,#ecfdf5,#fff)}
+  .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.game-grid{grid-template-columns:1fr}}
+  .game-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:3px;align-items:center;cursor:pointer}
+  .game-tile .ge{font-size:34px}
+  .game-tile b{font-size:16px}
+  .game-score{text-align:center;font-weight:800;color:var(--muted);margin-bottom:8px}
+  .pic-big{font-size:78px;text-align:center;margin:4px 0;line-height:1.1}
+  .build-line{text-align:center;margin:12px 0;min-height:40px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .build-line .blank{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:38px;border-bottom:3px solid var(--brand);font-size:26px;font-weight:800}
+  .tile-row,.chip-row,.key-pad{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+  .ltile{width:46px;height:46px;border-radius:10px;background:#eef1f8;font-size:20px;font-weight:800;border:1px solid var(--line)}
+  .ltile:disabled{opacity:.3}
+  .wchip{background:#eef1f8;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:16px;font-weight:700}
+  .wchip.picked{background:#eaf0ff;border-color:var(--brand)}
+  .wchip:disabled{opacity:.3}
+  .sent-line{min-height:46px;background:#f6f8fc;border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+  .spell-line{text-align:center;font-size:30px;font-weight:800;letter-spacing:5px;margin:12px 0}
+  .key{width:36px;height:42px;border-radius:8px;background:#eef1f8;font-weight:800;border:1px solid var(--line);font-size:16px}
+  .key:disabled{opacity:.3}
+  .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+  .mem-card{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,#4f6df5,#6b8bff);color:#fff;font-size:18px;font-weight:800;border:none;display:flex;align-items:center;justify-content:center;word-break:break-word;padding:3px;line-height:1.05}
+  .mem-card.up{background:#fff;color:var(--ink);border:2px solid var(--brand);font-size:26px}
+  .mem-card.up.wcard{font-size:15px}
+  .mem-card.done{background:var(--good-bg);color:#0f7a4c;border:2px solid var(--good)}
 </style>
 
 <div class="wrap">
@@ -581,6 +607,35 @@ const ENGLISH = [
     ()=>mc('Read: "Despite losing, the team walked off smiling, proud of how far they had come." How did the team feel?', 'Content despite the loss', ['Furious','Ashamed','Bored'], 'Smiling and proud shows contentment.'),
     ()=>mc('Read: "Clouds gathered, the wind picked up, and the birds fell silent." This mostly builds a feeling of…', 'tension before a storm', ['calm and joy','sleepiness','celebration'], 'These clues signal an approaching storm.'),
   ]},
+  /* ---- Teen English (British Council Teens style: everyday & topic English) ---- */
+  {g:6, title:'Teen English: everyday situations', items:[
+    ()=>mc('A friend says "How\'s it going?" Best reply:', 'Not bad, thanks. You?', ['You are welcome.','It is on the table.','Yes, please.'], 'A friendly greeting gets a friendly reply.'),
+    ()=>mc('Ordering in a café, the polite way is:', 'Could I have a lemonade, please?', ['Give me lemonade.','Lemonade now.','I lemonade want.'], '"Could I have… please" is polite.'),
+    ()=>mc('Someone says "Thanks a lot!" Best reply:', 'No problem!', ['Sorry.','Never.','Please.'], '"No problem" accepts thanks warmly.'),
+    ()=>mc('Asking for directions politely:', 'Excuse me, how do I get to the station?', ['Where station?','Station you tell me.','I go station where?'], 'Start with "Excuse me" and a full question.'),
+    ()=>mc('Making a suggestion to a friend:', 'Why don’t we watch a film?', ['We watching film.','Film we should not.','You must film.'], '"Why don’t we…" suggests an idea.'),
+    ()=>mc('In a chat, "BRB" means:', 'Be right back', ['Bring red box','Best regards back','Be really busy'], 'BRB = be right back.'),
+    ()=>mc('"I’m over the moon" means you are:', 'very happy', ['very tired','in space','very cold'], 'It is an idiom for delighted.'),
+    ()=>mc('Accepting an invitation:', 'Sure, I’d love to!', ['No thanks, never.','Maybe not ever.','I would not.'], 'A warm way to say yes.'),
+    ()=>mc('"Can you give me a hand?" is asking for:', 'help', ['a body part','money','a pen'], 'Give a hand = help out.'),
+    ()=>mc('Apologising properly:', 'I’m really sorry — it won’t happen again.', ['It is your fault.','So what.','Never mind me.'], 'A genuine apology takes responsibility.'),
+    ()=>mc('"Let’s catch up soon" means:', 'meet and talk again soon', ['run after someone','tidy up','fall behind'], 'catch up = reconnect.'),
+    ()=>mc('Replying to "Do you fancy pizza?"', 'Yeah, sounds great!', ['Pizza is a country.','No because yes.','I fancy not never.'], '"fancy" here means "would you like".'),
+  ]},
+  {g:6, title:'Teen English: topics & vocabulary', items:[
+    ()=>mc('"Reduce, reuse and recycle" helps the:', 'environment', ['internet','homework','traffic'], 'The 3 Rs cut waste and protect nature.'),
+    ()=>mc('Someone with a huge online following is an:', 'influencer', ['inventor','editor','operator'], 'Influencers shape opinions online.'),
+    ()=>mc('"Sustainable" energy is energy that:', 'can be used again and again without running out', ['runs out quickly','is always expensive','makes lots of smoke'], 'Sustainable = long-lasting, renewable.'),
+    ()=>mc('If a video "goes viral", it is:', 'shared and watched by huge numbers of people', ['full of germs','deleted','always very short'], 'Viral = spreads fast online.'),
+    ()=>mc('"Screen time" is the time you spend:', 'using phones, tablets or computers', ['painting a screen','at the cinema only','sleeping'], 'It measures device use.'),
+    ()=>mc('A "balanced diet" includes:', 'a healthy mix of different foods', ['only sweets','only one food','no food at all'], 'Balance = variety and nutrition.'),
+    ()=>mc('"Renewable" resources include:', 'wind and solar power', ['coal and oil','plastic bags','petrol'], 'Wind and sun never run out.'),
+    ()=>mc('To "unplug" for a while means to:', 'take a break from devices', ['pull out every wire','switch off the sun','stop eating'], 'Unplug = digital break.'),
+    ()=>mc('Someone who protects the planet is an:', 'environmentalist', ['accountant','librarian','mechanic'], 'They campaign for nature.'),
+    ()=>mc('"Fake news" is:', 'false information made to look real', ['old newspapers','breaking news','a news app'], 'Fake news misleads on purpose.'),
+    ()=>mc('"Carbon footprint" is a measure of:', 'the greenhouse gases your actions cause', ['your shoe size','how far you walk','how much you recycle only'], 'It tracks your impact on the climate.'),
+    ()=>mc('To "log in" to an app you usually need a:', 'username and password', ['pen and paper','key and lock','stamp'], 'Credentials verify who you are.'),
+  ]},
 ];
 
 /* =========================================================================
@@ -835,8 +890,15 @@ function renderHome(){
     ${subjectCard('maths')}
     ${subjectCard('english')}
     ${subjectCard('reading')}
+    <div class="card game-cta">
+      <div class="spread">
+        <div><h2 style="margin:0">🎮 Games</h2><p class="muted small" style="margin:2px 0 0">Picture match, word & sentence builders, spelling, memory</p></div>
+        <button class="btn" id="openGames" style="background:var(--reading)">Play →</button>
+      </div>
+    </div>
   `;
   document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
+  document.getElementById('openGames').onclick=renderGames;
   document.querySelectorAll('.pchip[data-pid]').forEach(b=>b.onclick=()=>setActive(b.dataset.pid));
   document.getElementById('addP').onclick=()=>renderOnboard(true);
   document.getElementById('homeAvatar').onclick=()=>changePhoto(S.id);
@@ -1053,7 +1115,8 @@ function renderQuestion(){
       ${q.type==='mcq'
         ? `<div class="choices" id="choices">${q.choices.map(c=>`<button class="choice" data-c="${encodeURIComponent(c)}">${c}</button>`).join('')}</div>`
         : `<input class="answer" id="ans" autocomplete="off" autocapitalize="off" placeholder="Type your answer">
-           <p class="qhint small">Press <kbd>Enter</kbd> to check</p>
+           <button class="btn wide" id="checkBtn" style="margin-top:12px">Check ✓</button>
+           <p class="qhint small" style="margin-top:8px">…or press <kbd>Enter</kbd></p>
            ${SES.sub==='maths' ? `
            <div class="scratch">
              <div class="spread" style="margin-bottom:6px">
@@ -1076,6 +1139,7 @@ function renderQuestion(){
     const inp=document.getElementById('ans');
     inp.focus();
     inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(!SES.answeredThisQ) submitInput(); else advance(); }});
+    document.getElementById('checkBtn').onclick=()=>{ if(!SES.answeredThisQ) submitInput(); };
     setupScratchpad();
   }
 }
@@ -1109,6 +1173,7 @@ function setupScratchpad(){
 
 function judge(correct, q, userAns){
   SES.answeredThisQ=true;
+  const cb=document.getElementById('checkBtn'); if(cb) cb.style.display='none';
   const fb=document.getElementById('fb');
   const isFirstMain = (SES.stage!=='retry');
   if(isFirstMain){ SES.firstTryTotal++; if(correct) SES.firstTryRight++; }
@@ -1432,6 +1497,204 @@ function renderCloud(){
   const disc=document.getElementById('disc'); if(disc) disc.onclick=driveDisconnect;
   const sn=document.getElementById('syncNow'); if(sn) sn.onclick=driveUpload;
   foot.innerHTML='';
+}
+
+/* =========================================================================
+   GAMES — fun word & picture activities (emoji-based, offline). They award XP
+   but stay separate from the mastery ladder. Formats inspired by latihan.my:
+   picture match, word builder, sentence builder, guess & spell, memory match.
+   ========================================================================= */
+const GAME_WORDS = [
+  {e:'🍎',w:'apple'},{e:'🍌',w:'banana'},{e:'🐶',w:'dog'},{e:'🐱',w:'cat'},
+  {e:'☀️',w:'sun'},{e:'🌙',w:'moon'},{e:'⭐',w:'star'},{e:'🌳',w:'tree'},
+  {e:'🐟',w:'fish'},{e:'🐦',w:'bird'},{e:'🚗',w:'car'},{e:'🚌',w:'bus'},
+  {e:'📖',w:'book'},{e:'⚽',w:'ball'},{e:'🍰',w:'cake'},{e:'🏠',w:'house'},
+  {e:'🌸',w:'flower'},{e:'🔑',w:'key'},{e:'🎩',w:'hat'},{e:'👟',w:'shoe'},
+  {e:'⛵',w:'boat'},{e:'🚂',w:'train'},{e:'✈️',w:'plane'},{e:'🐸',w:'frog'},
+  {e:'🐻',w:'bear'},{e:'🦁',w:'lion'},{e:'🐘',w:'elephant'},{e:'🐰',w:'rabbit'},
+  {e:'🐍',w:'snake'},{e:'🦆',w:'duck'},{e:'🥚',w:'egg'},{e:'🥛',w:'milk'},
+  {e:'🍞',w:'bread'},{e:'📱',w:'phone'},{e:'🔔',w:'bell'},{e:'🪁',w:'kite'},
+  {e:'🥁',w:'drum'},{e:'🔥',w:'fire'},{e:'🍋',w:'lemon'},{e:'🦋',w:'butterfly'},
+];
+const GAME_SENTENCES = [
+  'The cat sat on the mat.','I like to play games.','We go to school every day.',
+  'The sun is very hot today.','She has a big red hat.','Birds can fly high in the sky.',
+  'He is my best friend.','We eat our lunch at noon.','The dog ran to the park.',
+  'My mum reads me a story.','Please close the door quietly.','The little frog jumped away.',
+];
+function gameAward(xp){ S.xp += xp; save(); }
+function gameHeader(title){ return `<div class="spread" style="margin-bottom:10px"><h1 style="margin:0;font-size:22px">${title}</h1><button class="btn ghost" id="gback">← Games</button></div>`; }
+function wireBack(){ const b=document.getElementById('gback'); if(b) b.onclick=renderGames; }
+function gameEnd(title, score, total, again){
+  gameAward(3);
+  app.innerHTML=`<div class="card center">
+    <div class="medal">${score>=total?'🏆':score>=total*0.6?'🥈':'💪'}</div>
+    <h1 style="margin-bottom:0">${score>=total?'Perfect!':'Well done!'}</h1>
+    <p class="muted">${title} · you earned XP ⭐</p>
+    <div class="big-num" style="color:var(--reading)">${score} / ${total}</div>
+    <div class="row" style="gap:10px;margin-top:14px">
+      <button class="btn big" id="pAgain" style="flex:1">Play again</button>
+      <button class="btn big ghost" id="pMenu" style="flex:1">Games menu</button>
+    </div></div>`;
+  document.getElementById('pAgain').onclick=again;
+  document.getElementById('pMenu').onclick=renderGames;
+}
+function renderGames(){
+  document.getElementById('homeBtn').classList.remove('hidden');
+  const games=[
+    ['pic','🖼️','Picture Match','Match the picture to the word'],
+    ['word','🔤','Word Builder','Unscramble letters to spell it'],
+    ['sent','📝','Sentence Builder','Put the words in order'],
+    ['spell','🔡','Guess & Spell','Pick letters to spell the word'],
+    ['mem','🧠','Memory Match','Find the picture-word pairs'],
+  ];
+  app.innerHTML=`<div class="card"><div class="spread"><h1 style="margin:0">🎮 Games</h1></div>
+    <p class="muted small" style="margin:6px 0 0">Fun practice — every game earns XP. Tap one to play.</p></div>
+    <div class="game-grid">${games.map(g=>`<button class="game-tile" data-g="${g[0]}"><span class="ge">${g[1]}</span><b>${g[2]}</b><span class="small muted">${g[3]}</span></button>`).join('')}</div>`;
+  document.querySelectorAll('.game-tile').forEach(b=>b.onclick=()=>startGame(b.dataset.g));
+  foot.innerHTML='';
+}
+function startGame(t){ ({pic:gamePic,word:gameWord,sent:gameSent,spell:gameSpell,mem:gameMem}[t])(); }
+
+/* 1) Picture Match */
+function gamePic(){
+  let round=0, score=0; const total=8, pool=shuffle(GAME_WORDS);
+  (function step(){
+    if(round>=total) return gameEnd('🖼️ Picture Match', score, total, gamePic);
+    const target=pool[round];
+    const opts=shuffle([target, ...shuffle(GAME_WORDS.filter(x=>x.w!==target.w)).slice(0,3)]);
+    app.innerHTML=`<div class="card">${gameHeader('🖼️ Picture Match')}
+      <div class="game-score">Round ${round+1}/${total} · ⭐ ${score}</div>
+      <div class="pic-big">${target.e}</div>
+      <p class="center muted">Which word matches the picture?</p>
+      <div class="choices">${opts.map(o=>`<button class="choice" data-w="${o.w}">${o.w}</button>`).join('')}</div>
+      <div id="gfb" class="feedback"></div></div>`;
+    wireBack();
+    document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{
+      const ok=b.dataset.w===target.w;
+      document.querySelectorAll('.choice').forEach(x=>{ x.disabled=true; if(x.dataset.w===target.w)x.classList.add('right'); else if(x===b)x.classList.add('wrong'); });
+      if(ok){ score++; gameAward(1); }
+      const fb=document.getElementById('gfb'); fb.className='feedback show '+(ok?'ok':'no'); fb.innerHTML=ok?'✅ Correct!':`The word is <b>${target.w}</b>`;
+      setTimeout(()=>{ round++; step(); }, 850);
+    });
+  })();
+}
+
+/* 2) Word Builder */
+function gameWord(){
+  let round=0, score=0; const total=8, pool=shuffle(GAME_WORDS.filter(x=>x.w.length>=3 && x.w.length<=7));
+  (function step(){
+    if(round>=total) return gameEnd('🔤 Word Builder', score, total, gameWord);
+    const target=pool[round], word=target.w, letters=shuffle(word.split(''));
+    let chosen=[];
+    function draw(msg){
+      app.innerHTML=`<div class="card">${gameHeader('🔤 Word Builder')}
+        <div class="game-score">Round ${round+1}/${total} · ⭐ ${score}</div>
+        <div class="pic-big">${target.e}</div>
+        <div class="build-line">${word.split('').map((_,i)=>`<span class="blank">${chosen[i]!=null?letters[chosen[i]]:''}</span>`).join('')}</div>
+        <div class="tile-row">${letters.map((l,i)=>`<button class="ltile" data-i="${i}" ${chosen.includes(i)?'disabled':''}>${l}</button>`).join('')}</div>
+        <div class="row" style="gap:8px;margin-top:12px;justify-content:center"><button class="btn ghost" id="undoL">↶ Undo</button><button class="btn ghost" id="clearL">Clear</button></div>
+        <div id="gfb" class="feedback ${msg?'show '+msg.t:''}">${msg?msg.h:''}</div></div>`;
+      wireBack();
+      document.querySelectorAll('.ltile').forEach(b=>b.onclick=()=>{ chosen.push(+b.dataset.i); if(chosen.length===word.length) check(); else draw(); });
+      document.getElementById('undoL').onclick=()=>{ chosen.pop(); draw(); };
+      document.getElementById('clearL').onclick=()=>{ chosen=[]; draw(); };
+    }
+    function check(){
+      const built=chosen.map(i=>letters[i]).join('');
+      if(built===word){ score++; gameAward(1); draw({t:'ok',h:'✅ '+word.toUpperCase()+'!'}); setTimeout(()=>{ round++; step(); }, 850); }
+      else { draw({t:'no',h:'❌ Not quite — try again'}); setTimeout(()=>{ chosen=[]; draw(); }, 850); }
+    }
+    draw();
+  })();
+}
+
+/* 3) Sentence Builder */
+function gameSent(){
+  let round=0, score=0; const total=6, pool=shuffle(GAME_SENTENCES);
+  (function step(){
+    if(round>=total) return gameEnd('📝 Sentence Builder', score, total, gameSent);
+    const sentence=pool[round], words=sentence.replace(/\.$/,'').split(' '), order=shuffle(words.map((w,i)=>i));
+    let chosen=[];
+    function draw(msg){
+      app.innerHTML=`<div class="card">${gameHeader('📝 Sentence Builder')}
+        <div class="game-score">Round ${round+1}/${total} · ⭐ ${score}</div>
+        <p class="center muted">Tap the words in the right order.</p>
+        <div class="sent-line">${chosen.length?chosen.map(i=>`<span class="wchip picked">${words[i]}</span>`).join(''):'<span class="muted small">Your sentence…</span>'}</div>
+        <div class="chip-row">${order.map(i=>`<button class="wchip" data-i="${i}" ${chosen.includes(i)?'disabled':''}>${words[i]}</button>`).join('')}</div>
+        <div class="row" style="gap:8px;margin-top:12px;justify-content:center"><button class="btn ghost" id="undoW">↶ Undo</button><button class="btn ghost" id="clearW">Clear</button></div>
+        <div id="gfb" class="feedback ${msg?'show '+msg.t:''}">${msg?msg.h:''}</div></div>`;
+      wireBack();
+      document.querySelectorAll('.chip-row .wchip').forEach(b=>b.onclick=()=>{ chosen.push(+b.dataset.i); if(chosen.length===words.length) check(); else draw(); });
+      document.getElementById('undoW').onclick=()=>{ chosen.pop(); draw(); };
+      document.getElementById('clearW').onclick=()=>{ chosen=[]; draw(); };
+    }
+    function check(){
+      const built=chosen.map(i=>words[i]).join(' ');
+      if(built===words.join(' ')){ score++; gameAward(2); draw({t:'ok',h:'✅ '+sentence}); setTimeout(()=>{ round++; step(); }, 1100); }
+      else { draw({t:'no',h:'❌ Not quite — try again'}); setTimeout(()=>{ chosen=[]; draw(); }, 1100); }
+    }
+    draw();
+  })();
+}
+
+/* 4) Guess & Spell */
+function gameSpell(){
+  let round=0, score=0; const total=6, pool=shuffle(GAME_WORDS.filter(x=>x.w.length<=8));
+  (function step(){
+    if(round>=total) return gameEnd('🔡 Guess & Spell', score, total, gameSpell);
+    const target=pool[round], word=target.w; let lives=6, guessed=new Set(), scored=false;
+    function draw(){
+      const won=word.split('').every(c=>guessed.has(c)), lost=lives<=0;
+      const display=word.split('').map(c=> guessed.has(c)?c:'_').join(' ');
+      app.innerHTML=`<div class="card">${gameHeader('🔡 Guess & Spell')}
+        <div class="game-score">Word ${round+1}/${total} · ⭐ ${score} · ${'❤️'.repeat(Math.max(0,lives))}</div>
+        <div class="pic-big">${target.e}</div>
+        <div class="spell-line">${display}</div>
+        <div class="key-pad">${'abcdefghijklmnopqrstuvwxyz'.split('').map(l=>`<button class="key" data-l="${l}" ${guessed.has(l)||won||lost?'disabled':''}>${l}</button>`).join('')}</div>
+        <div id="gfb" class="feedback ${won?'show ok':lost?'show no':''}">${won?'✅ '+word.toUpperCase()+'!':lost?'The word was <b>'+word.toUpperCase()+'</b>':''}</div></div>`;
+      wireBack();
+      document.querySelectorAll('.key').forEach(b=>b.onclick=()=>{
+        guessed.add(b.dataset.l); if(!word.includes(b.dataset.l)) lives--;
+        const won2=word.split('').every(c=>guessed.has(c)), lost2=lives<=0;
+        if(won2 && !scored){ scored=true; score++; gameAward(2); }
+        draw();
+        if(won2||lost2) setTimeout(()=>{ round++; step(); }, 1200);
+      });
+    }
+    draw();
+  })();
+}
+
+/* 5) Memory Match */
+function gameMem(){
+  const pairs=shuffle(GAME_WORDS).slice(0,6);
+  let cards=[]; pairs.forEach(p=>{ cards.push({key:p.w,face:p.e,type:'e'}); cards.push({key:p.w,face:p.w,type:'w'}); });
+  cards=shuffle(cards).map((c,i)=>({...c,id:i,matched:false}));
+  let flipped=[], moves=0, matched=0, lock=false;
+  function draw(){
+    const done=matched===pairs.length;
+    app.innerHTML=`<div class="card">${gameHeader('🧠 Memory Match')}
+      <div class="game-score">Moves: ${moves} · Pairs: ${matched}/${pairs.length}</div>
+      <div class="mem-grid">${cards.map(c=>{ const show=c.matched||flipped.includes(c.id);
+        return `<button class="mem-card ${show?'up':''} ${c.type==='w'?'wcard':''} ${c.matched?'done':''}" data-id="${c.id}" ${c.matched?'disabled':''}>${show?c.face:'❓'}</button>`;
+      }).join('')}</div>
+      <div id="gfb" class="feedback ${done?'show ok':''}">${done?'🎉 All pairs found in '+moves+' moves!':''}</div>
+      ${done?`<div class="row" style="gap:10px;margin-top:14px"><button class="btn big" id="pAgain" style="flex:1">Play again</button><button class="btn big ghost" id="pMenu" style="flex:1">Games menu</button></div>`:''}</div>`;
+    wireBack();
+    if(done){ document.getElementById('pAgain').onclick=gameMem; document.getElementById('pMenu').onclick=renderGames; return; }
+    document.querySelectorAll('.mem-card').forEach(b=>b.onclick=()=>{
+      if(lock) return; const id=+b.dataset.id, card=cards.find(c=>c.id===id);
+      if(card.matched||flipped.includes(id)) return;
+      flipped.push(id);
+      if(flipped.length===2){ moves++; lock=true; draw();
+        const [a,bb]=flipped.map(fid=>cards.find(c=>c.id===fid));
+        if(a.key===bb.key){ setTimeout(()=>{ a.matched=bb.matched=true; matched++; flipped=[]; lock=false; if(matched===pairs.length) gameAward(6); draw(); }, 650); }
+        else { setTimeout(()=>{ flipped=[]; lock=false; draw(); }, 900); }
+      } else draw();
+    });
+  }
+  draw();
 }
 
 /* return to the landing page from anywhere (confirm if mid-worksheet) */
