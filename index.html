@@ -220,7 +220,7 @@ function mc(q, answer, distractors, explain){
    Each level has a generator that returns a fresh question every call.
    ========================================================================= */
 const MATHS = [
-  {g:1, title:'Number bonds to 10', gen:()=>{const a=rnd(1,9); return {q:`${a} + ⬚ = 10`, a:String(10-a), type:'input', explain:`10 − ${a} = ${10-a}`};}},
+  {g:1, title:'Adding to 10', gen:()=>{const a=rnd(1,5),b=rnd(1,5); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
   {g:1, title:'Adding within 10', gen:()=>{const a=rnd(1,8),b=rnd(1,9-a); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
   {g:1, title:'Taking away within 10', gen:()=>{const a=rnd(2,10),b=rnd(1,a); return {q:`${a} − ${b} = ?`, a:String(a-b), type:'input'};}},
   {g:1, title:'Adding within 20', gen:()=>{const a=rnd(5,15),b=rnd(2,20-a); return {q:`${a} + ${b} = ?`, a:String(a+b), type:'input'};}},
@@ -642,6 +642,65 @@ const ENGLISH = [
     ()=>mc('"Carbon footprint" is a measure of:', 'the greenhouse gases your actions cause', ['your shoe size','how far you walk','how much you recycle only'], 'It tracks your impact on the climate.'),
     ()=>mc('To "log in" to an app you usually need a:', 'username and password', ['pen and paper','key and lock','stamp'], 'Credentials verify who you are.'),
   ]},
+  /* ---- From LESSON PLAN folder (New Headway Elementary + O-Level sample) ---- */
+  {g:2, title:'There is / There are', items:[
+    ()=>mc('Choose: "___ a sofa in the living room."', 'There is', ['There are','There am','There be'], 'One thing (a sofa) → There is.'),
+    ()=>mc('Choose: "___ three chairs in the kitchen."', 'There are', ['There is','There am','There be'], 'More than one → There are.'),
+    ()=>mc('Choose: "In my bedroom ___ a big bed."', 'there is', ['there are','there am','there be'], 'One bed → there is.'),
+    ()=>mc('Choose: "___ two windows in the room."', 'There are', ['There is','There was one','There be'], 'Two windows → There are.'),
+    ()=>mc('Choose: "There ___ some books on the shelf."', 'are', ['is','am','be'], 'Books (plural) → are.'),
+    ()=>mc('Choose: "There ___ a lamp next to the bed."', 'is', ['are','am','be'], 'One lamp → is.'),
+    ()=>mc('Which room has a cooker and a fridge?', 'kitchen', ['bedroom','bathroom','garden'], 'You cook in the kitchen.'),
+    ()=>mc('Where do you usually find a sofa?', 'living room', ['kitchen','bathroom','garage'], 'The sofa is in the living room.'),
+    ()=>mc('Which sentence is correct?', 'There are four rooms in the house.', ['There is four rooms in the house.','There am four rooms.','There be four rooms.'], 'Four rooms (plural) → There are.'),
+    ()=>mc('Which piece of furniture do you sleep on?', 'bed', ['table','cooker','mirror'], 'You sleep on a bed.'),
+  ]},
+  {g:2, title:'Prepositions of place', items:[
+    ()=>mc('"The shoes are ___ the bed." (below it)', 'under', ['on','in','above'], 'under = below something.'),
+    ()=>mc('"The picture is ___ the wall."', 'on', ['in','under','behind'], 'A picture hangs on a wall.'),
+    ()=>mc('"The milk is ___ the fridge." (inside)', 'in', ['on','under','next to'], 'in = inside.'),
+    ()=>mc('"The chair is ___ the table." (beside it)', 'next to', ['under','behind','on'], 'next to = beside.'),
+    ()=>mc('"The car is ___ the house." (at the back)', 'behind', ['in front of','on','in'], 'behind = at the back.'),
+    ()=>mc('"The teacher stands ___ the class." (before them)', 'in front of', ['behind','under','inside'], 'in front of = before/ahead.'),
+    ()=>mc('"The cat is hiding ___ the box." (inside)', 'in', ['on','under','next to'], 'in = inside the box.'),
+    ()=>mc('"The ball rolled ___ the table." (below)', 'under', ['on','above','in'], 'under = below the table.'),
+  ]},
+  {g:2, title:'Seasons, months & weather', items:[
+    ()=>mc('Which one is a season?', 'summer', ['Monday','January','morning'], 'The seasons are spring, summer, autumn, winter.'),
+    ()=>mc('How many seasons are there in a year?', 'four', ['two','seven','twelve'], 'Spring, summer, autumn and winter.'),
+    ()=>mc('In winter the weather is usually…', 'cold and snowy', ['hot and sunny','warm and dry','none'], 'Winter is the coldest season.'),
+    ()=>mc('Which season comes after spring?', 'summer', ['winter','autumn','Monday'], 'Spring → summer → autumn → winter.'),
+    ()=>mc('The season when leaves fall is…', 'autumn', ['spring','summer','winter'], 'Leaves fall in autumn.'),
+    ()=>mc('You can go sunbathing when it is…', 'hot and sunny', ['cold','rainy','snowy'], 'Sunbathing needs sunshine.'),
+    ()=>mc('Which activity happens on snow?', 'skiing', ['surfing','sailing','sunbathing'], 'You ski on snow.'),
+    ()=>mc('Surfing and sailing are done on…', 'water', ['snow','sand','ice'], 'They are water activities.'),
+    ()=>mc('Which is NOT a season?', 'August', ['spring','summer','autumn'], 'August is a month, not a season.'),
+    ()=>mc('Water falling from the sky is called…', 'rain', ['sun','wind','sand'], 'Rain falls from clouds.'),
+  ]},
+  {g:3, title:'Countries, cities & nationalities', items:[
+    ()=>mc('Which one is a country?', 'Japan', ['Tokyo','Paris','Rome'], 'Japan is a country; the others are cities.'),
+    ()=>mc('Which one is a city?', 'London', ['England','France','Spain'], 'London is a city; the others are countries.'),
+    ()=>mc('Country and city names begin with a…', 'capital letter', ['small letter','number','full stop'], 'They are proper nouns.'),
+    ()=>mc('Choose: "She is ___ Malaysia." (where she was born)', 'from', ['in','on','at'], 'We say "from" a country for origin.'),
+    ()=>mc('Choose: "Kuala Lumpur is the capital ___ Malaysia."', 'of', ['from','in','to'], 'the capital of a country.'),
+    ()=>mc('Someone from France is…', 'French', ['France','Francish','Franch'], 'The nationality is French.'),
+    ()=>mc('Someone from Japan is…', 'Japanese', ['Japan','Japanish','Japanean'], 'The nationality is Japanese.'),
+    ()=>mc('Choose: "Paris is a city ___ France." (inside)', 'in', ['from','of','on'], 'A city is "in" a country.'),
+    ()=>mc('Which is written correctly?', 'I live in China.', ['i live in china.','I live in china.','i live in China.'], 'Start with a capital; China is a proper noun.'),
+    ()=>mc('The capital city of England is…', 'London', ['Manchester','Liverpool','Leeds'], 'London is England’s capital.'),
+  ]},
+  {g:6, title:'Answering in your own words', items:[
+    ()=>mc('"The boy was terrified." In your own words, he was very…', 'frightened', ['brave','bored','happy'], 'terrified = very frightened.'),
+    ()=>mc('"She sprinted to the door." In your own words, she ___ to the door.', 'ran quickly', ['walked slowly','crawled','looked'], 'sprint = run very fast.'),
+    ()=>mc('"The room was enormous." In your own words, the room was very…', 'big', ['small','clean','dark'], 'enormous = very big.'),
+    ()=>mc('"He was reluctant to help." This means he was…', 'unwilling', ['eager','quick','glad'], 'reluctant = unwilling.'),
+    ()=>mc('In "The path was treacherous", which is the KEY word to explain?', 'treacherous', ['the','path','was'], 'The key word carries the meaning.'),
+    ()=>mc('"They were overjoyed." In your own words:', 'very happy', ['very tired','a little sad','confused'], 'overjoyed = extremely happy.'),
+    ()=>mc('To answer "in your own words" you should…', 'use different words with the same meaning', ['copy the text exactly','write nothing','change the meaning'], 'Paraphrase — don’t copy.'),
+    ()=>mc('"The house was ancient." In your own words, it was very…', 'old', ['new','tall','cold'], 'ancient = very old.'),
+    ()=>mc('"The soup was scalding." In your own words, it was very…', 'hot', ['cold','sweet','thick'], 'scalding = very hot.'),
+    ()=>mc('"She was baffled by the question." She was…', 'confused', ['certain','pleased','angry'], 'baffled = confused.'),
+  ]},
 ];
 
 /* =========================================================================
@@ -726,6 +785,17 @@ const READING = [
   ]},
 ];
 
+/* -------------------------------------------------------------------------
+   Put every ladder into proper GRADE ORDER. We record the pre-sort title order
+   first, so existing saved progress (stored as an index) can be remapped by the
+   skill's name — see migrateProfile(). Array.sort is stable, so within a grade
+   the authored order is preserved. New levels dropped anywhere now slot into
+   their grade automatically.
+   ------------------------------------------------------------------------- */
+const OLD_ORDER = { maths: MATHS.map(l=>l.title), english: ENGLISH.map(l=>l.title), reading: READING.map(l=>l.title) };
+[MATHS, ENGLISH, READING].forEach(ladder => ladder.sort((a,b)=>a.g-b.g));
+const LADDER_V = 2; // bump when a reorder happens so migration re-runs once
+
 /* subject registry — makes Maths, English and Reading interchangeable */
 const SUBJECTS = {
   maths:   { label:'Maths',   icon:'🔢', ladder:MATHS },
@@ -748,14 +818,26 @@ function freshState(name, grade){
     streak:0, lastActive:null, xp:0,
     corrections:{ maths:[], english:[], reading:[] }, // carried-over mistakes to redo next time
     doneToday:{ date:null, maths:false, english:false, reading:false },
-    log:[]  // session history for the parent dashboard: {date, sub, title, grade, acc, right, total, fixed, mistakes:[...]}
+    log:[], _v:LADDER_V  // session history + ladder-version stamp
   };
 }
-/* ensure older saved profiles gain any newly-added subjects/fields */
+/* ensure older saved profiles gain any newly-added subjects/fields, and remap
+   their saved level after a ladder re-order so they stay on the SAME skill */
 function migrateProfile(p){
   if(!p.log) p.log=[];
   if(!p.corrections) p.corrections={};
   if(!p.doneToday) p.doneToday={date:null};
+  // one-time remap: old stored index → skill title (old order) → new index (sorted order)
+  if(p._v!==LADDER_V){
+    SUBJECT_KEYS.forEach(sub=>{
+      const old=OLD_ORDER[sub];
+      if(p[sub] && typeof p[sub].level==='number' && old){
+        const title=old[p[sub].level];
+        if(title){ const ni=SUBJECTS[sub].ladder.findIndex(l=>l.title===title); if(ni>=0) p[sub].level=ni; }
+      }
+    });
+    p._v=LADDER_V;
+  }
   SUBJECT_KEYS.forEach(sub=>{
     if(!p[sub]){ const i=SUBJECTS[sub].ladder.findIndex(l=>l.g===p.grade); p[sub]={ level:i<0?0:i, attempts:0, mastered:0 }; }
     if(!p.corrections[sub]) p.corrections[sub]=[];
@@ -1202,6 +1284,7 @@ function setupScratchpad(){
 function judge(correct, q, userAns){
   SES.answeredThisQ=true;
   const cb=document.getElementById('checkBtn'); if(cb) cb.style.display='none';
+  const inpEl=document.getElementById('ans'); if(inpEl) inpEl.disabled=true; // lock so nothing double-fires
   const fb=document.getElementById('fb');
   const isFirstMain = (SES.stage!=='retry');
   if(isFirstMain){ SES.firstTryTotal++; if(correct) SES.firstTryRight++; }
@@ -1225,9 +1308,15 @@ function judge(correct, q, userAns){
   }
   const nx=document.getElementById('next');
   const last = isLastStep();
-  nx.innerHTML=`<button class="btn wide" id="nextBtn">${last?'See results →':'Next →'}</button>`;
-  document.getElementById('nextBtn').onclick=advance;
-  document.getElementById('nextBtn').focus();
+  // Maths: a correct answer moves on by itself (no "Next" tap needed).
+  if(correct && SES.sub==='maths'){
+    nx.innerHTML=`<div class="center small muted" style="font-weight:700">${last?'Finishing…':'Next question…'} ✨</div>`;
+    setTimeout(()=>{ if(document.getElementById('next')) advance(); }, 850); // guard: skip if the user left the worksheet
+  } else {
+    nx.innerHTML=`<button class="btn wide" id="nextBtn">${last?'See results →':'Next →'}</button>`;
+    document.getElementById('nextBtn').onclick=advance;
+    document.getElementById('nextBtn').focus();
+  }
 }
 
 function isLastStep(){
@@ -1285,7 +1374,7 @@ function finish(){
   const practiced = ladder[S[sub].level]; // capture BEFORE any level-up
   S[sub].attempts++;
   // mark done today
-  if(S.doneToday.date!==todayStr()) S.doneToday={date:todayStr(),maths:false,english:false};
+  if(S.doneToday.date!==todayStr()) S.doneToday={date:todayStr(),maths:false,english:false,reading:false};
   S.doneToday[sub]=true;
 
   // Any questions the learner still couldn't fix are impossible here (retry loop forces correction),
@@ -1293,10 +1382,18 @@ function finish(){
   // because everything was corrected in-session. We keep the store for future extension:
   S.corrections[sub]=[];
 
+  const mastered = acc>=MASTER_PCT;
+  const atMax = S[sub].level >= ladder.length-1;
+  const mathsMode = (sub==='maths');   // maths: drill the same level; moving up is a choice
   let levelChange='none';
-  if(acc>=MASTER_PCT && S[sub].level < ladder.length-1){ S[sub].level++; S[sub].mastered++; levelChange='up'; S.xp+=10; }
-  else if(acc>=MASTER_PCT && S[sub].level===ladder.length-1){ levelChange='max'; S.xp+=10; }
-  else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+  if(!mathsMode){
+    if(mastered && !atMax){ S[sub].level++; S[sub].mastered++; levelChange='up'; S.xp+=10; }
+    else if(mastered && atMax){ levelChange='max'; S.xp+=10; }
+    else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+  } else {
+    if(mastered){ levelChange='mastered'; S.xp+=5; }
+    else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+  }
 
   // record this session for the parent dashboard (keep the most recent 80)
   S.log.push({
@@ -1309,12 +1406,25 @@ function finish(){
   if(S.log.length>80) S.log = S.log.slice(-80);
   save();
 
+  // distinct days this level has been practised (daily-practice tracking)
+  const daysOnLevel = new Set(S.log.filter(e=>e.sub===sub && e.title===practiced.title).map(e=>e.date)).size;
+
   const medal = acc>=90?'🥇':acc>=80?'🥈':acc>=60?'🥉':'💪';
   const msg = acc>=90?'Outstanding!':acc>=80?'Great job!':acc>=60?'Good effort!':'Keep going — you\'ll get it!';
+
   let banner='';
-  if(levelChange==='up') banner=`<div class="levelup">⬆️ Level up! You’ve moved on to<br><b>${ladder[S[sub].level].title}</b></div>`;
-  else if(levelChange==='max') banner=`<div class="levelup">🏆 You’ve reached the top level in ${SUBJECTS[sub].label}!</div>`;
-  else if(levelChange==='repeat') banner=`<div class="levelup" style="background:linear-gradient(135deg,#f0a500,#ffc44d)">🔁 We’ll practise this level again to make it stick.</div>`;
+  if(mathsMode){
+    if(mastered){
+      const wk = daysOnLevel>=7;
+      banner=`<div class="levelup" style="${wk?'':'background:linear-gradient(135deg,#4f6df5,#6b8bff)'}">🌟 ${wk?'A whole week on this level — ready to move up!':'Mastered today!'}<br><span class="small" style="font-weight:600">Practised “${practiced.title}” on ${daysOnLevel} day${daysOnLevel===1?'':'s'}.${wk?'':' Keep going for about a week before moving up.'}</span></div>`;
+    } else if(acc<REPEAT_PCT){
+      banner=`<div class="levelup" style="background:linear-gradient(135deg,#f0a500,#ffc44d)">🔁 Let’s keep practising this level — tap “Try again” for a fresh set.</div>`;
+    }
+  } else {
+    if(levelChange==='up') banner=`<div class="levelup">⬆️ Level up! You’ve moved on to<br><b>${ladder[S[sub].level].title}</b></div>`;
+    else if(levelChange==='max') banner=`<div class="levelup">🏆 You’ve reached the top level in ${SUBJECTS[sub].label}!</div>`;
+    else if(levelChange==='repeat') banner=`<div class="levelup" style="background:linear-gradient(135deg,#f0a500,#ffc44d)">🔁 We’ll practise this level again to make it stick.</div>`;
+  }
 
   const mistakesHtml = SES.mistakes.length
     ? `<h2 style="margin-top:20px">📌 Mistakes you fixed</h2>
@@ -1323,11 +1433,30 @@ function finish(){
          <div class="small"><span style="color:var(--bad)">Your first try: ${m.given||'—'}</span> · <span style="color:var(--good)">Correct: ${m.a}</span></div></div>`).join('')}`
     : `<div class="mistake-item center" style="border-color:var(--good);background:var(--good-bg)"><b>✨ No mistakes — a perfect worksheet!</b></div>`;
 
+  let actions;
+  if(mathsMode){
+    const canMoveUp = mastered && !atMax;
+    actions = `
+      <p class="center small muted" style="margin:-2px 0 10px">“↻ Try again” gives a brand-new set of questions on the same level.${canMoveUp?' Move up whenever you’re ready — ideally after about a week.':''}</p>
+      <div class="row" style="gap:10px">
+        <button class="btn big" id="again" style="flex:1">↻ Try again</button>
+        ${canMoveUp?`<button class="btn big ${daysOnLevel>=7?'':'ghost'}" id="moveUp" style="flex:1">Move up →</button>`:''}
+      </div>
+      <button class="btn wide ghost" id="home" style="margin-top:10px">Home</button>`;
+  } else {
+    actions = `
+      ${mastered?`<p class="center small muted" style="margin:-4px 0 10px">Finding it easy? Tap “Do another” to keep going.</p>`:''}
+      <div class="row" style="gap:10px">
+        <button class="btn big" id="again" style="flex:1">Do another →</button>
+        <button class="btn big ghost" id="home" style="flex:1">Home</button>
+      </div>`;
+  }
+
   app.innerHTML=`
     <div class="card center">
       <div class="medal">${medal}</div>
       <h1 style="margin-bottom:0">${msg}</h1>
-      <p class="muted">${SUBJECTS[SES.sub].label} · ${ladder[SES.firstTryTotal? Math.max(0,S[sub].level-(levelChange==='up'?1:0)):S[sub].level].title}</p>
+      <p class="muted">${SUBJECTS[sub].label} · ${practiced.title}</p>
       <div class="statgrid">
         <div class="stat"><b>${acc}%</b><span class="small muted">first-try score</span></div>
         <div class="stat"><b>${SES.firstTryRight}/${SES.firstTryTotal}</b><span class="small muted">right first time</span></div>
@@ -1336,16 +1465,18 @@ function finish(){
       ${banner}
     </div>
     <div class="card">${mistakesHtml}</div>
-    ${acc>=MASTER_PCT ? `<p class="center small muted" style="margin:-4px 0 10px">Finding it easy? Tap “Do another” to keep climbing — each one you master moves ${S.name} up a level.</p>`:''}
-    <div class="row" style="gap:10px">
-      <button class="btn big" id="again" style="flex:1">Do another →</button>
-      <button class="btn big ghost" id="home" style="flex:1">Home</button>
-    </div>`;
+    ${actions}`;
   document.getElementById('home').onclick=renderHome;
   document.getElementById('again').onclick=()=>startSession(sub);
+  const mu=document.getElementById('moveUp'); if(mu) mu.onclick=()=>levelUpManually(sub);
   foot.innerHTML='';
-  // update streak display
   document.getElementById('streakNum').textContent=S.streak;
+}
+/* explicit "move up a level" for maths (progression is a choice, not automatic) */
+function levelUpManually(sub){
+  const ladder=ladderOf(sub);
+  if(S[sub].level < ladder.length-1){ S[sub].level++; S[sub].mastered++; S.xp+=10; save(); }
+  renderHome();
 }
 
 /* =========================================================================
