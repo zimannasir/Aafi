@@ -70,6 +70,12 @@
   .answer:focus{border-color:var(--brand)}
   .scratch{margin-top:14px}
   .scratch-canvas{width:100%;height:220px;border:2px dashed var(--line);border-radius:14px;background:#fff;touch-action:none;display:block;cursor:crosshair}
+  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:14px auto 0}
+  .numpad-ctrl{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px;margin:8px auto 0}
+  .numkey{height:54px;border-radius:12px;background:#f3f5fb;border:1px solid var(--line);font-size:22px;font-weight:800;color:var(--ink);cursor:pointer;touch-action:manipulation}
+  .numkey:active{background:#dfe6f6}
+  .numkey.act{color:var(--bad);font-size:16px}
+  .numkey.sm{font-size:18px}
   .scratch-tools .btn{margin-left:6px}
   #scratchToggle.active{background:#eaf0ff;color:var(--brand)}
   .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -236,9 +242,9 @@ const MATHS = [
   {g:4, title:'Fractions of amounts', gen:()=>{const d=pick([2,3,4,5,10]),m=rnd(2,9),whole=d*m; return {q:`What is 1/${d} of ${whole}?`, a:String(whole/d), type:'input', explain:`Divide ${whole} by ${d}.`};}},
   {g:4, title:'Equivalent fractions', gen:()=>{const base=pick([[1,2],[1,3],[2,3],[1,4],[3,4],[1,5]]),m=rnd(2,5); return {q:`Fill the gap: ${base[0]}/${base[1]} = ⬚/${base[1]*m}`, a:String(base[0]*m), type:'input', explain:`Multiply top and bottom by ${m}: ${base[0]}×${m} = ${base[0]*m}.`};}},
   {g:4, title:'Perimeter of a rectangle', gen:()=>{const w=rnd(2,9),h=rnd(2,9); return {q:`A rectangle is ${w} cm by ${h} cm. What is its perimeter? (cm)`, a:String(2*(w+h)), type:'input', explain:`Add all four sides: 2 × (${w}+${h}) = ${2*(w+h)}.`};}},
-  {g:5, title:'Adding decimals', gen:()=>{const a=(rnd(10,89)/10),b=(rnd(10,89)/10); return {q:`${a.toFixed(1)} + ${b.toFixed(1)} = ?`, a:(a+b).toFixed(1), type:'input', explain:'Line up the decimal points, then add.'};}},
+  {g:5, title:'Adding three numbers', gen:()=>{const a=rnd(11,60),b=rnd(11,60),c=rnd(11,60); return {q:`${a} + ${b} + ${c} = ?`, a:String(a+b+c), type:'input', explain:'Add the first two, then add the third.'};}},
   {g:5, title:'Adding fractions (same denominator)', gen:()=>{const d=pick([4,5,6,8,10]);let a=rnd(1,d-2),b=rnd(1,d-a-0); if(a+b>=d)b=d-a-1; if(b<1)b=1; return {q:`${a}/${d} + ${b}/${d} = ?  (write as x/${d})`, a:`${a+b}/${d}`, type:'input', explain:'Same denominator: just add the top numbers.'};}},
-  {g:5, title:'Multiplying by 10 and 100', gen:()=>{const d=rnd(11,99)/10,by=pick([10,100]),ans=Number((d*by).toFixed(2)); return {q:`${d.toFixed(1)} × ${by} = ?`, a:String(ans), type:'input', explain:`× ${by} moves every digit ${by===10?'one place':'two places'} to the left.`};}},
+  {g:5, title:'Multiplying by 10 and 100', gen:()=>{const n=rnd(2,99),by=pick([10,100]); return {q:`${n} × ${by} = ?`, a:String(n*by), type:'input', explain:`× ${by} adds ${by===10?'one zero':'two zeros'}.`};}},
   {g:5, title:'Percentages of amounts', gen:()=>{const p=pick([10,20,25,50]),base=pick([20,40,60,80,100,120,200]); return {q:`What is ${p}% of ${base}?`, a:String(base*p/100), type:'input', explain:`${p}% = ${p}/100. ${base} × ${p} ÷ 100.`};}},
   {g:5, title:'Area of a rectangle', gen:()=>{const w=rnd(3,12),h=rnd(2,9); return {q:`A rectangle is ${w} cm by ${h} cm. What is its area? (cm²)`, a:String(w*h), type:'input', explain:`Area = length × width = ${w} × ${h} = ${w*h}.`};}},
   {g:6, title:'Order of operations (BODMAS)', gen:()=>{const a=rnd(2,9),b=rnd(2,9),c=rnd(2,9); return {q:`${a} + ${b} × ${c} = ?`, a:String(a+b*c), type:'input', explain:`Do × before +: ${b}×${c}=${b*c}, then +${a}.`};}},
@@ -1114,9 +1120,10 @@ function renderQuestion(){
       <div class="question">${q.q}</div>
       ${q.type==='mcq'
         ? `<div class="choices" id="choices">${q.choices.map(c=>`<button class="choice" data-c="${encodeURIComponent(c)}">${c}</button>`).join('')}</div>`
-        : `<input class="answer" id="ans" autocomplete="off" autocapitalize="off" placeholder="Type your answer">
+        : `<input class="answer" id="ans" autocomplete="off" autocapitalize="off" ${SES.sub==='maths'?'inputmode="none" placeholder="Tap the numbers below"':'placeholder="Type your answer"'}>
+           ${SES.sub==='maths' ? numpadHTML() : ''}
            <button class="btn wide" id="checkBtn" style="margin-top:12px">Check ✓</button>
-           <p class="qhint small" style="margin-top:8px">…or press <kbd>Enter</kbd></p>
+           <p class="qhint small" style="margin-top:8px">${SES.sub==='maths'?'Use the number pad above':'…or press <kbd>Enter</kbd>'}</p>
            ${SES.sub==='maths' ? `
            <div class="scratch">
              <div class="spread" style="margin-bottom:6px">
@@ -1137,11 +1144,32 @@ function renderQuestion(){
     document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>submitMC(decodeURIComponent(b.dataset.c), b));
   }else{
     const inp=document.getElementById('ans');
-    inp.focus();
+    if(SES.sub!=='maths') inp.focus(); // maths uses the on-screen pad — don't summon a keyboard
     inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(!SES.answeredThisQ) submitInput(); else advance(); }});
     document.getElementById('checkBtn').onclick=()=>{ if(!SES.answeredThisQ) submitInput(); };
+    if(SES.sub==='maths'){
+      document.querySelectorAll('.numkey').forEach(b=>b.onclick=()=>{
+        if(SES.answeredThisQ) return;
+        const k=b.dataset.k;
+        if(k==='back') inp.value=inp.value.slice(0,-1);
+        else if(k==='clear') inp.value='';
+        else inp.value += (k==='r' ? ' r ' : k);
+      });
+    }
     setupScratchpad();
   }
+}
+/* on-screen number pad for maths (digits 1-9,0 with 1-2-3 on top; / and r for
+   fractions and remainders; no decimal point — no maths answer needs one) */
+function numpadHTML(){
+  const keys=['1','2','3','4','5','6','7','8','9','/','0','r'];
+  return `<div class="numpad">
+    ${keys.map(k=>`<button type="button" class="numkey ${(k==='/'||k==='r')?'sm':''}" data-k="${k}">${k}</button>`).join('')}
+  </div>
+  <div class="numpad-ctrl">
+    <button type="button" class="numkey act" data-k="back">⌫ Back</button>
+    <button type="button" class="numkey act" data-k="clear">Clear</button>
+  </div>`;
 }
 
 /* stylus/finger scratchpad for working out maths (answer is still typed) */
