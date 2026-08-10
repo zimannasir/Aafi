@@ -52,6 +52,8 @@
   .progress{height:10px;background:rgba(255,255,255,.35);border-radius:999px;overflow:hidden;margin:10px 0 16px}
   .progress > i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .5s}
   .subject .btn{background:#fff}
+  .subject-practise{display:block;width:100%;margin-top:8px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:12px;padding:9px;font-weight:700;font-size:13px;cursor:pointer}
+  .subject-practise:hover{background:rgba(255,255,255,.3)}
   .subject.maths .btn{color:var(--brand-dark)}
   .subject.english .btn{color:#c2451f}
   .subject.reading .btn{color:#15803d}
@@ -198,7 +200,14 @@ function loadDB(){
   }catch(e){}
   return {activeId:null, profiles:[]};
 }
-function saveDB(){ localStorage.setItem(AAS_KEY, JSON.stringify(DB)); cloudMaybeSync(); }
+function saveDB(){ syncLevelTitles(); localStorage.setItem(AAS_KEY, JSON.stringify(DB)); cloudMaybeSync(); }
+/* keep each profile's durable levelTitle in step with its current level index */
+function syncLevelTitles(){
+  if(typeof SUBJECTS==='undefined') return;
+  DB.profiles.forEach(p=> SUBJECT_KEYS.forEach(sub=>{
+    const lad=SUBJECTS[sub].ladder; if(p[sub] && lad[p[sub].level]) p[sub].levelTitle=lad[p[sub].level].title;
+  }));
+}
 function activeProfile(){ return DB.profiles.find(p=>p.id===DB.activeId) || null; }
 function setActive(id){ DB.activeId=id; S=activeProfile(); saveDB(); renderHome(); }
 
@@ -256,6 +265,73 @@ const MATHS = [
         return {q:`A pen costs £${price}. You buy ${qty} and pay with £${paid}. How much change? (£)`, a:String(change), type:'input', explain:`${qty}×£${price}=£${total}; £${paid}−£${total}=£${change}.`};
       const groups=rnd(3,8), each=rnd(3,9);
       return {q:`${groups} boxes hold ${each} balls each. How many balls in total?`, a:String(groups*each), type:'input', explain:`${groups}×${each}=${groups*each}.`};
+  }},
+  /* ---- From Kumon workbooks (telling time, geometry, number games) ---- */
+  {g:1, title:'Shapes: sides & corners', gen:()=>{
+      const bank=[['triangle',3],['square',4],['rectangle',4],['pentagon',5],['hexagon',6],['circle',0]];
+      const [name,n]=pick(bank);
+      const askCorners=Math.random()<.5;
+      return {q:`How many ${askCorners?'corners':'sides'} does a ${name} have?`, a:String(n), type:'input', explain:`A ${name} has ${n} ${askCorners?'corner':'side'}${n===1?'':'s'}.`};
+  }},
+  {g:2, title:'Doubling and halving', gen:()=>{
+      if(Math.random()<.5){ const n=rnd(1,20); return {q:`Double ${n} = ?`, a:String(n*2), type:'input', explain:`${n} + ${n} = ${n*2}.`}; }
+      const n=rnd(1,15)*2; return {q:`Half of ${n} = ?`, a:String(n/2), type:'input', explain:`${n} shared into 2 equal parts is ${n/2}.`};
+  }},
+  {g:2, title:'Telling the time', gen:()=>{
+      const bank=[
+        ()=>{const h=rnd(1,12); return {q:`The little hand points to ${h} and the big hand to 12. What is the hour?`, a:String(h), type:'input', explain:`That is ${h} o'clock.`};},
+        ()=>({q:'How many minutes are there in one hour?', a:'60', type:'input'}),
+        ()=>({q:'How many minutes are there in half an hour?', a:'30', type:'input'}),
+        ()=>({q:'"Quarter past" is how many minutes past the hour?', a:'15', type:'input', explain:'A quarter of 60 is 15.'}),
+        ()=>({q:'How many hours are there in one day?', a:'24', type:'input'}),
+        ()=>{const h=rnd(1,11); return {q:`It is ${h} o'clock. In one hour it will be ___ o'clock.`, a:String(h+1), type:'input'};},
+        ()=>({q:'How many days are there in one week?', a:'7', type:'input'}),
+      ];
+      return pick(bank)();
+  }},
+  /* ---- More maths from Kumon (measurement, money, factors, word problems) ---- */
+  {g:2, title:'Measuring length', gen:()=>{
+      const bank=[
+        ()=>({q:'How many centimetres are there in 1 metre?', a:'100', type:'input'}),
+        ()=>({q:'How many centimetres are there in half a metre?', a:'50', type:'input'}),
+        ()=>{const a=rnd(5,40),b=rnd(3,30); return {q:`A pencil is ${a} cm and a rubber is ${b} cm. End to end, how long are they? (cm)`, a:String(a+b), type:'input'};},
+        ()=>{const a=rnd(20,90),b=rnd(5,a-1); return {q:`A ribbon is ${a} cm. You cut off ${b} cm. How much is left? (cm)`, a:String(a-b), type:'input'};},
+        ()=>{const m=rnd(2,9); return {q:`${m} metres = ___ centimetres`, a:String(m*100), type:'input', explain:'1 m = 100 cm.'};},
+        ()=>{const a=rnd(2,9); return {q:`A rope is ${a*100} cm long. How many metres is that?`, a:String(a), type:'input', explain:'100 cm = 1 m.'};},
+      ];
+      return pick(bank)();
+  }},
+  {g:3, title:'Money & change', gen:()=>{
+      const bank=[
+        ()=>({q:'How many pence are there in £1?', a:'100', type:'input'}),
+        ()=>{const spent=rnd(5,90); return {q:`You have £1 (100p) and spend ${spent}p. How much change? (p)`, a:String(100-spent), type:'input'};},
+        ()=>{const price=rnd(2,9),qty=rnd(2,6); return {q:`${qty} pens cost £${price} each. Total cost? (£)`, a:String(price*qty), type:'input'};},
+        ()=>{const a=rnd(10,60),b=rnd(10,40); return {q:`A drink costs ${a}p and a snack ${b}p. Total? (p)`, a:String(a+b), type:'input'};},
+        ()=>{const paid=pick([10,20]),cost=rnd(2,paid-1); return {q:`You buy a toy for £${cost} and pay with £${paid}. Change? (£)`, a:String(paid-cost), type:'input'};},
+        ()=>({q:'How many 20p coins make £1?', a:'5', type:'input', explain:'100 ÷ 20 = 5.'}),
+        ()=>({q:'How many 50p coins make £2?', a:'4', type:'input', explain:'200 ÷ 50 = 4.'}),
+      ];
+      return pick(bank)();
+  }},
+  {g:4, title:'Multiples & factors', gen:()=>{
+      const bank=[
+        ()=>{const n=pick([2,3,4,5,6,10]),k=rnd(2,9); const ord=['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'][k]; return {q:`What is the ${ord} multiple of ${n}?`, a:String(n*k), type:'input', explain:`${n} × ${k} = ${n*k}.`};},
+        ()=>{const n=pick([5,10]),start=n*rnd(2,8); return {q:`What is the next multiple of ${n} after ${start}?`, a:String(start+n), type:'input'};},
+        ()=>{const n=rnd(3,9),m=rnd(3,9); return {q:`How many ${n}s make ${n*m}?`, a:String(m), type:'input', explain:`${n*m} ÷ ${n} = ${m}.`};},
+        ()=>({q:'What is the smallest number that is a multiple of both 2 and 3?', a:'6', type:'input'}),
+        ()=>{const sets=[[12,[3,4,6],[5,7,8]],[20,[4,5,10],[3,7,9]],[18,[2,3,9],[4,7,8]]]; const s=pick(sets),good=pick(s[1]),bad=pick(s[2]); return {q:`Which number is a factor of ${s[0]}: ${good} or ${bad}? (type it)`, a:String(good), type:'input', explain:`${s[0]} ÷ ${good} is exact, so ${good} is a factor.`};},
+      ];
+      return pick(bank)();
+  }},
+  {g:4, title:'Rounding to the nearest 100', gen:()=>{const n=rnd(120,980),r=Math.round(n/100)*100; return {q:`Round ${n} to the nearest 100.`, a:String(r), type:'input', explain:'Look at the tens digit: 5 or more rounds up.'};}},
+  {g:5, title:'Two-step word problems', gen:()=>{
+      const bank=[
+        ()=>{const b=rnd(3,6),each=rnd(4,8),eat=rnd(2,5); return {q:`${b} baskets hold ${each} apples each. ${eat} apples are eaten. How many are left?`, a:String(b*each-eat), type:'input', explain:`${b}×${each}=${b*each}; −${eat} = ${b*each-eat}.`};},
+        ()=>{const start=rnd(20,50),s1=rnd(3,10),s2=rnd(3,10); return {q:`You have £${start}. You spend £${s1}, then £${s2}. How much is left?`, a:String(start-s1-s2), type:'input', explain:`£${s1}+£${s2}=£${s1+s2}; £${start}−£${s1+s2}.`};},
+        ()=>{const rows=rnd(3,6),per=rnd(4,8),extra=rnd(2,6); return {q:`A hall has ${rows} rows of ${per} chairs. ${extra} more are added. How many chairs now?`, a:String(rows*per+extra), type:'input', explain:`${rows}×${per}=${rows*per}; +${extra}=${rows*per+extra}.`};},
+        ()=>{const g=pick([2,4,5]),perGroup=rnd(4,9),each=perGroup*g; return {q:`${each} sweets are shared equally among ${g} children. How many does each child get?`, a:String(perGroup), type:'input', explain:`${each} ÷ ${g} = ${perGroup}.`};},
+      ];
+      return pick(bank)();
   }},
 ];
 
@@ -701,6 +777,249 @@ const ENGLISH = [
     ()=>mc('"The soup was scalding." In your own words, it was very…', 'hot', ['cold','sweet','thick'], 'scalding = very hot.'),
     ()=>mc('"She was baffled by the question." She was…', 'confused', ['certain','pleased','angry'], 'baffled = confused.'),
   ]},
+  /* ---- Vocabulary & phonics from the Flashcards / Kumon / PowerPoint content ---- */
+  {g:1, title:'Vocabulary: animals', items:[
+    ()=>mc('Which animal is this?  🦁', 'lion', ['tiger','bear','zebra'], '🦁 is a lion.'),
+    ()=>mc('Which animal is this?  🐘', 'elephant', ['hippo','rhino','giraffe'], '🐘 is an elephant.'),
+    ()=>mc('Which animal is this?  🐸', 'frog', ['toad','fish','snake'], '🐸 is a frog.'),
+    ()=>mc('Which animal is this?  🐧', 'penguin', ['duck','swan','owl'], '🐧 is a penguin.'),
+    ()=>mc('Which one is an animal?', 'tiger', ['table','apple','red'], 'A tiger is an animal.'),
+    ()=>mc('Which animal can fly?', 'bird', ['fish','cow','snake'], 'Birds have wings.'),
+    ()=>mc('Which animal lives in water?', 'fish', ['lion','dog','cat'], 'Fish live in water.'),
+    ()=>mc('A baby dog is called a…', 'puppy', ['kitten','calf','cub'], 'A baby dog is a puppy.'),
+    ()=>mc('A baby cat is called a…', 'kitten', ['puppy','foal','chick'], 'A baby cat is a kitten.'),
+  ]},
+  {g:1, title:'Vocabulary: food & drink', items:[
+    ()=>mc('What is this?  🍎', 'apple', ['orange','pear','plum'], '🍎 is an apple.'),
+    ()=>mc('What is this?  🍞', 'bread', ['cake','cheese','rice'], '🍞 is bread.'),
+    ()=>mc('What is this?  🥛', 'milk', ['juice','water','tea'], '🥛 is milk.'),
+    ()=>mc('What is this?  🍌', 'banana', ['lemon','apple','grape'], '🍌 is a banana.'),
+    ()=>mc('Which is a fruit?', 'grapes', ['carrot','bread','milk'], 'Grapes are a fruit.'),
+    ()=>mc('Which is a vegetable?', 'potato', ['apple','cake','juice'], 'A potato is a vegetable.'),
+    ()=>mc('Which is a drink?', 'water', ['bread','apple','rice'], 'Water is a drink.'),
+    ()=>mc('Which food is sweet?', 'cake', ['salt','lemon','onion'], 'Cake is sweet.'),
+    ()=>mc('We eat soup with a…', 'spoon', ['fork','knife','cup'], 'A spoon scoops soup.'),
+  ]},
+  {g:1, title:'Vocabulary: my body', items:[
+    ()=>mc('You see with your…', 'eyes', ['ears','nose','feet'], 'Eyes are for seeing.'),
+    ()=>mc('You hear with your…', 'ears', ['eyes','mouth','hands'], 'Ears are for hearing.'),
+    ()=>mc('You smell with your…', 'nose', ['eyes','ears','knees'], 'The nose smells.'),
+    ()=>mc('You walk with your…', 'feet', ['hands','ears','eyes'], 'Feet are for walking.'),
+    ()=>mc('You clap with your…', 'hands', ['feet','nose','ears'], 'Hands clap.'),
+    ()=>mc('How many fingers are on one hand?', 'five', ['two','ten','four'], 'Five fingers on a hand.'),
+    ()=>mc('Which part is on your face?', 'mouth', ['knee','elbow','foot'], 'The mouth is on the face.'),
+    ()=>mc('You bend your leg at the…', 'knee', ['ear','nose','wrist'], 'The knee bends the leg.'),
+  ]},
+  {g:1, title:'Vocabulary: family', items:[
+    ()=>mc('Your mother and father are your…', 'parents', ['friends','teachers','neighbours'], 'Mum and dad are your parents.'),
+    ()=>mc('A boy with the same parents as you is your…', 'brother', ['sister','uncle','cousin'], 'A boy child is a brother.'),
+    ()=>mc('A girl with the same parents as you is your…', 'sister', ['brother','aunt','niece'], 'A girl child is a sister.'),
+    ()=>mc('Your mother’s mother is your…', 'grandmother', ['aunt','sister','cousin'], 'Your mum’s mum is your grandmother.'),
+    ()=>mc('Your father’s brother is your…', 'uncle', ['cousin','nephew','grandfather'], 'Dad’s brother is your uncle.'),
+    ()=>mc('Your aunt’s child is your…', 'cousin', ['sister','uncle','niece'], 'Your aunt’s child is your cousin.'),
+    ()=>mc('Mum, dad, sisters and brothers together are your…', 'family', ['school','team','class'], 'They are your family.'),
+  ]},
+  {g:2, title:'Vocabulary: clothes', items:[
+    ()=>mc('What is this?  👕', 't-shirt', ['shoes','hat','socks'], '👕 is a t-shirt.'),
+    ()=>mc('What is this?  👟', 'shoes', ['hat','gloves','coat'], '👟 are shoes.'),
+    ()=>mc('What is this?  🧢', 'cap', ['scarf','belt','sock'], '🧢 is a cap.'),
+    ()=>mc('You wear ___ on your feet.', 'socks', ['gloves','a hat','a scarf'], 'Socks go on feet.'),
+    ()=>mc('You wear ___ on your hands in winter.', 'gloves', ['socks','shoes','a cap'], 'Gloves warm the hands.'),
+    ()=>mc('You wear ___ when it is cold.', 'a coat', ['sandals','shorts','a swimsuit'], 'A coat keeps you warm.'),
+    ()=>mc('You wear ___ to go swimming.', 'a swimsuit', ['a coat','boots','a scarf'], 'A swimsuit is for swimming.'),
+    ()=>mc('Which keeps your head warm?', 'a hat', ['shoes','a belt','socks'], 'A hat warms your head.'),
+  ]},
+  {g:2, title:'Vocabulary: jobs', items:[
+    ()=>mc('Who teaches children at school?', 'teacher', ['doctor','farmer','pilot'], 'A teacher teaches.'),
+    ()=>mc('Who helps you when you are ill?', 'doctor', ['baker','driver','artist'], 'A doctor helps sick people.'),
+    ()=>mc('Who flies a plane?', 'pilot', ['sailor','nurse','chef'], 'A pilot flies planes.'),
+    ()=>mc('Who grows crops and keeps animals?', 'farmer', ['teacher','doctor','singer'], 'A farmer works on a farm.'),
+    ()=>mc('Who puts out fires?', 'firefighter', ['postman','waiter','painter'], 'A firefighter fights fires.'),
+    ()=>mc('Who cooks food in a restaurant?', 'chef', ['pilot','farmer','builder'], 'A chef cooks.'),
+    ()=>mc('Who delivers letters?', 'postman', ['doctor','pilot','teacher'], 'A postman brings the post.'),
+    ()=>mc('Who builds houses?', 'builder', ['singer','doctor','pilot'], 'A builder builds.'),
+  ]},
+  {g:2, title:'Vocabulary: sports & toys', items:[
+    ()=>mc('You kick a ball in…', 'football', ['swimming','reading','drawing'], 'Football uses a ball and your feet.'),
+    ()=>mc('You do this in a pool.', 'swimming', ['football','cycling','skiing'], 'You swim in a pool.'),
+    ()=>mc('Riding a bike is called…', 'cycling', ['swimming','running','sailing'], 'Cycling is riding a bike.'),
+    ()=>mc('A toy you fly on a windy day:', 'kite', ['doll','drum','ball'], 'A kite flies in the wind.'),
+    ()=>mc('A toy with pieces you build with:', 'blocks', ['kite','ball','skates'], 'You build with blocks.'),
+    ()=>mc('You bang a ___ to make a beat.', 'drum', ['kite','doll','ball'], 'A drum makes a beat.'),
+    ()=>mc('Which is a sport?', 'tennis', ['pencil','apple','table'], 'Tennis is a sport.'),
+    ()=>mc('You wear these to skate:', 'skates', ['gloves','a hat','a book'], 'Skates are for skating.'),
+  ]},
+  {g:2, title:'Vocabulary: travel & vehicles', items:[
+    ()=>mc('What is this?  🚗', 'car', ['bus','train','boat'], '🚗 is a car.'),
+    ()=>mc('What is this?  ✈️', 'plane', ['train','car','ship'], '✈️ is a plane.'),
+    ()=>mc('What is this?  🚂', 'train', ['bus','plane','boat'], '🚂 is a train.'),
+    ()=>mc('What is this?  ⛵', 'boat', ['car','plane','bus'], '⛵ is a boat.'),
+    ()=>mc('Which vehicle flies in the sky?', 'plane', ['car','boat','train'], 'A plane flies.'),
+    ()=>mc('Which vehicle travels on water?', 'ship', ['car','train','bus'], 'A ship sails on water.'),
+    ()=>mc('A big vehicle that carries many people on roads:', 'bus', ['bike','kite','boat'], 'A bus carries lots of people.'),
+    ()=>mc('You need this to travel by train:', 'a ticket', ['a ball','a hat','a spoon'], 'You buy a ticket.'),
+  ]},
+  {g:1, title:'Rhyming words', items:[
+    ()=>mc('Which word rhymes with "cat"?', 'hat', ['dog','sun','cup'], 'cat and hat rhyme (-at).'),
+    ()=>mc('Which word rhymes with "dog"?', 'log', ['cat','pen','bus'], 'dog and log rhyme (-og).'),
+    ()=>mc('Which word rhymes with "sun"?', 'fun', ['sit','top','bag'], 'sun and fun rhyme (-un).'),
+    ()=>mc('Which word rhymes with "bed"?', 'red', ['big','cup','man'], 'bed and red rhyme (-ed).'),
+    ()=>mc('Which word rhymes with "pig"?', 'big', ['pen','dog','sun'], 'pig and big rhyme (-ig).'),
+    ()=>mc('Which word rhymes with "tree"?', 'bee', ['top','cat','bus'], 'tree and bee rhyme (-ee).'),
+    ()=>mc('Which word rhymes with "star"?', 'car', ['sit','pen','cup'], 'star and car rhyme (-ar).'),
+    ()=>mc('Which pair rhymes?', 'cake & lake', ['cake & milk','cake & book','cake & fish'], 'cake and lake rhyme (-ake).'),
+  ]},
+  {g:4, title:'Countable & uncountable nouns', items:[
+    ()=>mc('Choose: "How ___ apples are there?"', 'many', ['much','a','little'], 'Countable → many.'),
+    ()=>mc('Choose: "How ___ water is there?"', 'much', ['many','number','few'], 'Uncountable → much.'),
+    ()=>mc('Choose: "There is ___ milk in the cup."', 'some', ['many','a','number'], 'Uncountable → some.'),
+    ()=>mc('Choose: "There are ___ eggs in the box."', 'six', ['much','a little','water'], 'Countable → a number.'),
+    ()=>mc('Which noun is uncountable?', 'rice', ['apple','book','car'], 'You cannot count rice as 1, 2, 3.'),
+    ()=>mc('Which noun is countable?', 'banana', ['sugar','water','sand'], 'You can count bananas.'),
+    ()=>mc('Choose: "I would like ___ orange."', 'an', ['some','much','a lot of'], 'One orange → an.'),
+    ()=>mc('Choose: "We don’t have ___ bread left."', 'much', ['many','a','number'], 'Uncountable → much.'),
+  ]},
+  /* ---- More vocabulary & grammar (Flashcards + grammar PowerPoints) ---- */
+  {g:1, title:'Colours & shapes', items:[
+    ()=>mc('What colour is this?  🟥', 'red', ['blue','green','yellow'], '🟥 is red.'),
+    ()=>mc('What colour is the sky on a clear day?', 'blue', ['brown','pink','black'], 'A clear sky is blue.'),
+    ()=>mc('What colour is grass?', 'green', ['purple','orange','grey'], 'Grass is green.'),
+    ()=>mc('What colour is a banana?  🍌', 'yellow', ['blue','red','black'], 'A banana is yellow.'),
+    ()=>mc('Which shape has 3 sides?', 'triangle', ['circle','square','oval'], 'A triangle has 3 sides.'),
+    ()=>mc('Which shape is round with no corners?', 'circle', ['square','triangle','rectangle'], 'A circle is round.'),
+    ()=>mc('A shape with 4 equal sides is a…', 'square', ['triangle','circle','oval'], 'A square has 4 equal sides.'),
+    ()=>mc('Mixing red and yellow makes…', 'orange', ['green','purple','blue'], 'red + yellow = orange.'),
+  ]},
+  {g:1, title:'Days & months', items:[
+    ()=>mc('Which day comes after Monday?', 'Tuesday', ['Sunday','Friday','Wednesday'], 'Monday → Tuesday.'),
+    ()=>mc('Which day comes before Sunday?', 'Saturday', ['Monday','Friday','Tuesday'], 'Saturday → Sunday.'),
+    ()=>mc('How many days are in a week?', 'seven', ['five','ten','twelve'], '7 days in a week.'),
+    ()=>mc('Which is the first month of the year?', 'January', ['December','June','March'], 'The year starts with January.'),
+    ()=>mc('How many months are in a year?', 'twelve', ['seven','ten','thirty'], '12 months in a year.'),
+    ()=>mc('Which month comes after April?', 'May', ['June','March','August'], 'April → May.'),
+    ()=>mc('The weekend days are…', 'Saturday and Sunday', ['Monday and Tuesday','Friday and Monday','Wednesday and Thursday'], 'The weekend is Saturday and Sunday.'),
+    ()=>mc('Days and months always start with a…', 'capital letter', ['small letter','number','full stop'], 'They are proper nouns.'),
+  ]},
+  {g:2, title:'Daily routines', items:[
+    ()=>mc('In the morning you ___ up.', 'wake', ['sleep','dream','yawn'], 'You wake up in the morning.'),
+    ()=>mc('You ___ your teeth after breakfast.', 'brush', ['wash','eat','drink'], 'You brush your teeth.'),
+    ()=>mc('Choose: "She ___ breakfast every day."', 'eats', ['eat','eating','eaten'], 'she → eats.'),
+    ()=>mc('At night you ___ to bed.', 'go', ['goes','going','gone'], 'You go to bed.'),
+    ()=>mc('You ___ a shower to get clean.', 'take', ['make','do','give'], 'take a shower.'),
+    ()=>mc('Which comes FIRST in the morning?', 'wake up', ['eat dinner','do homework','go to sleep'], 'Waking up comes first.'),
+    ()=>mc('Choose: "We ___ to school on the bus."', 'go', ['goes','going','gone'], 'we → go.'),
+    ()=>mc('You ___ your clothes to get dressed.', 'put on', ['take off','wash up','throw away'], 'You put on your clothes.'),
+  ]},
+  {g:2, title:'This, that, these, those', items:[
+    ()=>mc('Choose (near, one): "___ book here is mine."', 'This', ['That','These','Those'], 'this = near + one.'),
+    ()=>mc('Choose (far, one): "___ house over there is big."', 'That', ['This','These','Those'], 'that = far + one.'),
+    ()=>mc('Choose (near, many): "___ apples here are fresh."', 'These', ['This','That','Those'], 'these = near + many.'),
+    ()=>mc('Choose (far, many): "___ birds in the sky are geese."', 'Those', ['This','That','These'], 'those = far + many.'),
+    ()=>mc('Choose: "Look at ___ star far away."', 'that', ['this','these','those'], 'far + one → that.'),
+    ()=>mc('Choose: "___ shoes on my feet are new."', 'These', ['This','That','Those'], 'near + plural → these.'),
+    ()=>mc('"This" and "that" are used for…', 'one thing', ['many things','no things','two things'], 'this/that = singular.'),
+    ()=>mc('"These" and "those" are used for…', 'many things', ['one thing','no things','far things only'], 'these/those = plural.'),
+  ]},
+  {g:2, title:'Do / Does questions', items:[
+    ()=>mc('Choose: "___ you like ice cream?"', 'Do', ['Does','Is','Are'], 'you → Do.'),
+    ()=>mc('Choose: "___ she play the piano?"', 'Does', ['Do','Is','Are'], 'she → Does.'),
+    ()=>mc('Choose: "___ they live near you?"', 'Do', ['Does','Is','Am'], 'they → Do.'),
+    ()=>mc('Choose: "___ your dad work here?"', 'Does', ['Do','Are','Is'], 'dad (he) → Does.'),
+    ()=>mc('Answer: "Do you like tea?" — "Yes, I ___."', 'do', ['does','am','is'], 'Yes, I do.'),
+    ()=>mc('Answer: "Does he swim?" — "No, he ___."', 'doesn’t', ['don’t','isn’t','aren’t'], 'he → doesn’t.'),
+    ()=>mc('Choose: "Where ___ the bus stop?"', 'does', ['do','is','are'], 'the bus (it) → does.'),
+    ()=>mc('Choose: "What ___ we need to buy?"', 'do', ['does','is','are'], 'we → do.'),
+  ]},
+  {g:2, title:'School & classroom', items:[
+    ()=>mc('You write with a…', 'pencil', ['spoon','ball','plate'], 'A pencil writes.'),
+    ()=>mc('You read a…', 'book', ['fork','shoe','cup'], 'You read a book.'),
+    ()=>mc('You do sums in which subject?', 'maths', ['art','music','history'], 'Sums are maths.'),
+    ()=>mc('You learn about plants and animals in…', 'science', ['maths','music','spelling'], 'Science studies living things.'),
+    ()=>mc('You paint and draw in…', 'art', ['maths','science','history'], 'Art is drawing and painting.'),
+    ()=>mc('A good classroom rule: you should ___ when the teacher talks.', 'listen', ['shout','sleep','run'], 'Listen when the teacher talks.'),
+    ()=>mc('You keep your school books in a…', 'bag', ['fridge','oven','bath'], 'Books go in a school bag.'),
+    ()=>mc('You cut paper with…', 'scissors', ['a spoon','a cup','a pillow'], 'Scissors cut paper.'),
+  ]},
+  {g:2, title:'Living things', items:[
+    ()=>mc('Which one is a living thing?', 'tree', ['rock','chair','cup'], 'A tree grows — it is living.'),
+    ()=>mc('Which one is NOT living?', 'stone', ['dog','flower','bird'], 'A stone does not grow or breathe.'),
+    ()=>mc('Living things need ___ to live.', 'food and water', ['televisions','toys','money'], 'Living things need food and water.'),
+    ()=>mc('Plants make their own food using…', 'sunlight', ['rocks','plastic','sand'], 'Plants use sunlight.'),
+    ()=>mc('Which is an animal?', 'rabbit', ['table','river','cloud'], 'A rabbit is an animal.'),
+    ()=>mc('Which is a plant?', 'sunflower', ['dog','car','shoe'], 'A sunflower is a plant.'),
+    ()=>mc('All living things can…', 'grow', ['fly','read','drive'], 'Living things grow.'),
+    ()=>mc('A baby plant grows from a…', 'seed', ['stone','brick','box'], 'Plants grow from seeds.'),
+  ]},
+  {g:3, title:'Giving directions', items:[
+    ()=>mc('The opposite of "left" is…', 'right', ['up','back','front'], 'left ↔ right.'),
+    ()=>mc('"Go straight ___" means keep going forward.', 'ahead', ['behind','sideways','backwards'], 'straight ahead = forward.'),
+    ()=>mc('If a shop is in the middle of two others, it is ___ them.', 'between', ['above','under','behind'], 'between = in the middle of two.'),
+    ()=>mc('North, south, east and ___ are directions.', 'west', ['left','red','seven'], 'The fourth is west.'),
+    ()=>mc('If the park is at your back, it is ___ you.', 'behind', ['in front of','next to','above'], 'behind = at your back.'),
+    ()=>mc('"Turn left at the corner" gives you a…', 'direction', ['colour','number','name'], 'It tells you which way to go.'),
+    ()=>mc('The opposite of "up" is…', 'down', ['left','over','near'], 'up ↔ down.'),
+    ()=>mc('To reach the top of stairs you go…', 'up', ['down','left','out'], 'You go up the stairs.'),
+  ]},
+  {g:3, title:'Present continuous (-ing)', items:[
+    ()=>mc('Choose: "She is ___ a book right now."', 'reading', ['read','reads','readed'], 'is + verb-ing = happening now.'),
+    ()=>mc('Choose: "They ___ playing football."', 'are', ['is','am','be'], 'they → are + -ing.'),
+    ()=>mc('Choose: "I ___ eating my lunch."', 'am', ['is','are','be'], 'I → am + -ing.'),
+    ()=>mc('Add -ing: "run" →', 'running', ['runing','runningg','runin'], 'Double the n: running.'),
+    ()=>mc('Add -ing: "make" →', 'making', ['makeing','makking','makin'], 'Drop the e: making.'),
+    ()=>mc('Choose: "Look! It ___ raining."', 'is', ['are','am','be'], 'It → is + -ing.'),
+    ()=>mc('Which sentence is happening NOW?', 'The dog is barking.', ['The dog barked yesterday.','The dog will bark.','The dog barks every day.'], '"is barking" = now.'),
+    ()=>mc('Add -ing: "sit" →', 'sitting', ['siting','sittting','siten'], 'Double the t: sitting.'),
+  ]},
+  {g:3, title:'Word types (parts of speech)', items:[
+    ()=>mc('Which word is a NOUN?', 'river', ['jump','quickly','happy'], 'A noun is a thing, place or person.'),
+    ()=>mc('Which word is a VERB?', 'sing', ['song','loud','table'], 'A verb is an action.'),
+    ()=>mc('Which word is an ADJECTIVE?', 'shiny', ['run','table','quickly'], 'An adjective describes.'),
+    ()=>mc('Which word is an ADVERB?', 'quietly', ['quiet','silence','table'], 'Adverbs often end in -ly and tell how.'),
+    ()=>mc('Which word is a PRONOUN?', 'she', ['dog','run','red'], 'A pronoun replaces a noun.'),
+    ()=>mc('Which word is a PREPOSITION?', 'under', ['jump','happy','dog'], 'Prepositions show position.'),
+    ()=>mc('In "The tall boy ran fast", "tall" is a…', 'adjective', ['verb','noun','adverb'], 'tall describes the boy.'),
+    ()=>mc('In "The tall boy ran fast", "fast" is an…', 'adverb', ['noun','adjective','pronoun'], 'fast tells how he ran.'),
+  ]},
+  {g:3, title:'Space & planets', items:[
+    ()=>mc('Which planet do we live on?', 'Earth', ['Mars','Jupiter','Venus'], 'We live on Earth.'),
+    ()=>mc('The star at the centre of our solar system is the…', 'Sun', ['Moon','Mars','comet'], 'The Sun is our star.'),
+    ()=>mc('What shines in the sky at night and circles Earth?', 'the Moon', ['the Sun','a plane','a cloud'], 'The Moon orbits Earth.'),
+    ()=>mc('The "Red Planet" is…', 'Mars', ['Venus','Saturn','Earth'], 'Mars looks red.'),
+    ()=>mc('A person who travels into space is an…', 'astronaut', ['artist','author','architect'], 'Astronauts go to space.'),
+    ()=>mc('The planet famous for its big rings is…', 'Saturn', ['Earth','Mercury','Mars'], 'Saturn has rings.'),
+    ()=>mc('How many planets are in our solar system?', 'eight', ['three','twelve','one'], 'There are 8 planets.'),
+    ()=>mc('A rocket is used to travel to…', 'space', ['the sea','a farm','a shop'], 'Rockets go to space.'),
+  ]},
+  {g:3, title:'Irregular past-tense verbs', items:[
+    ()=>mc('Past tense of "go":', 'went', ['goed','gone','wented'], 'go → went.'),
+    ()=>mc('Past tense of "eat":', 'ate', ['eated','eaten','ated'], 'eat → ate.'),
+    ()=>mc('Past tense of "see":', 'saw', ['seed','seen','sawed'], 'see → saw.'),
+    ()=>mc('Past tense of "take":', 'took', ['taked','taken','tooked'], 'take → took.'),
+    ()=>mc('Past tense of "give":', 'gave', ['gived','given','gaved'], 'give → gave.'),
+    ()=>mc('Past tense of "come":', 'came', ['comed','come','camed'], 'come → came.'),
+    ()=>mc('Past tense of "make":', 'made', ['maked','maden','maded'], 'make → made.'),
+    ()=>mc('Past tense of "buy":', 'bought', ['buyed','buied','boughted'], 'buy → bought.'),
+  ]},
+  {g:6, title:'Reported speech', items:[
+    ()=>mc('Direct: "I am tired." Reported: He said that he ___ tired.', 'was', ['is','are','be'], 'Present → past in reported speech.'),
+    ()=>mc('Direct: "I like tea." Reported: She said she ___ tea.', 'liked', ['likes','like','liking'], 'like → liked.'),
+    ()=>mc('Direct: "We will come." Reported: They said they ___ come.', 'would', ['will','shall','can'], 'will → would.'),
+    ()=>mc('Direct: "I can swim." Reported: He said he ___ swim.', 'could', ['can','will','may'], 'can → could.'),
+    ()=>mc('Reported question: She asked where I ___.', 'lived', ['live','do live','am living'], 'Reported questions use the past and no "do".'),
+    ()=>mc('Direct: "I have finished." Reported: She said she ___ finished.', 'had', ['has','have','having'], 'have → had.'),
+    ()=>mc('In reported speech, "today" usually changes to…', 'that day', ['tomorrow','now','here'], 'today → that day.'),
+    ()=>mc('Direct: "I am reading now." Reported: He said he ___ reading.', 'was', ['is','are','be'], 'am → was.'),
+  ]},
+  {g:6, title:'Choosing the right tense', items:[
+    ()=>mc('Choose: "Right now, I ___ my homework."', 'am doing', ['do','did','have done'], 'right now → present continuous.'),
+    ()=>mc('Choose: "Every day, she ___ to work."', 'walks', ['is walking','walked','has walked'], 'every day → present simple.'),
+    ()=>mc('Choose: "Yesterday, we ___ a film."', 'watched', ['watch','are watching','will watch'], 'yesterday → past simple.'),
+    ()=>mc('Choose: "I ___ already eaten."', 'have', ['has','am','did'], 'have + past participle (perfect).'),
+    ()=>mc('Choose: "Tomorrow they ___ arrive."', 'will', ['did','have','were'], 'tomorrow → future (will).'),
+    ()=>mc('Choose: "Look! It ___ snowing."', 'is', ['was','has','will'], 'Look! → happening now.'),
+    ()=>mc('Which sentence is in the PAST?', 'She sang beautifully.', ['She sings beautifully.','She is singing.','She will sing.'], 'sang = past.'),
+    ()=>mc('Which sentence is in the FUTURE?', 'We will travel soon.', ['We travelled.','We travel daily.','We are travelling.'], 'will = future.'),
+  ]},
 ];
 
 /* =========================================================================
@@ -783,6 +1102,37 @@ const READING = [
     ()=>mc('Read: "Sure, waking at 5am to revise sounded absolutely delightful." The writer is using…', 'sarcasm', ['a plain fact','a simile','an instruction'], 'The real meaning is the opposite of "delightful".'),
     ()=>mc('Read: "The article gave clear steps, diagrams, and safety tips for wiring a plug." What kind of text is this?', 'An instructional / how-to text', ['A fairy tale','A persuasive advert','A personal diary'], 'Steps, diagrams and tips = instructions.'),
   ]},
+  /* ---- Early reading skills mined from Kumon Reading Grade 1–3 ---- */
+  {g:1, title:'Reading: who, what, where', items:[
+    ()=>mc('Read: "Tom has a red ball. He plays in the park." Who has a ball?', 'Tom', ['Sam','Ben','Mum'], 'The text says Tom.'),
+    ()=>mc('Read: "Tom has a red ball. He plays in the park." Where does he play?', 'in the park', ['at school','at home','in bed'], 'He plays in the park.'),
+    ()=>mc('Read: "The cat sat on the soft mat." What did the cat sit on?', 'the mat', ['a chair','a bed','a box'], 'It sat on the mat.'),
+    ()=>mc('Read: "Mum made a big cake for the party." What did Mum make?', 'a cake', ['a hat','a car','a bed'], 'Mum made a cake.'),
+    ()=>mc('Read: "Ben and Jane ran to the shop." Who ran to the shop?', 'Ben and Jane', ['Mum and Dad','the cat','a dog'], 'Ben and Jane ran.'),
+    ()=>mc('Read: "The dog is under the table." Where is the dog?', 'under the table', ['on the bed','in the car','up a tree'], 'It is under the table.'),
+    ()=>mc('Read: "Anna reads a book at night." When does Anna read?', 'at night', ['in the morning','at lunch','never'], 'She reads at night.'),
+    ()=>mc('Read: "The bus is yellow and big." What colour is the bus?', 'yellow', ['red','blue','green'], 'The bus is yellow.'),
+  ]},
+  {g:2, title:'Reading: what happens next', items:[
+    ()=>mc('Read: "Sam put bread in the toaster and pressed the button." What will happen next?', 'The bread will become toast', ['The bread will melt','The toaster will fly','Nothing at all'], 'A toaster makes toast.'),
+    ()=>mc('Read: "Dark clouds filled the sky and the wind grew strong." What is most likely next?', 'It will rain', ['It will be sunny','It will snow sweets','A rainbow appears only'], 'Dark clouds mean rain.'),
+    ()=>mc('Read: "Mia planted a seed and watered it every day." What will happen after many days?', 'It will grow into a plant', ['It will turn to stone','It will fly away','It will vanish'], 'Seeds grow into plants.'),
+    ()=>mc('Read: "The baby yawned and rubbed her eyes." What will the baby probably do next?', 'Go to sleep', ['Run a race','Cook dinner','Read a book'], 'A tired baby sleeps.'),
+    ()=>mc('Read: "First she washed the plate. Next she…" What is a sensible next step?', 'dried it', ['ate it','broke it','painted it'], 'After washing, you dry.'),
+    ()=>mc('Read: "The ice cream sat in the hot sun." What will happen to it?', 'It will melt', ['It will freeze','It will grow','It will jump'], 'Heat melts ice cream.'),
+    ()=>mc('Read: "The kettle started to whistle loudly." What does this tell you?', 'The water is boiling', ['The water is frozen','The kettle is empty','It is bedtime'], 'A whistling kettle means boiling water.'),
+    ()=>mc('Read: "He tripped over the step." What probably happened next?', 'He fell down', ['He flew up','He grew taller','He vanished'], 'Tripping leads to a fall.'),
+  ]},
+  {g:3, title:'Reading: why did it happen?', items:[
+    ()=>mc('Read: "Ben put on his coat because it was cold." Why did Ben put on his coat?', 'Because it was cold', ['Because it was hot','Because he was hungry','Because it was night'], 'The word "because" gives the reason.'),
+    ()=>mc('Read: "The plant died because no one watered it." Why did the plant die?', 'It had no water', ['Too much water','It was too tall','It was picked'], 'No water killed the plant.'),
+    ()=>mc('Read: "Lucy smiled when she opened her present." Why did Lucy smile?', 'She was pleased with her present', ['She was cold','She was tired','She was cross'], 'The present made her happy.'),
+    ()=>mc('Read: "The road was slippery, so the car drove slowly." Why did the car drive slowly?', 'The road was slippery', ['The car was new','It was sunny','The driver was tall'], 'Slippery road → drive slowly.'),
+    ()=>mc('Read: "We could not play outside because it was raining." Why couldn’t they play outside?', 'It was raining', ['It was sunny','They were asleep','The park was open'], 'Rain stopped them.'),
+    ()=>mc('Read: "Tom was late because he missed the bus." Why was Tom late?', 'He missed the bus', ['He woke early','He ran fast','He had a car'], 'Missing the bus made him late.'),
+    ()=>mc('Read: "The baby cried because she was hungry." Why did the baby cry?', 'She was hungry', ['She was full','She was sleeping','She was playing'], 'Hunger made her cry.'),
+    ()=>mc('Read: "The class cheered because their team won." Why did the class cheer?', 'Their team won', ['They lost','It was raining','School was closed'], 'Winning made them cheer.'),
+  ]},
 ];
 
 /* -------------------------------------------------------------------------
@@ -794,7 +1144,14 @@ const READING = [
    ------------------------------------------------------------------------- */
 const OLD_ORDER = { maths: MATHS.map(l=>l.title), english: ENGLISH.map(l=>l.title), reading: READING.map(l=>l.title) };
 [MATHS, ENGLISH, READING].forEach(ladder => ladder.sort((a,b)=>a.g-b.g));
-const LADDER_V = 2; // bump when a reorder happens so migration re-runs once
+const LADDER_V = 5; // bump when ladders change so migration re-runs once
+/* snapshot of the v2 sorted order — lets us give pre-v3 profiles (which stored a
+   bare index) a durable level TITLE, after which progress is title-based forever */
+const V2_ORDER = {
+  maths:["Adding to 10","Adding within 10","Taking away within 10","Adding within 20","Taking away within 20","Counting on and back","Place value (tens & ones)","Comparing numbers","2-digit + 1-digit","2-digit + 2-digit (carrying)","2-digit − 2-digit (borrowing)","Times tables: 2, 5, 10","Times tables: 3 and 4","Times tables to 12 (mixed)","Division facts","3-digit addition","Rounding to the nearest 10","Long multiplication (2×1)","Division with remainders","Fractions of amounts","Equivalent fractions","Perimeter of a rectangle","Adding three numbers","Adding fractions (same denominator)","Multiplying by 10 and 100","Percentages of amounts","Area of a rectangle","Order of operations (BODMAS)","Find the missing number (algebra)","Word problems"],
+  english:["Complete sentences","Naming words (nouns)","One and more than one","Capital letters","Describing words (adjectives)","Verbs (doing words)","Spelling: sounds & letters","Sentence types & end marks","Singular & plural nouns","Proper nouns & possessives","Pronouns","Adjectives for the senses","Verb tenses & contractions","Spelling: long vowel sounds","There is / There are","Prepositions of place","Seasons, months & weather","Subjects & predicates","Common & proper nouns","Subject & object pronouns","Adjectives that compare","Articles: a, an, the","Verb tenses & adverbs","Homophones","Compound words & synonyms","Countries, cities & nationalities","Sentence types & prepositions","Possessive & reflexive pronouns","Comparing with adjectives","Action, linking & irregular verbs","Adverbs & confusing words","Plurals & suffixes -ful / -less","Antonyms & synonyms","Joining sentences","Pronoun case","Perfect tense & agreement","Prefixes","Tricky spelling","Vocabulary in context","Sentence structure","Verb forms & tenses","Advanced punctuation","Word roots & vocabulary","Reading comprehension","Teen English: everyday situations","Teen English: topics & vocabulary","Answering in your own words"],
+  reading:["Reading: main idea & details","Reading: details & sequence","Reading: context clues & inference","Reading: inference, compare & fact/opinion","Reading: summarising & figurative language","Reading: author’s purpose & tone"]
+};
 
 /* subject registry — makes Maths, English and Reading interchangeable */
 const SUBJECTS = {
@@ -810,36 +1167,40 @@ function ladderOf(sub){ return SUBJECTS[sub].ladder; }
    ========================================================================= */
 function freshState(name, grade){
   const startIdx = (ladder)=>{ const i=ladder.findIndex(l=>l.g===grade); return i<0?0:i; };
+  const st = (lad)=>{ const i=lad.findIndex(l=>l.g===grade); const j=i<0?0:i; return { level:j, levelTitle:lad[j].title, attempts:0, mastered:0 }; };
   return {
     id: uid(), name, grade,
-    maths:{ level: startIdx(MATHS), attempts:0, mastered:0 },
-    english:{ level: startIdx(ENGLISH), attempts:0, mastered:0 },
-    reading:{ level: startIdx(READING), attempts:0, mastered:0 },
+    maths: st(MATHS), english: st(ENGLISH), reading: st(READING),
     streak:0, lastActive:null, xp:0,
     corrections:{ maths:[], english:[], reading:[] }, // carried-over mistakes to redo next time
     doneToday:{ date:null, maths:false, english:false, reading:false },
     log:[], _v:LADDER_V  // session history + ladder-version stamp
   };
 }
-/* ensure older saved profiles gain any newly-added subjects/fields, and remap
-   their saved level after a ladder re-order so they stay on the SAME skill */
+/* Ensure older saved profiles gain any newly-added subjects/fields, and keep the
+   learner on the SAME skill across ladder changes. Progress is title-based:
+   a durable levelTitle survives any re-order/insert. Pre-v3 profiles stored only
+   an index, so we recover their title from the v2 order snapshot, once. */
 function migrateProfile(p){
   if(!p.log) p.log=[];
   if(!p.corrections) p.corrections={};
   if(!p.doneToday) p.doneToday={date:null};
-  // one-time remap: old stored index → skill title (old order) → new index (sorted order)
   if(p._v!==LADDER_V){
     SUBJECT_KEYS.forEach(sub=>{
-      const old=OLD_ORDER[sub];
-      if(p[sub] && typeof p[sub].level==='number' && old){
-        const title=old[p[sub].level];
-        if(title){ const ni=SUBJECTS[sub].ladder.findIndex(l=>l.title===title); if(ni>=0) p[sub].level=ni; }
-      }
+      if(!p[sub] || typeof p[sub].level!=='number') return;
+      const lad=SUBJECTS[sub].ladder;
+      // find the skill title this learner is on
+      let title = p[sub].levelTitle
+               || (V2_ORDER[sub]||[])[p[sub].level]
+               || (lad[p[sub].level] && lad[p[sub].level].title);
+      const ni = title!=null ? lad.findIndex(l=>l.title===title) : -1;
+      if(ni>=0){ p[sub].level=ni; p[sub].levelTitle=lad[ni].title; }
+      else if(lad[p[sub].level]) p[sub].levelTitle=lad[p[sub].level].title;
     });
     p._v=LADDER_V;
   }
   SUBJECT_KEYS.forEach(sub=>{
-    if(!p[sub]){ const i=SUBJECTS[sub].ladder.findIndex(l=>l.g===p.grade); p[sub]={ level:i<0?0:i, attempts:0, mastered:0 }; }
+    if(!p[sub]){ const i=SUBJECTS[sub].ladder.findIndex(l=>l.g===p.grade); p[sub]={ level:i<0?0:i, levelTitle:(SUBJECTS[sub].ladder[i<0?0:i]||{}).title, attempts:0, mastered:0 }; }
     if(!p.corrections[sub]) p.corrections[sub]=[];
     if(p.doneToday[sub]===undefined) p.doneToday[sub]=false;
   });
@@ -922,6 +1283,7 @@ function subjectCard(sub){
       <div class="progress"><i style="width:${pct}%"></i></div>
       ${pending?`<div class="small" style="margin:-6px 0 10px">📌 ${pending} correction${pending>1?'s':''} to fix first</div>`:''}
       <button class="btn wide" data-start="${sub}">${done?'Practice again':'Start today\'s worksheet'}</button>
+      ${st.level>0?`<button class="subject-practise" data-practise="${sub}">↩ Practise an earlier level</button>`:''}
     </div>`;
 }
 /* ---- profile photos ---- */
@@ -986,6 +1348,7 @@ function renderHome(){
     </div>
   `;
   document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
+  document.querySelectorAll('[data-practise]').forEach(b=>b.onclick=()=>renderLevelPicker(b.dataset.practise));
   document.getElementById('openGames').onclick=renderGames;
   document.querySelectorAll('.pchip[data-pid]').forEach(b=>b.onclick=()=>setActive(b.dataset.pid));
   document.getElementById('addP').onclick=()=>renderOnboard(true);
@@ -1150,8 +1513,8 @@ const REPEAT_PCT = 60;   // below this, repeat the level
 
 let SES = null;
 
-function buildQuestions(sub){
-  const ladder=ladderOf(sub); const lvl=ladder[S[sub].level];
+function buildQuestions(sub, levelIndex){
+  const ladder=ladderOf(sub); const lvl=ladder[levelIndex];
   let qs=[];
   if(sub==='maths'){
     for(let i=0;i<QUESTIONS_PER_SET;i++) qs.push(lvl.gen());
@@ -1163,17 +1526,23 @@ function buildQuestions(sub){
   return qs;
 }
 
-function startSession(sub){
+/* opts.level → practise a specific level; opts.practice → don't change progress */
+function startSession(sub, opts){
+  opts=opts||{};
   touchDay();
-  const carried = S.corrections[sub].map(c=>({...c, carried:true})); // yesterday's mistakes first
+  const practice = !!opts.practice;
+  const lvlIndex = (typeof opts.level==='number') ? opts.level : S[sub].level;
+  // only inject carried corrections when practising the learner's own current level
+  const carried = (!practice && lvlIndex===S[sub].level)
+    ? S.corrections[sub].map(c=>({...c, carried:true})) : [];
   SES = {
-    sub,
-    main: [...carried, ...buildQuestions(sub)],
+    sub, practice, level: lvlIndex,
+    main: [...carried, ...buildQuestions(sub, lvlIndex)],
     idx:0,
-    retry:[],           // wrong-this-session, to be re-done at the end
+    retry:[],
     stage: carried.length? 'correct-carry':'main',
     firstTryRight:0, firstTryTotal:0,
-    mistakes:[],        // for the summary
+    mistakes:[],
     answeredThisQ:false
   };
   renderQuestion();
@@ -1371,28 +1740,28 @@ function finish(){
   const sub=SES.sub;
   const acc = SES.firstTryTotal? Math.round(SES.firstTryRight/SES.firstTryTotal*100):100;
   const ladder=ladderOf(sub);
-  const practiced = ladder[S[sub].level]; // capture BEFORE any level-up
+  const practiceMode = SES.practice;
+  const curLvl = SES.level;
+  const practiced = ladder[curLvl]; // the level that was practised
   S[sub].attempts++;
   // mark done today
   if(S.doneToday.date!==todayStr()) S.doneToday={date:todayStr(),maths:false,english:false,reading:false};
   S.doneToday[sub]=true;
-
-  // Any questions the learner still couldn't fix are impossible here (retry loop forces correction),
-  // so corrections store is cleared for carried items; brand-new persistent corrections aren't needed
-  // because everything was corrected in-session. We keep the store for future extension:
-  S.corrections[sub]=[];
+  if(!practiceMode) S.corrections[sub]=[];   // keep current-level corrections during practice
 
   const mastered = acc>=MASTER_PCT;
   const atMax = S[sub].level >= ladder.length-1;
   const mathsMode = (sub==='maths');   // maths: drill the same level; moving up is a choice
-  let levelChange='none';
-  if(!mathsMode){
-    if(mastered && !atMax){ S[sub].level++; S[sub].mastered++; levelChange='up'; S.xp+=10; }
-    else if(mastered && atMax){ levelChange='max'; S.xp+=10; }
-    else if(acc<REPEAT_PCT){ levelChange='repeat'; }
-  } else {
-    if(mastered){ levelChange='mastered'; S.xp+=5; }
-    else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+  let levelChange = practiceMode ? 'practice' : 'none';
+  if(!practiceMode){
+    if(!mathsMode){
+      if(mastered && !atMax){ S[sub].level++; S[sub].mastered++; levelChange='up'; S.xp+=10; }
+      else if(mastered && atMax){ levelChange='max'; S.xp+=10; }
+      else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+    } else {
+      if(mastered){ levelChange='mastered'; S.xp+=5; }
+      else if(acc<REPEAT_PCT){ levelChange='repeat'; }
+    }
   }
 
   // record this session for the parent dashboard (keep the most recent 80)
@@ -1413,7 +1782,9 @@ function finish(){
   const msg = acc>=90?'Outstanding!':acc>=80?'Great job!':acc>=60?'Good effort!':'Keep going — you\'ll get it!';
 
   let banner='';
-  if(mathsMode){
+  if(practiceMode){
+    banner=`<div class="levelup" style="background:linear-gradient(135deg,#16a34a,#4ade80)">🎯 Practice round · ${practiced.title}<br><span class="small" style="font-weight:600">Extra practice — ${S.name}’s main level hasn’t changed.</span></div>`;
+  } else if(mathsMode){
     if(mastered){
       const wk = daysOnLevel>=7;
       banner=`<div class="levelup" style="${wk?'':'background:linear-gradient(135deg,#4f6df5,#6b8bff)'}">🌟 ${wk?'A whole week on this level — ready to move up!':'Mastered today!'}<br><span class="small" style="font-weight:600">Practised “${practiced.title}” on ${daysOnLevel} day${daysOnLevel===1?'':'s'}.${wk?'':' Keep going for about a week before moving up.'}</span></div>`;
@@ -1434,7 +1805,14 @@ function finish(){
     : `<div class="mistake-item center" style="border-color:var(--good);background:var(--good-bg)"><b>✨ No mistakes — a perfect worksheet!</b></div>`;
 
   let actions;
-  if(mathsMode){
+  if(practiceMode){
+    actions = `
+      <div class="row" style="gap:10px">
+        <button class="btn big" id="again" style="flex:1">↻ Try again</button>
+        <button class="btn big ghost" id="backLevels" style="flex:1">← Levels</button>
+      </div>
+      <button class="btn wide ghost" id="home" style="margin-top:10px">Home</button>`;
+  } else if(mathsMode){
     const canMoveUp = mastered && !atMax;
     actions = `
       <p class="center small muted" style="margin:-2px 0 10px">“↻ Try again” gives a brand-new set of questions on the same level.${canMoveUp?' Move up whenever you’re ready — ideally after about a week.':''}</p>
@@ -1467,10 +1845,29 @@ function finish(){
     <div class="card">${mistakesHtml}</div>
     ${actions}`;
   document.getElementById('home').onclick=renderHome;
-  document.getElementById('again').onclick=()=>startSession(sub);
+  document.getElementById('again').onclick=()=> practiceMode ? startSession(sub,{level:curLvl,practice:true}) : startSession(sub);
   const mu=document.getElementById('moveUp'); if(mu) mu.onclick=()=>levelUpManually(sub);
+  const bl=document.getElementById('backLevels'); if(bl) bl.onclick=()=>renderLevelPicker(sub);
   foot.innerHTML='';
   document.getElementById('streakNum').textContent=S.streak;
+}
+/* level picker — parents can send the learner to practise any earlier level */
+function renderLevelPicker(sub){
+  document.getElementById('homeBtn').classList.remove('hidden');
+  const ladder=ladderOf(sub), cur=S[sub].level;
+  const rows = ladder.map((l,i)=>({l,i})).filter(x=>x.i<=cur).reverse().map(({l,i})=>`
+    <button class="map-row" data-lvl="${i}" style="width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--line);cursor:pointer">
+      <span class="map-ic" style="background:${i===cur?'var(--brand)':'var(--good)'}">${i===cur?'▸':'✓'}</span>
+      <div style="flex:1"><b>${l.title}</b> <span class="small muted">· Grade ${l.g}${i===cur?' · current':''}</span></div>
+      <span class="small" style="color:var(--brand);font-weight:800">Practise →</span>
+    </button>`).join('');
+  app.innerHTML=`
+    <div class="card"><div class="spread"><h1 style="margin:0">${SUBJECTS[sub].icon} Practise a level</h1><button class="btn ghost" id="pkBack">← Back</button></div>
+      <p class="muted small" style="margin:6px 0 0">Pick any level ${S.name} has reached to practise with a fresh set of questions. This won’t change their current level.</p></div>
+    <div class="card">${rows}</div>`;
+  document.getElementById('pkBack').onclick=renderHome;
+  document.querySelectorAll('[data-lvl]').forEach(b=>b.onclick=()=>startSession(sub,{level:+b.dataset.lvl, practice:true}));
+  foot.innerHTML='';
 }
 /* explicit "move up a level" for maths (progression is a choice, not automatic) */
 function levelUpManually(sub){
