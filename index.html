@@ -6,7 +6,7 @@
     --bg:#f4f7fb; --card:#ffffff; --ink:#1f2a44; --muted:#6b7690;
     --brand:#4f6df5; --brand-dark:#3a52d6; --good:#1faa6c; --good-bg:#e6f7ef;
     --bad:#e0485a; --bad-bg:#fdecee; --warn:#f0a500;
-    --maths:#4f6df5; --english:#f0663a; --reading:#16a34a; --line:#e6eaf2; --shadow:0 10px 30px rgba(31,42,68,.08);
+    --maths:#4f6df5; --english:#f0663a; --reading:#16a34a; --bm:#d1495b; --jawi:#0f766e; --mib:#b8860b; --science:#7c3aed; --line:#e6eaf2; --shadow:0 10px 30px rgba(31,42,68,.08);
     --r:18px;
   }
   *{box-sizing:border-box}
@@ -47,6 +47,10 @@
   .subject.maths{background:linear-gradient(135deg,#4f6df5,#6b8bff)}
   .subject.english{background:linear-gradient(135deg,#f0663a,#ff8a5c)}
   .subject.reading{background:linear-gradient(135deg,#16a34a,#4ade80)}
+  .subject.bahasamelayu{background:linear-gradient(135deg,#d1495b,#ec6b7d)}
+  .subject.jawi{background:linear-gradient(135deg,#0f766e,#2dd4bf)}
+  .subject.mib{background:linear-gradient(135deg,#b8860b,#e0b13a)}
+  .subject.science{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
   .subject h2{color:#fff}
   .subject .lvl{opacity:.92;font-size:14px;margin-bottom:14px}
   .progress{height:10px;background:rgba(255,255,255,.35);border-radius:999px;overflow:hidden;margin:10px 0 16px}
@@ -57,6 +61,10 @@
   .subject.maths .btn{color:var(--brand-dark)}
   .subject.english .btn{color:#c2451f}
   .subject.reading .btn{color:#15803d}
+  .subject.bahasamelayu .btn{color:#a83246}
+  .subject.jawi .btn{color:#0b5c56}
+  .subject.mib .btn{color:#8a6608}
+  .subject.science .btn{color:#5b21b6}
   .done-tag{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
 
   /* practice */
@@ -1135,6 +1143,201 @@ const READING = [
   ]},
 ];
 
+/* =========================================================================
+   BRUNEI YEAR 1 SUBJECTS — authored from the "Year 1 Resources" folder
+   (BM Tahun 1, Jawi booklets, MIB Year 1, Year 1 Science). Original questions.
+   Jawi uses Jawi/Arabic Unicode letters. Math & English map to the existing
+   Maths & English subjects.
+   ========================================================================= */
+const BM = [
+  {g:1, title:'BM: Perbendaharaan kata', items:[
+    ()=>mc('Warna "red" dalam Bahasa Melayu ialah…', 'merah', ['biru','hijau','kuning'], 'red = merah.'),
+    ()=>mc('Warna "blue" dalam Bahasa Melayu ialah…', 'biru', ['merah','hitam','putih'], 'blue = biru.'),
+    ()=>mc('Haiwan yang berbunyi "meow" ialah…', 'kucing', ['anjing','ayam','ikan'], 'cat = kucing.'),
+    ()=>mc('"anjing" dalam Bahasa Inggeris ialah…', 'dog', ['cat','fish','bird'], 'anjing = dog.'),
+    ()=>mc('Kita makan menggunakan…', 'mulut', ['mata','telinga','kaki'], 'We eat with the mulut (mouth).'),
+    ()=>mc('"buku" digunakan untuk…', 'membaca', ['makan','tidur','berlari'], 'buku (book) is for reading.'),
+    ()=>mc('Warna daun biasanya…', 'hijau', ['merah','biru','ungu'], 'Leaves are hijau (green).'),
+    ()=>mc('"ibu" atau "emak" bermaksud…', 'mother', ['father','sister','brother'], 'ibu/emak = mother.'),
+  ]},
+  {g:1, title:'BM: Suku kata & ejaan', items:[
+    ()=>mc('Cantumkan: "ku" + "cing" =', 'kucing', ['kuceng','kucin','kacing'], 'ku-cing = kucing.'),
+    ()=>mc('Cantumkan: "bu" + "ku" =', 'buku', ['baku','buka','buko'], 'bu-ku = buku.'),
+    ()=>mc('Berapa suku kata dalam "sekolah"?', 'tiga', ['dua','empat','satu'], 'se-ko-lah = 3 suku kata.'),
+    ()=>mc('Susun huruf: m, a, t, a →', 'mata', ['tama','maat','atma'], 'mata (eye).'),
+    ()=>mc('Susun huruf: n, a, s, i →', 'nasi', ['sani','isan','nisa'], 'nasi (rice).'),
+    ()=>mc('Ejaan yang betul:', 'rumah', ['ruumah','rumh','romah'], 'ru-mah = rumah (house).'),
+    ()=>mc('"ayam" bermula dengan huruf…', 'a', ['y','m','i'], 'ayam starts with a.'),
+    ()=>mc('Perkataan "ikan" ada berapa huruf?', 'empat', ['tiga','lima','dua'], 'i-k-a-n = 4 huruf.'),
+  ]},
+  {g:1, title:'BM: Lawan kata', items:[
+    ()=>mc('Lawan bagi "besar" ialah…', 'kecil', ['tinggi','panjang','berat'], 'besar (big) ↔ kecil (small).'),
+    ()=>mc('Lawan bagi "panas" ialah…', 'sejuk', ['manis','tinggi','cepat'], 'panas (hot) ↔ sejuk (cold).'),
+    ()=>mc('Lawan bagi "tinggi" ialah…', 'rendah', ['besar','luas','berat'], 'tinggi (tall) ↔ rendah (low).'),
+    ()=>mc('Lawan bagi "siang" ialah…', 'malam', ['pagi','petang','cerah'], 'siang (day) ↔ malam (night).'),
+    ()=>mc('Lawan bagi "bersih" ialah…', 'kotor', ['cantik','baru','licin'], 'bersih (clean) ↔ kotor (dirty).'),
+    ()=>mc('Lawan bagi "gembira" ialah…', 'sedih', ['marah','takut','letih'], 'gembira (happy) ↔ sedih (sad).'),
+    ()=>mc('Lawan bagi "cepat" ialah…', 'lambat', ['laju','kuat','jauh'], 'cepat (fast) ↔ lambat (slow).'),
+    ()=>mc('Lawan bagi "baharu" ialah…', 'lama', ['muda','segar','cantik'], 'baharu (new) ↔ lama (old).'),
+  ]},
+  {g:2, title:'BM: Nama benda & tempat', items:[
+    ()=>mc('Tempat kita belajar ialah…', 'sekolah', ['pasar','pantai','hospital'], 'We learn at sekolah (school).'),
+    ()=>mc('Kita membeli makanan di…', 'kedai', ['sekolah','sungai','padang'], 'We buy food at a kedai (shop).'),
+    ()=>mc('Emak memasak di…', 'dapur', ['bilik tidur','taman','sekolah'], 'Mother cooks in the dapur (kitchen).'),
+    ()=>mc('Kenderaan yang terbang ialah…', 'kapal terbang', ['kereta','bot','basikal'], 'plane = kapal terbang.'),
+    ()=>mc('Haiwan yang berenang di air ialah…', 'ikan', ['ayam','kucing','burung'], 'fish (ikan) swim.'),
+    ()=>mc('Buah berwarna kuning dan melengkung ialah…', 'pisang', ['epal','anggur','limau'], 'banana = pisang.'),
+    ()=>mc('Kita membasuh tangan dengan…', 'sabun', ['minyak','gula','garam'], 'We wash with sabun (soap).'),
+    ()=>mc('Kita tidur di dalam…', 'bilik tidur', ['dapur','tandas','garaj'], 'We sleep in the bedroom.'),
+  ]},
+  {g:2, title:'BM: Membaca & memahami', items:[
+    ()=>mc('Petikan: "Emak masak sup sayur. Sup itu sedap." Emak masak apa?', 'sup sayur', ['nasi goreng','kek','ikan'], 'Emak masak sup sayur.'),
+    ()=>mc('Petikan: "Mala menggosok gigi setiap pagi." Bila Mala menggosok gigi?', 'setiap pagi', ['setiap malam','setiap petang','tidak pernah'], 'Setiap pagi.'),
+    ()=>mc('Petikan: "Amin suka pergi ke pantai. Di pantai ada pasir putih." Amin suka pergi ke mana?', 'pantai', ['sekolah','pasar','hutan'], 'Ke pantai.'),
+    ()=>mc('Petikan: "Kek cawan ini rasa coklat." Kek cawan itu rasa apa?', 'coklat', ['strawberi','vanila','keju'], 'Rasa coklat.'),
+    ()=>mc('Petikan: "Jam loceng ayah warna merah, di atas meja." Di manakah jam loceng?', 'di atas meja', ['di bawah meja','di dalam beg','di luar'], 'Di atas meja.'),
+    ()=>mc('Petikan: "Ikan sepat ini warna hitam." Apakah warna ikan sepat?', 'hitam', ['kuning','merah','biru'], 'Warna hitam.'),
+    ()=>mc('Petikan: "Mereka bermain di taman pada setiap petang." Bila mereka bermain?', 'setiap petang', ['setiap pagi','setiap malam','waktu sekolah'], 'Setiap petang.'),
+    ()=>mc('Petikan: "Badan Mala bersih selepas mandi." Bagaimana badan Mala selepas mandi?', 'bersih', ['kotor','basah','berhabuk'], 'Badannya bersih.'),
+  ]},
+];
+const JAWI = [
+  {g:1, title:'Jawi: Huruf asas 1', items:[
+    ()=>mc('Huruf Jawi "ا" — bunyi Rumi?', 'a', ['b','t','d'], 'ا = alif = a.'),
+    ()=>mc('Huruf Jawi "ب" — bunyi Rumi?', 'b', ['a','t','n'], 'ب = ba = b.'),
+    ()=>mc('Huruf Jawi "ت" — bunyi Rumi?', 't', ['b','j','r'], 'ت = ta = t.'),
+    ()=>mc('Huruf Jawi "ج" — bunyi Rumi?', 'j', ['h','k','m'], 'ج = jim = j.'),
+    ()=>mc('Huruf Jawi "د" — bunyi Rumi?', 'd', ['r','z','w'], 'د = dal = d.'),
+    ()=>mc('Huruf Jawi "ر" — bunyi Rumi?', 'r', ['d','z','n'], 'ر = ra = r.'),
+    ()=>mc('Huruf Jawi "س" — bunyi Rumi?', 's', ['sy','h','f'], 'س = sin = s.'),
+    ()=>mc('Huruf Jawi "ل" — bunyi Rumi?', 'l', ['m','n','k'], 'ل = lam = l.'),
+  ]},
+  {g:1, title:'Jawi: Huruf asas 2', items:[
+    ()=>mc('Huruf Jawi "م" — bunyi Rumi?', 'm', ['n','l','b'], 'م = mim = m.'),
+    ()=>mc('Huruf Jawi "ن" — bunyi Rumi?', 'n', ['m','r','t'], 'ن = nun = n.'),
+    ()=>mc('Huruf Jawi "و" — bunyi Rumi?', 'w', ['y','j','h'], 'و = wau = w / u / o.'),
+    ()=>mc('Huruf Jawi "ي" — bunyi Rumi?', 'y', ['w','r','n'], 'ي = ya = y / i / e.'),
+    ()=>mc('Huruf Jawi "ک" — bunyi Rumi?', 'k', ['g','q','h'], 'ک = kaf = k.'),
+    ()=>mc('Huruf Jawi "ه" — bunyi Rumi?', 'h', ['j','a','t'], 'ه = ha = h.'),
+    ()=>mc('Huruf Jawi "ف" — bunyi Rumi?', 'f', ['p','q','b'], 'ف = fa = f.'),
+    ()=>mc('Huruf Jawi "ق" — bunyi Rumi?', 'q', ['k','f','g'], 'ق = qaf = q.'),
+  ]},
+  {g:2, title:'Jawi: Huruf khas Melayu', items:[
+    ()=>mc('Huruf Jawi "چ" — bunyi Rumi?', 'c', ['j','s','h'], 'چ = ca = c.'),
+    ()=>mc('Huruf Jawi "ڤ" — bunyi Rumi?', 'p', ['f','b','q'], 'ڤ = pa = p.'),
+    ()=>mc('Huruf Jawi "ݢ" — bunyi Rumi?', 'g', ['k','q','j'], 'ݢ = ga = g.'),
+    ()=>mc('Huruf Jawi "ڠ" — bunyi Rumi?', 'ng', ['ny','n','g'], 'ڠ = nga = ng.'),
+    ()=>mc('Huruf Jawi "ڽ" — bunyi Rumi?', 'ny', ['ng','n','y'], 'ڽ = nya = ny.'),
+    ()=>mc('Huruf "c" dalam Jawi ialah…', 'چ', ['ج','س','ت'], 'c = چ (ca).'),
+    ()=>mc('Huruf "p" dalam Jawi ialah…', 'ڤ', ['ف','ب','ق'], 'p = ڤ (pa).'),
+    ()=>mc('Huruf "ng" dalam Jawi ialah…', 'ڠ', ['ڽ','ن','ݢ'], 'ng = ڠ (nga).'),
+  ]},
+  {g:2, title:'Jawi: Rumi ke Jawi', items:[
+    ()=>mc('Huruf "a" dalam Jawi ialah…', 'ا', ['ب','ت','د'], 'a = ا (alif).'),
+    ()=>mc('Huruf "b" dalam Jawi ialah…', 'ب', ['ت','ن','ي'], 'b = ب (ba).'),
+    ()=>mc('Huruf "m" dalam Jawi ialah…', 'م', ['ن','ل','و'], 'm = م (mim).'),
+    ()=>mc('Huruf "l" dalam Jawi ialah…', 'ل', ['م','ک','ن'], 'l = ل (lam).'),
+    ()=>mc('Huruf "r" dalam Jawi ialah…', 'ر', ['د','ز','و'], 'r = ر (ra).'),
+    ()=>mc('Huruf "s" dalam Jawi ialah…', 'س', ['ش','ص','ث'], 's = س (sin).'),
+    ()=>mc('Huruf "k" dalam Jawi ialah…', 'ک', ['ق','ݢ','ل'], 'k = ک (kaf).'),
+    ()=>mc('Huruf "t" dalam Jawi ialah…', 'ت', ['ث','ن','ب'], 't = ت (ta).'),
+  ]},
+];
+const MIB = [
+  {g:1, title:'MIB: Nilai murni', items:[
+    ()=>mc('Kita mesti bercakap dengan orang tua secara…', 'sopan', ['kasar','gelojoh','marah'], 'Speak politely (sopan) to elders.'),
+    ()=>mc('Sebelum makan, kita hendaklah…', 'membaca doa', ['bermain','menyanyi','berlari'], 'Recite doa before eating.'),
+    ()=>mc('Nilai yang baik ialah…', 'kasih sayang', ['bergaduh','mencuri','sombong'], 'Kindness (kasih sayang) is good.'),
+    ()=>mc('Kita hendaklah makan dengan…', 'perlahan', ['gelojoh','berdiri','berlari'], 'Eat calmly (perlahan).'),
+    ()=>mc('Perbuatan yang salah ialah…', 'bercakap bohong', ['bercakap benar','menolong','berkongsi'], 'Lying (bohong) is wrong.'),
+    ()=>mc('Kita mesti ______ kepada ibu bapa.', 'taat', ['derhaka','melawan','marah'], 'Obey (taat) your parents.'),
+    ()=>mc('Sikap yang baik terhadap kawan ialah…', 'berkongsi', ['berebut','bergaduh','sombong'], 'Sharing (berkongsi) is kind.'),
+    ()=>mc('Ketika melintas di depan orang tua, kita…', 'membongkokkan badan sedikit', ['berlari','menjerit','melompat'], 'Bow slightly to show respect.'),
+  ]},
+  {g:1, title:'MIB: Kebersihan & kesihatan', items:[
+    ()=>mc('Untuk badan yang bersih, kita hendaklah…', 'mandi setiap hari', ['tidak mandi','tidur sahaja','makan sahaja'], 'Bathe every day.'),
+    ()=>mc('Sebelum makan, kita mesti mencuci…', 'tangan', ['kaki','rambut','baju'], 'Wash your tangan (hands).'),
+    ()=>mc('Baju seragam sekolah hendaklah…', 'bersih', ['kotor','koyak','basah'], 'The uniform must be clean.'),
+    ()=>mc('Kita menggosok ______ setiap pagi dan malam.', 'gigi', ['meja','lantai','pintu'], 'Brush your gigi (teeth).'),
+    ()=>mc('Makanan yang sihat ialah…', 'buah-buahan', ['gula-gula sahaja','coklat sahaja','aiskrim sahaja'], 'Fruit (buah-buahan) is healthy.'),
+    ()=>mc('Sampah hendaklah dibuang ke dalam…', 'tong sampah', ['sungai','lantai','laci'], 'Rubbish goes in the bin.'),
+    ()=>mc('Kuku yang panjang hendaklah…', 'dipotong', ['dibiarkan','dicat','disimpan'], 'Long nails should be cut.'),
+    ()=>mc('Selepas bermain, kita hendaklah…', 'mencuci tangan', ['terus makan','terus tidur','bermain lagi'], 'Wash hands after playing.'),
+  ]},
+  {g:1, title:'MIB: Anggota badan & kegunaan', items:[
+    ()=>mc('Kaki digunakan untuk…', 'berjalan', ['melihat','mendengar','mencium'], 'Legs (kaki) are for walking.'),
+    ()=>mc('Mata digunakan untuk…', 'melihat', ['mendengar','berjalan','makan'], 'Eyes (mata) are for seeing.'),
+    ()=>mc('Telinga digunakan untuk…', 'mendengar', ['melihat','mencium','berjalan'], 'Ears (telinga) hear.'),
+    ()=>mc('Tangan digunakan untuk…', 'memegang', ['berjalan','mendengar','mencium'], 'Hands (tangan) hold things.'),
+    ()=>mc('Hidung digunakan untuk…', 'mencium bau', ['melihat','mendengar','berjalan'], 'The nose (hidung) smells.'),
+    ()=>mc('Berapa jari pada satu tangan?', 'lima', ['dua','sepuluh','tiga'], 'Five (lima) fingers on one hand.'),
+    ()=>mc('Kita mengunyah makanan dengan…', 'gigi', ['mata','telinga','kaki'], 'We chew with gigi (teeth).'),
+    ()=>mc('Kita bercakap menggunakan…', 'mulut', ['telinga','mata','tangan'], 'We speak with the mulut (mouth).'),
+  ]},
+  {g:2, title:'MIB: Melayu Islam Beraja', items:[
+    ()=>mc('Negara kita ialah…', 'Brunei Darussalam', ['Malaysia','Indonesia','Singapura'], 'Our country is Brunei Darussalam.'),
+    ()=>mc('"MIB" bermaksud…', 'Melayu Islam Beraja', ['Malaysia Indonesia Brunei','Makan Ikan Bersama','Melayu Islam Bersih'], 'MIB = Melayu Islam Beraja.'),
+    ()=>mc('Agama rasmi negara Brunei ialah…', 'Islam', ['Buddha','Hindu','Kristian'], 'Islam is the official religion.'),
+    ()=>mc('Ketua negara Brunei ialah…', 'Sultan', ['Presiden','Perdana Menteri','Raja England'], 'Brunei is led by the Sultan (Beraja).'),
+    ()=>mc('Bahasa rasmi negara Brunei ialah…', 'Bahasa Melayu', ['Bahasa Inggeris','Bahasa Cina','Bahasa Arab'], 'Bahasa Melayu is official.'),
+    ()=>mc('Kita hendaklah ______ negara kita.', 'menyayangi', ['membenci','merosakkan','melupakan'], 'We should love (menyayangi) our country.'),
+    ()=>mc('Umat Islam bersembahyang sebanyak ___ kali sehari.', 'lima', ['tiga','dua','sepuluh'], 'Muslims pray five (lima) times a day.'),
+    ()=>mc('Memberi salam ialah tanda…', 'hormat', ['marah','malas','sombong'], 'Giving salam shows respect (hormat).'),
+  ]},
+];
+const SCIENCE = [
+  {g:1, title:'Science: My body', items:[
+    ()=>mc('Which part of the body do you walk with?', 'legs', ['ears','eyes','nose'], 'Legs are for walking.'),
+    ()=>mc('Which part do you use to hold a pencil?', 'hand', ['foot','ear','nose'], 'The hand holds things.'),
+    ()=>mc('You bend your arm at the…', 'elbow', ['knee','ankle','neck'], 'The elbow bends the arm.'),
+    ()=>mc('You bend your leg at the…', 'knee', ['elbow','neck','shoulder'], 'The knee bends the leg.'),
+    ()=>mc('How many hands do you have?', 'two', ['one','ten','five'], 'You have two hands.'),
+    ()=>mc('How many fingers are on two hands?', 'ten', ['five','two','twenty'], 'Ten fingers in total.'),
+    ()=>mc('Which is a part of the body?', 'foot', ['spoon','chair','cup'], 'A foot is a body part.'),
+    ()=>mc('Your head is at the ___ of your body.', 'top', ['bottom','side','back'], 'The head is at the top.'),
+  ]},
+  {g:1, title:'Science: The five senses', items:[
+    ()=>mc('We use our eyes to…', 'see', ['hear','smell','taste'], 'Eyes are for seeing.'),
+    ()=>mc('We use our ears to…', 'hear', ['see','smell','taste'], 'Ears are for hearing.'),
+    ()=>mc('We use our nose to…', 'smell', ['see','hear','taste'], 'The nose smells.'),
+    ()=>mc('We use our tongue to…', 'taste', ['see','hear','smell'], 'The tongue tastes.'),
+    ()=>mc('We feel hot and cold with our…', 'skin', ['eyes','ears','tongue'], 'Skin senses touch.'),
+    ()=>mc('A lemon tastes…', 'sour', ['sweet','salty','bitter'], 'Lemons are sour.'),
+    ()=>mc('Sugar tastes…', 'sweet', ['sour','salty','bitter'], 'Sugar is sweet.'),
+    ()=>mc('How many senses do we have?', 'five', ['two','ten','three'], 'We have five senses.'),
+  ]},
+  {g:1, title:'Science: Living & non-living things', items:[
+    ()=>mc('Which is a living thing?', 'a tree', ['a rock','a chair','a spoon'], 'A tree grows — it is living.'),
+    ()=>mc('Which is a non-living thing?', 'a stone', ['a cat','a flower','a bird'], 'A stone is non-living.'),
+    ()=>mc('Living things need ___ to live.', 'food, water and air', ['toys','money','televisions'], 'They need food, water and air.'),
+    ()=>mc('All living things can…', 'grow', ['fly','read','melt'], 'Living things grow.'),
+    ()=>mc('Which is a living thing?', 'a fish', ['a car','a ball','a pencil'], 'A fish is alive.'),
+    ()=>mc('Plants make their food using…', 'sunlight', ['rocks','plastic','sand'], 'Plants use sunlight.'),
+    ()=>mc('A baby plant grows from a…', 'seed', ['stone','brick','box'], 'Plants grow from seeds.'),
+    ()=>mc('Which do living things do that non-living things cannot?', 'breathe and grow', ['stay still','break','get wet'], 'Living things breathe and grow.'),
+  ]},
+  {g:2, title:'Science: Animals & plants', items:[
+    ()=>mc('Which animal lives in water?', 'fish', ['cat','dog','cow'], 'Fish live in water.'),
+    ()=>mc('Which animal can fly?', 'bird', ['fish','snake','cow'], 'Birds can fly.'),
+    ()=>mc('A cow gives us…', 'milk', ['wool','eggs','honey'], 'Cows give milk.'),
+    ()=>mc('A hen gives us…', 'eggs', ['milk','wool','honey'], 'Hens lay eggs.'),
+    ()=>mc('Which part of a plant grows under the ground?', 'roots', ['leaves','flower','fruit'], 'Roots grow underground.'),
+    ()=>mc('The green parts that catch sunlight are the…', 'leaves', ['roots','seeds','soil'], 'Leaves catch sunlight.'),
+    ()=>mc('A baby cat is called a…', 'kitten', ['puppy','calf','chick'], 'A baby cat is a kitten.'),
+    ()=>mc('Bees give us…', 'honey', ['milk','eggs','wool'], 'Bees make honey.'),
+  ]},
+  {g:2, title:'Science: Weather & materials', items:[
+    ()=>mc('On a sunny day, the sky is…', 'bright and clear', ['dark and stormy','snowy','foggy'], 'Sunny = bright and clear.'),
+    ()=>mc('When it rains, we use an…', 'umbrella', ['oven','ruler','pillow'], 'An umbrella keeps rain off.'),
+    ()=>mc('A window is usually made of…', 'glass', ['wood','water','paper'], 'Windows are glass.'),
+    ()=>mc('Which material floats on water?', 'wood', ['stone','a metal key','a coin'], 'Wood floats.'),
+    ()=>mc('Ice is water that is very…', 'cold', ['hot','sweet','loud'], 'Ice is frozen (cold) water.'),
+    ()=>mc('What do we wear when it is cold?', 'a jacket', ['a swimsuit','sandals','sunglasses'], 'A jacket keeps us warm.'),
+    ()=>mc('The sun gives us light and…', 'heat', ['rain','snow','wind'], 'The sun gives light and heat.'),
+    ()=>mc('What keeps you dry in the rain?', 'a raincoat', ['a fan','a plate','a book'], 'A raincoat keeps you dry.'),
+  ]},
+];
+
 /* -------------------------------------------------------------------------
    Put every ladder into proper GRADE ORDER. We record the pre-sort title order
    first, so existing saved progress (stored as an index) can be remapped by the
@@ -1142,9 +1345,10 @@ const READING = [
    the authored order is preserved. New levels dropped anywhere now slot into
    their grade automatically.
    ------------------------------------------------------------------------- */
-const OLD_ORDER = { maths: MATHS.map(l=>l.title), english: ENGLISH.map(l=>l.title), reading: READING.map(l=>l.title) };
-[MATHS, ENGLISH, READING].forEach(ladder => ladder.sort((a,b)=>a.g-b.g));
-const LADDER_V = 5; // bump when ladders change so migration re-runs once
+const OLD_ORDER = { maths: MATHS.map(l=>l.title), english: ENGLISH.map(l=>l.title), reading: READING.map(l=>l.title),
+  bahasamelayu: BM.map(l=>l.title), jawi: JAWI.map(l=>l.title), mib: MIB.map(l=>l.title), science: SCIENCE.map(l=>l.title) };
+[MATHS, ENGLISH, READING, BM, JAWI, MIB, SCIENCE].forEach(ladder => ladder.sort((a,b)=>a.g-b.g));
+const LADDER_V = 6; // bump when ladders change so migration re-runs once
 /* snapshot of the v2 sorted order — lets us give pre-v3 profiles (which stored a
    bare index) a durable level TITLE, after which progress is title-based forever */
 const V2_ORDER = {
@@ -1153,30 +1357,30 @@ const V2_ORDER = {
   reading:["Reading: main idea & details","Reading: details & sequence","Reading: context clues & inference","Reading: inference, compare & fact/opinion","Reading: summarising & figurative language","Reading: author’s purpose & tone"]
 };
 
-/* subject registry — makes Maths, English and Reading interchangeable */
+/* subject registry — every subject is interchangeable through this map */
 const SUBJECTS = {
-  maths:   { label:'Maths',   icon:'🔢', ladder:MATHS },
-  english: { label:'English', icon:'📖', ladder:ENGLISH },
-  reading: { label:'Reading', icon:'📚', ladder:READING },
+  bahasamelayu: { label:'Bahasa Melayu', icon:'🗣️', ladder:BM,      color:'var(--bm)' },
+  jawi:         { label:'Jawi',          icon:'✒️', ladder:JAWI,    color:'var(--jawi)' },
+  mib:          { label:'MIB',           icon:'👑', ladder:MIB,     color:'var(--mib)' },
+  maths:        { label:'Maths',         icon:'🔢', ladder:MATHS,   color:'var(--maths)' },
+  english:      { label:'English',       icon:'📖', ladder:ENGLISH, color:'var(--english)' },
+  science:      { label:'Science',       icon:'🔬', ladder:SCIENCE, color:'var(--science)' },
+  reading:      { label:'Reading',       icon:'📚', ladder:READING, color:'var(--reading)' },
 };
-const SUBJECT_KEYS = ['maths','english','reading'];
+const SUBJECT_KEYS = ['bahasamelayu','jawi','mib','maths','english','science','reading'];
 function ladderOf(sub){ return SUBJECTS[sub].ladder; }
 
 /* =========================================================================
    STATE
    ========================================================================= */
 function freshState(name, grade){
-  const startIdx = (ladder)=>{ const i=ladder.findIndex(l=>l.g===grade); return i<0?0:i; };
   const st = (lad)=>{ const i=lad.findIndex(l=>l.g===grade); const j=i<0?0:i; return { level:j, levelTitle:lad[j].title, attempts:0, mastered:0 }; };
-  return {
-    id: uid(), name, grade,
-    maths: st(MATHS), english: st(ENGLISH), reading: st(READING),
-    streak:0, lastActive:null, xp:0,
-    corrections:{ maths:[], english:[], reading:[] }, // carried-over mistakes to redo next time
-    doneToday:{ date:null, maths:false, english:false, reading:false },
-    log:[], _v:LADDER_V  // session history + ladder-version stamp
-  };
+  const p = { id: uid(), name, grade, streak:0, lastActive:null, xp:0, corrections:{}, doneToday:{ date:null }, log:[], _v:LADDER_V };
+  SUBJECT_KEYS.forEach(sub=>{ p[sub]=st(SUBJECTS[sub].ladder); p.corrections[sub]=[]; p.doneToday[sub]=false; });
+  return p;
 }
+/* a fresh done-today record with every subject reset to false */
+function freshDoneToday(){ const d={date:todayStr()}; SUBJECT_KEYS.forEach(sub=>d[sub]=false); return d; }
 /* Ensure older saved profiles gain any newly-added subjects/fields, and keep the
    learner on the SAME skill across ladder changes. Progress is title-based:
    a durable levelTitle survives any re-order/insert. Pre-v3 profiles stored only
@@ -1213,7 +1417,7 @@ let S = activeProfile();
 /* streak / daily bookkeeping */
 function touchDay(){
   const t = todayStr();
-  if(S.doneToday.date !== t){ S.doneToday = {date:t, maths:false, english:false, reading:false}; }
+  if(S.doneToday.date !== t){ S.doneToday = freshDoneToday(); }
   if(S.lastActive !== t){
     const yest = new Date(Date.now()-864e5).toISOString().slice(0,10);
     S.streak = (S.lastActive===yest) ? S.streak+1 : 1;
@@ -1337,9 +1541,7 @@ function renderHome(){
         </div>
       </div>
     </div>
-    ${subjectCard('maths')}
-    ${subjectCard('english')}
-    ${subjectCard('reading')}
+    ${SUBJECT_KEYS.map(subjectCard).join('')}
     <div class="card game-cta">
       <div class="spread">
         <div><h2 style="margin:0">🎮 Games</h2><p class="muted small" style="margin:2px 0 0">Picture match, word & sentence builders, spelling, memory</p></div>
@@ -1379,7 +1581,7 @@ function renderMap(){
   };
   app.innerHTML = `<div class="card"><div class="spread"><h1 style="margin:0">Level map</h1><button class="btn ghost" id="back">← Back</button></div>
     <p class="muted small">Green = mastered · Blue = current · Locked levels open as you progress.</p></div>
-    ${block('maths')}${block('english')}${block('reading')}`;
+    ${SUBJECT_KEYS.map(block).join('')}`;
   document.getElementById('back').onclick=renderHome;
   foot.innerHTML='';
 }
@@ -1393,7 +1595,7 @@ function subjectSnapshot(sub){
   const r=entries.reduce((s,e)=>s+e.right,0), t=entries.reduce((s,e)=>s+e.total,0);
   const acc=t?Math.round(r/t*100):0, lvl=ladder[st.level], pct=Math.round((st.level/ladder.length)*100);
   const col = !entries.length?'var(--muted)':acc>=80?'var(--good)':acc>=60?'var(--warn)':'var(--bad)';
-  const barCol = sub==='maths'?'var(--maths)':sub==='english'?'var(--english)':'var(--reading)';
+  const barCol = SUBJECTS[sub].color;
   return `<div class="card">
     <div class="spread"><h2 style="margin:0">${SUBJECTS[sub].icon} ${SUBJECTS[sub].label}</h2><span class="small muted">${entries.length} worksheet${entries.length===1?'':'s'}</span></div>
     <div class="row" style="padding:8px 0 4px">
@@ -1446,9 +1648,7 @@ function renderParent(){
       </div>
       <p class="small muted" style="margin:2px 0 0">Practised on ${days} day${days===1?'':'s'} · ${S.xp} XP earned. "First-try" = correct before any correction.</p>
     </div>
-    ${subjectSnapshot('maths')}
-    ${subjectSnapshot('english')}
-    ${subjectSnapshot('reading')}
+    ${SUBJECT_KEYS.filter(sub=>(S.log||[]).some(e=>e.sub===sub)).map(subjectSnapshot).join('')}
     <div class="card">
       <h2>🎯 Skills to practise next</h2>
       ${needs.length ? `<p class="small muted" style="margin-top:-6px">Ranked by first-try accuracy, lowest first — these are worth revisiting.</p>
@@ -1745,7 +1945,7 @@ function finish(){
   const practiced = ladder[curLvl]; // the level that was practised
   S[sub].attempts++;
   // mark done today
-  if(S.doneToday.date!==todayStr()) S.doneToday={date:todayStr(),maths:false,english:false,reading:false};
+  if(S.doneToday.date!==todayStr()) S.doneToday=freshDoneToday();
   S.doneToday[sub]=true;
   if(!practiceMode) S.corrections[sub]=[];   // keep current-level corrections during practice
 
