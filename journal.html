@@ -11,13 +11,15 @@
 :root{
   --desk:#e9e4d8; --paper:#fbf7ee; --ink:#1e1e22; --muted:#6f6a60;
   --red:#e2442f; --blue:#2c6fd1; --yellow:#f6cd3f; --sky:#d6e2f5; --green:#5f9a3a;
-  --line:#d9d2c2;
+  --line:#d9d2c2; --fg:#1e1e22; --fg2:#6f6a60;
   --head:"Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif;
   --hand:"Patrick Hand","Comic Sans MS","Chalkboard SE","Comic Neue",cursive;
 }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--desk:#26231e;--fg:#f1ece0;--fg2:#b5ad9c}}
+:root[data-theme="dark"]{--desk:#26231e;--fg:#f1ece0;--fg2:#b5ad9c}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--desk);color:var(--ink);font-family:var(--head);line-height:1.4;-webkit-font-smoothing:antialiased}
+body{background:var(--desk);color:var(--fg);font-family:var(--head);line-height:1.4;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
@@ -26,17 +28,17 @@ button{cursor:pointer}
 /* ---------- app chrome ---------- */
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
 .brand{font-weight:700;font-size:24px;display:flex;align-items:center;gap:10px}
-.brand small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+.brand small{display:block;font-weight:500;font-size:13px;color:var(--fg2)}
 .brand .logo{font-size:30px}
 .tools{display:flex;flex-wrap:wrap;gap:8px}
-.btn{border:2px solid var(--ink);background:#fff;border-radius:14px;padding:9px 14px;font-weight:600;font-size:15px;box-shadow:0 3px 0 var(--ink);transition:transform .05s}
+.btn{border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:14px;padding:9px 14px;font-weight:600;font-size:15px;box-shadow:0 3px 0 var(--ink);transition:transform .05s}
 .btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .btn.red{background:var(--red);color:#fff}
 .btn.blue{background:var(--blue);color:#fff}
 .btn.yellow{background:var(--yellow)}
 .btn.plain{border-color:transparent;box-shadow:none;background:transparent;text-decoration:underline}
 .btn.sm{padding:5px 10px;font-size:13px;border-radius:10px;box-shadow:0 2px 0 var(--ink)}
-.note{background:#fff7d6;border:2px dashed #d9b93a;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:16px}
+.note{color:var(--ink);background:#fff7d6;border:2px dashed #d9b93a;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:16px}
 .note b{font-weight:600}
 
 /* shelf */
@@ -44,7 +46,7 @@ button{cursor:pointer}
 .tile{background:none;border:0;padding:0;text-align:left}
 .tile .page{transition:transform .12s}
 .tile:hover .page{transform:rotate(-1deg) translateY(-3px)}
-.tile .cap{font-size:13px;color:var(--muted);margin-top:6px;text-align:center}
+.tile .cap{font-size:13px;color:var(--fg2);margin-top:6px;text-align:center}
 .addtile{aspect-ratio:148/210;border:3px dashed var(--blue);border-radius:12px;background:rgba(255,255,255,.5);color:var(--blue);font-weight:700;font-size:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%}
 .addtile span{font-size:44px;line-height:1}
 .triphead{grid-column:1/-1;font-weight:700;font-size:18px;margin:6px 0 -8px;display:flex;align-items:center;gap:8px}
@@ -53,7 +55,7 @@ button{cursor:pointer}
 /* editor */
 .edit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:24px;align-items:start}
 @media(max-width:880px){.edit{grid-template-columns:1fr}}
-.form{background:#fff;border:2px solid var(--ink);border-radius:20px;padding:18px;box-shadow:0 4px 0 var(--ink)}
+.form{color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:20px;padding:18px;box-shadow:0 4px 0 var(--ink)}
 .form h3{margin:18px 0 8px;font-size:16px;color:var(--blue);display:flex;align-items:center;gap:6px}
 .form h3:first-child{margin-top:0}
 .form label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px}
@@ -82,13 +84,13 @@ button{cursor:pointer}
 .item .x{border:0;background:none;color:var(--red);font-size:20px;font-weight:700;flex:none}
 .formfoot{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
 .side{position:sticky;top:12px}
-.side .warn{margin-top:10px;background:#fdeae6;border:2px solid var(--red);border-radius:12px;padding:8px 12px;font-size:14px;font-weight:500}
-.side .tip{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
+.side .warn{color:var(--ink);margin-top:10px;background:#fdeae6;border:2px solid var(--red);border-radius:12px;padding:8px 12px;font-size:14px;font-weight:500}
+.side .tip{font-size:13px;color:var(--fg2);text-align:center;margin-top:8px}
 .saved{font-size:13px;color:var(--green);font-weight:600}
 
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(30,30,34,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
-.modal .box{background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--ink);padding:20px;max-width:440px;width:100%;max-height:90vh;overflow:auto}
+.modal .box{color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--ink);padding:20px;max-width:440px;width:100%;max-height:90vh;overflow:auto}
 .modal h2{margin:0 0 12px;font-size:20px}
 .modal .row{margin-bottom:12px}
 .modal label.ck{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)}
