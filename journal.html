@@ -38,6 +38,12 @@ button{cursor:pointer}
 .btn.yellow{background:var(--yellow)}
 .btn.plain{border-color:transparent;box-shadow:none;background:transparent;text-decoration:underline}
 .btn.sm{padding:5px 10px;font-size:13px;border-radius:10px;box-shadow:0 2px 0 var(--ink)}
+.btn.sync{background:#eaf2ff}
+.btn.sync.err{background:#fdeae6}
+.btn.sync.busy{opacity:.75}
+.setup ol{padding-left:20px;margin:0 0 12px;font-size:14px}
+.setup li{margin-bottom:6px}
+.setup code{background:#f1ece0;border-radius:6px;padding:1px 6px;font-size:13px;word-break:break-all}
 .note{color:var(--ink);background:#fff7d6;border:2px dashed #d9b93a;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:16px}
 .note b{font-weight:600}
 
@@ -193,11 +199,14 @@ button{cursor:pointer}
 <div class="wrap">
   <div class="bar">
     <div class="brand"><span class="logo">📔</span><div><span id="bookTitle">Our Adventure Journal</span><small id="bookSub"></small></div></div>
+    <div class="tools">
+    <button class="btn sync" id="syncBtn" data-act="sync">☁ Google Drive</button>
     <div class="tools" id="shelfTools">
       <button class="btn red" data-act="new">＋ New page</button>
       <button class="btn yellow" data-act="print">🖨 Print book</button>
       <button class="btn" data-act="backup">💾 Backup</button>
       <button class="btn" data-act="settings">⚙ Settings</button>
+    </div>
     </div>
   </div>
 
@@ -248,7 +257,7 @@ const dbPut = e => tx('readwrite', s => s.put(e));
 const dbDel = id => tx('readwrite', s => s.delete(id));
 
 const SET_KEY = 'adventure-journal-settings';
-let settings = {title:'Our Adventure Journal', kids:['Aafi','Aara'], lastBackup:0, changesSinceBackup:0};
+let settings = {title:'Our Adventure Journal', kids:['Aafi','Aara'], lastBackup:0, changesSinceBackup:0, metaUpdated:0, googleClientId:'', sync:{connected:false, lastSync:0}, pendingDeletes:[]};
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SET_KEY) || '{}')); } catch(e){}
 const saveSettings = () => { try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch(e){} };
 
@@ -373,7 +382,7 @@ function ctxFor(e, list = sorted()){
   const idx = list.findIndex(x => x.id === e.id);
   return {day, pageNo: (idx < 0 ? list.length : idx) + 2};
 }
-const blank = () => ({id:uid(), created:Date.now(), date:today(), trip:'', place:'', spot:'', story:'', who:[...settings.kids], moods:{}, weather:'',
+const blank = () => ({id:uid(), created:Date.now(), updated:Date.now(), date:today(), trip:'', place:'', spot:'', story:'', who:[...settings.kids], moods:{}, weather:'',
   photos:[], word:{w:'', m:'', emoji:''}, did:[{t:'', done:true}], find:{text:'', emoji:'🍁'}, quote:{who:settings.kids[0] || '', text:''}, drawBox:false});
 
 /* ============================== shelf ============================== */
@@ -395,7 +404,7 @@ function renderShelf(){
   }
   $('#shelf').innerHTML = html;
   const n = $('#backupNote'), c = settings.changesSinceBackup;
-  if (entries.length && c >= 3){
+  if (entries.length && c >= 3 && !settings.sync.connected && $('#editView').classList.contains('hidden')){
     n.classList.remove('hidden');
     n.innerHTML = `<b>⚠️ ${c} changes not backed up.</b> Your pages live only in this browser on this device. Clearing browser data or losing the device erases them. <button class="btn sm" data-act="export">Download backup now</button>`;
   } else n.classList.add('hidden');
@@ -499,6 +508,7 @@ function changed(){
 async function persist(){
   clearTimeout(saveT); saveT = null;
   if (!cur) return;
+  cur.updated = Date.now();
   const copy = JSON.parse(JSON.stringify(cur));
   try {
     await dbPut(copy);
@@ -534,7 +544,7 @@ async function addFiles(files){
   for (const f of [...files]){
     if (cur.photos.length >= 4) break;
     if (!f.type.startsWith('image/') && !/\.(heic|heif)$/i.test(f.name)) continue;
-    try { cur.photos.push({src: await shrink(f), fx:50, fy:50}); } catch(e){ failed.push(f.name); }
+    try { cur.photos.push({pid:uid(), src: await shrink(f), fx:50, fy:50}); } catch(e){ failed.push(f.name); }
   }
   if (failed.length) alert('Could not read: ' + failed.join(', ') + '\nTry a JPG or PNG version of the photo.');
   renderThumbs(); changed();
@@ -549,6 +559,7 @@ document.addEventListener('click', async ev => {
   if (d.act === 'backup') return backupDialog();
   if (d.act === 'export') return exportBackup();
   if (d.act === 'settings') return settingsDialog();
+  if (d.act === 'sync') return syncClicked();
   if (d.open){ const e = entries.find(x => x.id === d.open); if (e) openEntry(e, false); return; }
   if (!cur || $('#editView').classList.contains('hidden')) return;
 
@@ -557,7 +568,7 @@ document.addEventListener('click', async ev => {
     p.fx = Math.round((ev.clientX - r.left) / r.width * 100); p.fy = Math.round((ev.clientY - r.top) / r.height * 100);
     return changed();
   }
-  if (d.rm !== undefined){ cur.photos.splice(+d.rm, 1); renderThumbs(); return changed(); }
+  if (d.rm !== undefined){ const [gone] = cur.photos.splice(+d.rm, 1); if (gone && gone.driveId) queueTrash(gone.driveId); renderThumbs(); return changed(); }
   if (d.who !== undefined){
     const i = cur.who.indexOf(d.who); i >= 0 ? cur.who.splice(i, 1) : cur.who.push(d.who);
     cur.who.sort((a, b) => settings.kids.indexOf(a) - settings.kids.indexOf(b));
@@ -571,14 +582,18 @@ document.addEventListener('click', async ev => {
   if (d.word !== undefined){ get = () => cur.word.emoji; pick('word', v => cur.word.emoji = v, $('#wordEmoji')); return changed(); }
   if (d.didx !== undefined){ cur.did.splice(+d.didx, 1); renderDid(); return changed(); }
   if (t.id === 'addDid'){ cur.did.push({t:'', done:true}); renderDid(); const ins = document.querySelectorAll('[data-didt]'); ins[ins.length-1].focus(); return; }
-  if (t.id === 'doneBtn'){ if (saveT || curIsNew && isWorthSaving()) await persist(); cur = null; renderShelf(); return show('shelf'); }
+  if (t.id === 'doneBtn'){ if (saveT || curIsNew && isWorthSaving()) await persist(); cur = null; renderShelf(); show('shelf'); return runSync(false); }
   if (t.id === 'printOne'){ if (saveT) await persist(); return doPrint([cur], {size:'A5', cover:false, white:false}); }
   if (t.id === 'delBtn'){
-    if (!confirm('Delete this page for good? This cannot be undone.')) return;
+    if (!confirm(settings.sync.connected
+      ? 'Delete this page on all devices?\n\nIts photos and text move to the Google Drive bin, where you can restore them for 30 days.'
+      : 'Delete this page for good? This cannot be undone.')) return;
     clearTimeout(saveT); saveT = null;
+    const old = entries.find(x => x.id === cur.id);
+    [cur, old].forEach(x => { if (!x) return; if (x.driveId) queueTrash(x.driveId); (x.photos || []).forEach(p => p.driveId && queueTrash(p.driveId)); });
     await dbDel(cur.id); entries = entries.filter(x => x.id !== cur.id);
     settings.changesSinceBackup++; saveSettings();
-    cur = null; renderShelf(); return show('shelf');
+    cur = null; renderShelf(); show('shelf'); return runSync(false);
   }
 });
 const isWorthSaving = () => cur && (cur.story || cur.photos.length || cur.place || cur.spot);
@@ -639,7 +654,9 @@ async function doPrint(list, o){
 function backupDialog(){
   const last = settings.lastBackup ? new Date(settings.lastBackup).toLocaleDateString() : 'never';
   const b = modal(`<h2>💾 Backup</h2>
-    <p style="font-size:14px;margin:0 0 12px">Everything is stored <b>only in this browser on this device</b>. A backup file is the only copy that survives a lost phone, a new laptop, or cleared browser data. Keep it somewhere safe (cloud drive, email to yourself).</p>
+    ${settings.sync.connected
+      ? `<p style="font-size:14px;margin:0 0 12px">✅ Google Drive is connected, so your pages and photos are already kept in the <b>Adventure Journal</b> folder of your Drive. A backup file is an extra copy you can keep anywhere.</p>`
+      : `<p style="font-size:14px;margin:0 0 12px">Everything is stored <b>only in this browser on this device</b>. Connect Google Drive (the ☁ button) to keep a copy in the cloud, or download a backup file and keep it somewhere safe.</p>`}
     <p style="font-size:14px;margin:0 0 12px">Last backup: <b>${last}</b></p>
     <div class="row"><button class="btn blue" id="bExp" style="width:100%">⬇ Download backup file</button></div>
     <div class="row"><label class="btn" style="display:block;text-align:center">⬆ Restore from a backup file<input type="file" id="bImp" accept=".json,application/json" style="display:none"></label></div>
@@ -658,11 +675,14 @@ function backupDialog(){
       for (const e of data.entries){
         if (!e || !e.id) continue;
         if (have.has(e.id) && !overwrite) continue;
+        const was = entries.find(x => x.id === e.id);
+        e.driveId = was ? was.driveId : null; e.syncedUpdated = -1; e.updated = Date.now();
+        (e.photos || []).forEach(p => { p.pid ||= uid(); const m = was && was.photos.find(x => x.pid === p.pid); p.driveId = m ? m.driveId : null; });
         await dbPut(e); n++;
       }
       entries = await dbAll();
       if (!localStorage.getItem(SET_KEY) && data.settings){ settings.title = data.settings.title || settings.title; settings.kids = data.settings.kids || settings.kids; saveSettings(); }
-      closeModal(); renderShelf(); alert(`Restored ${n} page(s).`);
+      closeModal(); renderShelf(); alert(`Restored ${n} page(s).`); runSync(false);
     } catch (err){ alert('Could not restore: ' + err.message); }
   };
 }
@@ -683,7 +703,283 @@ function settingsDialog(){
     settings.title = $('#sTitle', b).value.trim() || 'Our Adventure Journal';
     const kids = $('#sKids', b).value.split(',').map(s => s.trim().slice(0, 12)).filter(Boolean).slice(0, 4);
     if (kids.length) settings.kids = kids;
-    saveSettings(); closeModal(); renderShelf();
+    settings.metaUpdated = Date.now();
+    saveSettings(); closeModal(); renderShelf(); runSync(false);
+  };
+}
+
+
+/* ============================== Google Drive sync ==============================
+   Photos are saved as ordinary JPG files in a Drive folder called "Adventure Journal",
+   so they stay readable in Drive even without this app. Page text lives in a subfolder.
+   Uses the drive.file permission: the app can only see files it created itself.        */
+
+// Paste your OAuth Client ID here once (see "Set up Google Drive" in the app), so every
+// device picks it up automatically. It is not a secret.
+const GOOGLE_CLIENT_ID = '';
+
+const SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const API = 'https://www.googleapis.com/drive/v3', UP = 'https://www.googleapis.com/upload/drive/v3';
+const ROOT_FOLDER = 'Adventure Journal', DATA_FOLDER = 'journal pages (keep this folder)';
+const TOK_KEY = 'adventure-journal-token';
+const clientId = () => (GOOGLE_CLIENT_ID || settings.googleClientId || '').trim();
+let tok = null; try { tok = JSON.parse(localStorage.getItem(TOK_KEY) || 'null'); } catch(e){}
+const tokValid = () => !!(tok && tok.exp > Date.now() + 60000);
+const saveTok = () => { try { tok ? localStorage.setItem(TOK_KEY, JSON.stringify(tok)) : localStorage.removeItem(TOK_KEY); } catch(e){} };
+const sync = {state:'off', msg:'', running:false, again:false};
+class AuthNeeded extends Error {}
+
+function queueTrash(id){ if (id && !settings.pendingDeletes.includes(id)){ settings.pendingDeletes.push(id); saveSettings(); } }
+const dirty = e => !e.driveId || (e.updated || 0) !== (e.syncedUpdated ?? -1);
+
+let gisP = null;
+function loadGIS(){
+  return gisP ||= new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = res; s.onerror = () => { gisP = null; rej(new Error('Could not reach Google. Check the internet connection.')); };
+    document.head.appendChild(s);
+  });
+}
+async function signIn(){
+  await loadGIS();
+  return new Promise((res, rej) => {
+    const c = google.accounts.oauth2.initTokenClient({
+      client_id: clientId(), scope: SCOPE,
+      callback: r => {
+        if (r.error) return rej(new Error(r.error_description || r.error));
+        if (!google.accounts.oauth2.hasGrantedAllScopes(r, SCOPE)) return rej(new Error('Google Drive access was not allowed. Try again and tick the Google Drive box.'));
+        tok = {token: r.access_token, exp: Date.now() + (+r.expires_in || 3600) * 1000}; saveTok(); res();
+      },
+      error_callback: e => rej(new Error(e && e.type === 'popup_closed' ? 'The Google sign-in window was closed.' : e && e.type === 'popup_failed_to_open' ? 'The browser blocked the Google sign-in window. Allow pop-ups for this site and try again.' : 'Google sign-in failed.'))
+    });
+    c.requestAccessToken({prompt: settings.sync.connected ? '' : 'consent'});
+  });
+}
+
+async function api(url, opt = {}){
+  if (!tokValid()) throw new AuthNeeded();
+  const {allow404, ...o} = opt;
+  const r = await fetch(url, {...o, headers: {Authorization: 'Bearer ' + tok.token, ...(o.headers || {})}});
+  if (r.status === 401){ tok = null; saveTok(); throw new AuthNeeded(); }
+  if (r.status === 404 && allow404) return null;
+  if (!r.ok){ let m = 'error ' + r.status; try { m = (await r.json()).error.message || m; } catch(e){} throw new Error('Google Drive: ' + m); }
+  return r;
+}
+const enc = encodeURIComponent;
+async function listFiles(query, fields){
+  const out = []; let page = '';
+  do {
+    const r = await (await api(`${API}/files?q=${enc(query)}&spaces=drive&pageSize=1000&fields=${enc('nextPageToken,files(' + fields + ')')}${page ? '&pageToken=' + enc(page) : ''}`)).json();
+    out.push(...(r.files || [])); page = r.nextPageToken;
+  } while (page);
+  return out;
+}
+async function ensureFolder(name, parent){
+  const q = `name='${name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false` + (parent ? ` and '${parent}' in parents` : '');
+  const found = await listFiles(q, 'id,createdTime');
+  if (found.length) return found.sort((a, b) => (a.createdTime || '').localeCompare(b.createdTime || ''))[0].id;
+  const r = await api(`${API}/files?fields=id`, {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, mimeType: 'application/vnd.google-apps.folder', ...(parent ? {parents: [parent]} : {})})});
+  return (await r.json()).id;
+}
+async function upload(meta, blob, id){
+  const b = 'aj' + uid();
+  const body = new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: ${blob.type || 'application/octet-stream'}\r\n\r\n`, blob, `\r\n--${b}--`]);
+  const r = await api(`${UP}/files${id ? '/' + id : ''}?uploadType=multipart&fields=id`, {method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'multipart/related; boundary=' + b}, body, allow404: !!id});
+  return r ? (await r.json()).id : null;
+}
+const trashFile = id => api(`${API}/files/${id}?fields=id`, {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({trashed: true}), allow404: true});
+const toBlob = u => fetch(u).then(r => r.blob());
+const toDataURL = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(f.result); f.onerror = () => rej(f.error); f.readAsDataURL(b); });
+const jsonBlob = o => new Blob([JSON.stringify(o)], {type: 'application/json'});
+
+async function saveLocal(e){
+  await dbPut(e);
+  const i = entries.findIndex(x => x.id === e.id);
+  if (i >= 0) entries[i] = e; else entries.push(e);
+  if (cur && cur.id === e.id){   // keep Drive ids on the copy open in the editor
+    cur.driveId = e.driveId; cur.syncedUpdated = e.syncedUpdated;
+    for (const p of cur.photos){ const m = e.photos.find(x => x.pid && x.pid === p.pid); if (m && m.driveId) p.driveId = m.driveId; }
+  }
+}
+async function pushEntry(e, F){
+  for (const [i, p] of e.photos.entries()){
+    p.pid ||= uid();
+    if (p.driveId || !p.src) continue;
+    const name = `${e.date || 'undated'} ${(e.spot || e.place || 'outing').replace(/[\\/:*?"<>|]/g, '').trim()} ${i + 1}.jpg`;
+    p.driveId = await upload({name, parents: [F.root], appProperties: {entryId: e.id}}, await toBlob(p.src));
+    await saveLocal(e);
+  }
+  const {driveId, syncedUpdated, ...rest} = e;
+  const data = {...rest, updated: e.updated || 0, photos: e.photos.map(({src, ...p}) => p)};
+  const meta = {name: `page-${e.id}.json`, appProperties: {entryId: e.id, updated: String(e.updated || 0)}};
+  let id = driveId ? await upload(meta, jsonBlob(data), driveId) : null;
+  if (!id) id = await upload({...meta, parents: [F.data]}, jsonBlob(data));
+  e.driveId = id; e.syncedUpdated = e.updated || 0;
+  await saveLocal(e);
+}
+async function pullEntry(rf, local){
+  const data = await (await api(`${API}/files/${rf.id}?alt=media`)).json();
+  if (!data || data.id !== rf.appProperties.entryId) throw new Error('A page file in Drive looks damaged: ' + rf.name);
+  const photos = [];
+  for (const p of data.photos || []){
+    const have = local && local.photos.find(x => x.driveId && x.driveId === p.driveId && x.src);
+    let src = have && have.src;
+    if (!src && p.driveId){
+      const r = await api(`${API}/files/${p.driveId}?alt=media`, {allow404: true});
+      if (!r) continue;
+      src = await toDataURL(await r.blob());
+    }
+    if (src) photos.push({...p, src});
+  }
+  const u = +rf.appProperties.updated || data.updated || 0;
+  await saveLocal({...data, photos, driveId: rf.id, updated: u, syncedUpdated: u});
+}
+
+async function runSync(interactive){
+  if (!clientId()) return renderSyncBtn();
+  if (!interactive && !settings.sync.connected) return renderSyncBtn();
+  if (sync.running){ sync.again = true; return; }
+  if (!tokValid()){
+    if (!interactive) return setSync('signin');
+    try { await signIn(); } catch (err){ return setSync('error', err.message); }
+  }
+  sync.running = true; setSync('busy');
+  let touched = false;
+  try {
+    const F = {root: await ensureFolder(ROOT_FOLDER)};
+    F.data = await ensureFolder(DATA_FOLDER, F.root);
+    settings.sync.connected = true; saveSettings();
+
+    for (const id of [...settings.pendingDeletes]){
+      await trashFile(id);
+      settings.pendingDeletes = settings.pendingDeletes.filter(x => x !== id); saveSettings();
+    }
+
+    const files = await listFiles(`'${F.data}' in parents and trashed=false`, 'id,name,appProperties');
+
+    // book title & names
+    const sf = files.find(f => f.name === 'book-settings.json');
+    const su = sf ? +(sf.appProperties || {}).updated || 0 : -1;
+    if (sf && su > (settings.metaUpdated || 0)){
+      const d = await (await api(`${API}/files/${sf.id}?alt=media`)).json();
+      if (d.title) settings.title = d.title;
+      if (Array.isArray(d.kids) && d.kids.length) settings.kids = d.kids;
+      settings.metaUpdated = su; saveSettings(); touched = true;
+    } else if (settings.metaUpdated && settings.metaUpdated > su){
+      const meta = {name: 'book-settings.json', appProperties: {updated: String(settings.metaUpdated)}};
+      const body = jsonBlob({title: settings.title, kids: settings.kids});
+      if (!sf || !(await upload(meta, body, sf.id))) await upload({...meta, parents: [F.data]}, body);
+    }
+
+    // pages
+    const remote = new Map();
+    for (const f of files){
+      const id = f.appProperties && f.appProperties.entryId; if (!id) continue;
+      const prev = remote.get(id);
+      if (!prev){ remote.set(id, f); continue; }
+      const keepNew = +f.appProperties.updated > +prev.appProperties.updated;
+      remote.set(id, keepNew ? f : prev);
+      await trashFile(keepNew ? prev.id : f.id);
+    }
+    for (const [id, rf] of remote){
+      if (cur && cur.id === id) continue;              // page is open in the editor: next time
+      const local = entries.find(e => e.id === id), ru = +rf.appProperties.updated || 0;
+      if (!local){ await pullEntry(rf, null); touched = true; continue; }
+      const remoteChanged = rf.id !== local.driveId || ru !== local.syncedUpdated;
+      if (remoteChanged && (!dirty(local) || ru > (local.updated || 0))){ await pullEntry(rf, local); touched = true; }
+      else if (dirty(local)){ local.driveId = rf.id; await pushEntry(local, F); }
+    }
+    for (const e of [...entries]){
+      if (remote.has(e.id) || (cur && cur.id === e.id)) continue;
+      if (e.driveId && !dirty(e)){                      // deleted on another device
+        await dbDel(e.id); entries = entries.filter(x => x.id !== e.id); touched = true; continue;
+      }
+      if (e.driveId){ e.driveId = null; e.photos.forEach(p => p.driveId = null); }  // edited here after being deleted elsewhere: keep it
+      await pushEntry(e, F);
+    }
+    settings.sync.lastSync = Date.now(); saveSettings();
+    setSync('ok');
+  } catch (err){
+    if (err instanceof AuthNeeded) setSync('signin');
+    else { console.error(err); setSync('error', err.message || String(err)); }
+  } finally {
+    sync.running = false;
+    if (touched) renderShelf();
+    if (sync.again){ sync.again = false; runSync(false); }
+  }
+}
+
+function setSync(state, msg = ''){ sync.state = state; sync.msg = msg; renderSyncBtn(); }
+function ago(t){
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(t).toLocaleDateString();
+}
+function renderSyncBtn(){
+  const b = $('#syncBtn'); if (!b) return;
+  let st = sync.state;
+  if (!clientId()) st = 'setup';
+  else if (st === 'off' && settings.sync.connected) st = tokValid() ? 'ok' : 'signin';
+  const label = {
+    setup: '☁ Set up Google Drive',
+    off: '☁ Connect Google Drive',
+    busy: '⟳ Syncing…',
+    ok: settings.sync.lastSync ? `☁ Synced ${ago(settings.sync.lastSync)}` : '☁ Synced',
+    signin: '☁ Tap to sync',
+    error: '⚠ Sync problem — tap'
+  }[st];
+  b.textContent = label;
+  b.title = st === 'error' ? sync.msg : st === 'signin' ? 'Google needs you to sign in again (about once an hour)' : '';
+  b.classList.toggle('err', st === 'error');
+  b.classList.toggle('busy', st === 'busy');
+}
+function syncClicked(){
+  if (sync.running) return;
+  if (!clientId() || !settings.sync.connected) return driveDialog();
+  if (sync.state === 'error'){ alert('Last sync failed:\n\n' + sync.msg + '\n\nTrying again now.'); return runSync(true); }
+  if (!tokValid()) return runSync(true);       // "Tap to sync": sign in again, straight away
+  driveDialog();
+}
+function driveDialog(){
+  const origin = location.origin && location.origin !== 'null' ? location.origin : '';
+  const okOrigin = /^https:\/\//.test(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const b = modal(`<div class="setup"><h2>☁ Google Drive</h2>
+    ${settings.sync.connected ? `
+      <p style="font-size:14px;margin:0 0 12px">Connected. Pages and photos are kept in the <b>${esc(ROOT_FOLDER)}</b> folder of your Google Drive and appear on any device where you open this journal and connect the <b>same Google account</b>.</p>
+      <p style="font-size:14px;margin:0 0 12px">Last sync: <b>${settings.sync.lastSync ? ago(settings.sync.lastSync) : 'not yet'}</b></p>
+      <div class="acts" style="justify-content:space-between"><button class="btn plain" id="dOff" style="color:var(--red)">Disconnect this device</button><span style="display:flex;gap:10px"><button class="btn" data-close>Close</button><button class="btn blue" id="dNow">Sync now</button></span></div>`
+    : clientId() ? `
+      <p style="font-size:14px;margin:0 0 12px">Sign in with Google to keep your journal in your Drive and see it on your other devices. Use the <b>same Google account</b> on every device.</p>
+      <p style="font-size:14px;margin:0 0 12px">The journal can only see files it made itself — not the rest of your Drive.</p>
+      <div class="acts"><button class="btn" data-close>Not now</button><button class="btn blue" id="dGo">Sign in with Google</button></div>`
+    : `
+      <p style="font-size:14px;margin:0 0 10px">One-time setup (about 10 minutes, free). Do this on a computer:</p>
+      <ol>
+        <li>Open <b>console.cloud.google.com</b> and create a project called <i>Adventure Journal</i>.</li>
+        <li>Menu → <b>APIs &amp; Services → Library</b> → search <b>Google Drive API</b> → <b>Enable</b>.</li>
+        <li>Menu → <b>Google Auth Platform</b> (or “OAuth consent screen”) → Get started. App name: <i>Adventure Journal</i>, your email, Audience: <b>External</b>.</li>
+        <li>In <b>Audience → Test users</b>, add the Google account(s) you will sign in with.</li>
+        <li>In <b>Clients → Create client</b>: type <b>Web application</b>. Under <b>Authorized JavaScript origins</b> add:<br><code>${esc(origin || '(open this page from its web address first)')}</code></li>
+        <li>Copy the <b>Client ID</b> (ends in <code>.apps.googleusercontent.com</code>) and paste it below.</li>
+      </ol>
+      ${okOrigin ? '' : `<div class="warn" style="background:#fdeae6;border:2px solid var(--red);border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:12px">This page is not running from a normal web address, so Google sign-in will not work here. Open the journal from its website (for example GitHub Pages) and set it up there.</div>`}
+      <div class="row"><label>Client ID</label><input type="text" id="dCid" placeholder="1234-abc.apps.googleusercontent.com" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"></div>
+      <div class="hint">Tip: to avoid pasting it on every device, ask for it to be written into the journal file once.</div>
+      <div class="acts"><button class="btn" data-close>Cancel</button><button class="btn blue" id="dSave">Save &amp; sign in</button></div>`}
+  </div>`);
+  const go = () => { closeModal(); runSync(true); };
+  if ($('#dGo', b)) $('#dGo', b).onclick = go;
+  if ($('#dNow', b)) $('#dNow', b).onclick = go;
+  if ($('#dSave', b)) $('#dSave', b).onclick = () => {
+    const v = $('#dCid', b).value.trim();
+    if (!/\.apps\.googleusercontent\.com$/.test(v)) return alert('That does not look like a Client ID. It should end in .apps.googleusercontent.com');
+    settings.googleClientId = v; saveSettings(); go();
+  };
+  if ($('#dOff', b)) $('#dOff', b).onclick = () => {
+    if (!confirm('Stop syncing on this device? Your pages stay here and in Google Drive.')) return;
+    try { if (tok && window.google && google.accounts) google.accounts.oauth2.revoke(tok.token, () => {}); } catch(e){}
+    tok = null; saveTok(); settings.sync.connected = false; saveSettings(); setSync('off'); closeModal(); renderShelf();
   };
 }
 
@@ -693,6 +989,10 @@ function settingsDialog(){
   catch (e){ $('#backupNote').classList.remove('hidden'); $('#backupNote').textContent = 'This browser is blocking storage (private window?). Pages cannot be saved here.'; }
   renderShelf();
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  renderSyncBtn();
+  if (clientId() && settings.sync.connected){ loadGIS().catch(() => {}); runSync(false); }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') runSync(false); });
+  setInterval(() => { renderSyncBtn(); if (!sync.running) runSync(false); }, 5 * 60000);
 })();
 })();
 </script>
