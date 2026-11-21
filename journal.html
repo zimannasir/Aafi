@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Adventure Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#e9e4d8; --paper:#fbf7ee; --ink:#1e1e22; --muted:#6f6a60;
+  --red:#e2442f; --blue:#2c6fd1; --yellow:#f6cd3f; --sky:#d6e2f5; --green:#5f9a3a;
+  --line:#d9d2c2; --fg:#1e1e22; --fg2:#6f6a60;
+  --head:"Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --hand:"Patrick Hand","Comic Sans MS","Chalkboard SE","Comic Neue",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--desk:#26231e;--fg:#f1ece0;--fg2:#b5ad9c}}
+:root[data-theme="dark"]{--desk:#26231e;--fg:#f1ece0;--fg2:#b5ad9c}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--desk);color:var(--fg);font-family:var(--head);line-height:1.4;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:16px 16px 80px}
+
+/* ---------- app chrome ---------- */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{font-weight:700;font-size:24px;display:flex;align-items:center;gap:10px}
+.brand small{display:block;font-weight:500;font-size:13px;color:var(--fg2)}
+.brand .logo{font-size:30px}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:14px;padding:9px 14px;font-weight:600;font-size:15px;box-shadow:0 3px 0 var(--ink);transition:transform .05s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.red{background:var(--red);color:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.yellow{background:var(--yellow)}
+.btn.plain{border-color:transparent;box-shadow:none;background:transparent;text-decoration:underline}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:10px;box-shadow:0 2px 0 var(--ink)}
+.btn.sync{background:#eaf2ff}
+.btn.sync.err{background:#fdeae6}
+.btn.sync.busy{opacity:.75}
+.setup ol{padding-left:20px;margin:0 0 12px;font-size:14px}
+.setup li{margin-bottom:6px}
+.setup code{background:#f1ece0;border-radius:6px;padding:1px 6px;font-size:13px;word-break:break-all}
+.note{color:var(--ink);background:#fff7d6;border:2px dashed #d9b93a;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:16px}
+.note b{font-weight:600}
+
+/* shelf */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px}
+.tile{background:none;border:0;padding:0;text-align:left}
+.tile .page{transition:transform .12s}
+.tile:hover .page{transform:rotate(-1deg) translateY(-3px)}
+.tile .cap{font-size:13px;color:var(--fg2);margin-top:6px;text-align:center}
+.addtile{aspect-ratio:148/210;border:3px dashed var(--blue);border-radius:12px;background:rgba(255,255,255,.5);color:var(--blue);font-weight:700;font-size:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%}
+.addtile span{font-size:44px;line-height:1}
+.triphead{grid-column:1/-1;font-weight:700;font-size:18px;margin:6px 0 -8px;display:flex;align-items:center;gap:8px}
+.triphead::after{content:"";flex:1;border-top:2px dashed var(--line)}
+
+/* editor */
+.edit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:24px;align-items:start}
+@media(max-width:880px){.edit{grid-template-columns:1fr}}
+.form{color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:20px;padding:18px;box-shadow:0 4px 0 var(--ink)}
+.form h3{margin:18px 0 8px;font-size:16px;color:var(--blue);display:flex;align-items:center;gap:6px}
+.form h3:first-child{margin-top:0}
+.form label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px}
+.form input[type=text],.form input[type=date],.form textarea,.form select{width:100%;border:2px solid var(--line);border-radius:12px;padding:9px 11px;background:#fffdf8;font-size:16px}
+.form textarea{font-family:var(--hand);font-size:19px;resize:vertical;min-height:84px}
+.form input:focus,.form textarea:focus{outline:3px solid var(--sky);border-color:var(--blue)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:2fr 2fr 1fr;gap:10px}
+@media(max-width:520px){.g2,.g3{grid-template-columns:1fr}}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:15px;font-weight:500}
+.chip.on{border-color:var(--red);background:#fdeae6;box-shadow:0 0 0 2px var(--red) inset}
+.chip.ico{padding:4px 9px;font-size:22px}
+.moodrow{display:flex;align-items:center;gap:8px;margin-top:6px}
+.moodrow b{min-width:64px;font-weight:600;font-size:14px}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.thumb{position:relative;width:86px;height:86px;border-radius:12px;overflow:hidden;border:2px solid var(--ink)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:50%;border:0;background:var(--red);color:#fff;font-weight:700;line-height:1}
+.drop{border:3px dashed var(--blue);border-radius:16px;padding:16px;text-align:center;color:var(--blue);font-weight:600;background:#f4f8ff;display:block;cursor:pointer}
+.drop.over{background:var(--sky)}
+.drop input{display:none}
+.item{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.item input[type=checkbox]{width:22px;height:22px;accent-color:var(--red);flex:none}
+.item .x{border:0;background:none;color:var(--red);font-size:20px;font-weight:700;flex:none}
+.formfoot{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+.side{position:sticky;top:12px}
+.side .warn{color:var(--ink);margin-top:10px;background:#fdeae6;border:2px solid var(--red);border-radius:12px;padding:8px 12px;font-size:14px;font-weight:500}
+.side .tip{font-size:13px;color:var(--fg2);text-align:center;margin-top:8px}
+.saved{font-size:13px;color:var(--green);font-weight:600}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(30,30,34,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal .box{color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--ink);padding:20px;max-width:440px;width:100%;max-height:90vh;overflow:auto}
+.modal h2{margin:0 0 12px;font-size:20px}
+.modal .row{margin-bottom:12px}
+.modal label.ck{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+
+/* =====================================================================
+   THE PAGE — every size is in cqw so it scales from thumbnail to print
+   ===================================================================== */
+.page{container-type:inline-size;aspect-ratio:148/210;width:100%;background:var(--paper);border-radius:10px;box-shadow:0 2px 0 #cfc8b7,0 8px 22px rgba(60,50,30,.18);overflow:hidden;position:relative;color:var(--ink)}
+.page.white{background:#fff}
+.pg{position:absolute;inset:0;padding:6.5cqw 7cqw 7cqw;display:flex;flex-direction:column;gap:2.2cqw;font-family:var(--hand);font-size:4.5cqw;line-height:1.25}
+.pg .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:3cqw}
+.pg .lbl{font-family:var(--head);font-weight:600;color:var(--red);letter-spacing:.5cqw;font-size:3.7cqw;border-bottom:.6cqw solid var(--red);display:inline-block;padding-right:1.5cqw;border-radius:0 0 1cqw .3cqw;line-height:1.3;text-transform:uppercase}
+.pg .date{font-family:var(--head);font-weight:700;font-size:9cqw;line-height:1.05;margin-top:1.2cqw;letter-spacing:-.1cqw;white-space:nowrap}
+.pg .city{font-family:var(--head);font-weight:600;color:var(--blue);font-size:5.4cqw;line-height:1.1;margin-top:.6cqw}
+.pg .wotd{background:var(--sky);border-radius:4.5cqw 5.5cqw 4cqw 6cqw;padding:2.2cqw 3.2cqw 2.4cqw;text-align:center;flex:none;max-width:35cqw;min-width:27cqw}
+.pg .wotd .t{font-family:var(--head);font-weight:600;color:var(--blue);font-size:2.4cqw;letter-spacing:.3cqw;white-space:nowrap}
+.pg .wotd .w{font-size:6.6cqw;line-height:1.15;display:flex;justify-content:center;align-items:center;gap:1.5cqw;overflow-wrap:anywhere}
+.pg .wotd .m{font-size:3.6cqw;color:#3b3f4a;letter-spacing:.2cqw}
+.pg .story{margin:0;font-size:5.4cqw;line-height:1.3;letter-spacing:.25cqw;overflow-wrap:anywhere;white-space:pre-wrap}
+.pg mark{background:linear-gradient(transparent 82%,var(--yellow) 82%,var(--yellow) 96%,transparent 96%);color:inherit;padding:0 .4cqw}
+.pg .who{font-family:var(--head);font-weight:500;font-size:3cqw;color:var(--muted);margin-top:-1.4cqw}
+
+.pg .media{flex:1 1 0;min-height:20cqw;display:flex;flex-direction:column;gap:2cqw;position:relative}
+.pg .photos{flex:1 1 0;min-height:0;display:grid;gap:2cqw;position:relative}
+.pg .photos.n2{grid-template-columns:1fr 1fr}
+.pg .photos.n3{grid-template-columns:1.5fr 1fr;grid-template-rows:1fr 1fr}
+.pg .photos.n3 .ph:first-child{grid-row:1/3}
+.pg .photos.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pg .ph{position:relative;min-height:0;min-width:0;border-radius:3cqw 2.4cqw 3.4cqw 2.6cqw;overflow:hidden;background:#eee6d4}
+.pg .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pg .photos.can .ph{cursor:crosshair}
+.pg .tape{position:absolute;top:-1.3cqw;left:9cqw;width:15cqw;height:4.2cqw;background:rgba(246,205,63,.8);transform:rotate(-5deg);z-index:2;clip-path:polygon(3% 0,100% 6%,97% 100%,0 92%)}
+.pg .tape.b{left:auto;right:8cqw;background:rgba(160,190,235,.85);transform:rotate(4deg)}
+.pg .draw{border:.45cqw dashed #7f9fd6;border-radius:4cqw;padding:2cqw 3cqw;color:var(--blue);font-size:4.6cqw;min-height:0;display:flex;justify-content:space-between;align-items:flex-start}
+
+.pg .wm{display:flex;flex-wrap:wrap;align-items:center;gap:.4cqw 3cqw;font-family:var(--head);font-weight:600;font-size:3.3cqw}
+.pg .wm .grp{display:flex;align-items:center;gap:1.4cqw}
+.pg .wm .sep{width:.3cqw;height:5cqw;background:#9aa0ad;border-radius:1cqw}
+.pg .ic{width:6cqw;height:6cqw;position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.pg .ic svg.i{width:4.9cqw;height:4.9cqw}
+.pg .ic svg.ring{position:absolute;inset:-.8cqw;width:calc(100% + 1.6cqw);height:calc(100% + 1.6cqw);overflow:visible}
+
+.pg .did{border:.4cqw dashed #7f9fd6;border-radius:4cqw;padding:1.8cqw 3.6cqw 2cqw}
+.pg .did h4{margin:0 0 .4cqw;font-family:var(--head);font-weight:700;color:var(--blue);font-size:4cqw;letter-spacing:.2cqw}
+.pg .did ul{list-style:none;margin:0;padding:0}
+.pg .did li{display:flex;align-items:center;gap:2.4cqw;font-size:4.5cqw;letter-spacing:.2cqw;padding:.3cqw 0;overflow-wrap:anywhere}
+.pg .box{width:4.6cqw;height:4.6cqw;border:.4cqw solid #555;border-radius:1cqw;flex:none;position:relative}
+.pg .box svg{position:absolute;left:-.3cqw;top:-2cqw;width:6.6cqw;height:6.6cqw;overflow:visible}
+.pg .bubble{position:absolute;right:-2.5cqw;bottom:-1.5cqw;z-index:3;box-shadow:0 .4cqw 0 rgba(60,50,30,.18);max-width:40cqw;background:#fff3c4;border-radius:4cqw 4cqw 4cqw 1cqw;padding:2cqw 2.8cqw;font-size:4.1cqw;line-height:1.2;transform:rotate(2deg);overflow-wrap:anywhere}
+.pg .bubble b{display:block;font-family:var(--head);font-weight:600;font-size:2.8cqw;color:var(--red);letter-spacing:.2cqw}
+
+.pg .ft{display:flex;align-items:center;gap:4cqw;min-height:17cqw}
+.pg .stamp{width:26cqw;flex:none;transform:rotate(-7deg);opacity:.88}
+.pg .stamp svg{display:block;width:100%;height:auto;overflow:visible}
+.pg .find{flex:1;min-width:0;display:flex;align-items:center;gap:2.5cqw}
+.pg .find .tx{flex:1;min-width:0}
+.pg .find .tag{display:inline-block;position:relative;font-family:var(--head);font-weight:600;color:var(--blue);font-size:3.9cqw;background:rgba(190,208,240,.75);padding:.4cqw 3cqw .5cqw 3.4cqw;transform:rotate(-3deg);margin-left:4cqw;letter-spacing:.2cqw}
+.pg .find .tag::before{content:"";position:absolute;left:-5cqw;top:25%;width:7cqw;height:70%;background:rgba(246,205,63,.85);transform:rotate(-6deg);z-index:-1}
+.pg .find p{margin:1.2cqw 0 0;font-size:4.7cqw;line-height:1.2;letter-spacing:.2cqw;overflow-wrap:anywhere}
+.pg .find .em{font-size:10cqw;line-height:1;flex:none}
+.pg .pn{position:absolute;bottom:2.2cqw;left:0;right:0;text-align:center;font-family:var(--head);font-weight:500;color:#4d5a8a;font-size:3cqw}
+
+/* cover */
+.pg.cover{align-items:center;justify-content:center;text-align:center;gap:4cqw}
+.cover .ct{font-family:var(--head);font-weight:700;font-size:12cqw;line-height:1.05}
+.cover .ct span{background:linear-gradient(transparent 70%,var(--yellow) 70%,var(--yellow) 92%,transparent 92%)}
+.cover .cs{font-family:var(--head);font-weight:600;color:var(--blue);font-size:6cqw}
+.cover .ce{font-size:13cqw;letter-spacing:2cqw}
+.cover .cy{font-family:var(--head);font-weight:600;color:var(--red);font-size:5cqw;border:.6cqw solid var(--red);border-radius:3cqw;padding:1cqw 4cqw;transform:rotate(-4deg)}
+.cover .cb{font-size:5cqw;color:var(--muted)}
+
+/* ---------- print ---------- */
+#printRoot{display:none}
+@media print{
+  html,body{background:#fff}
+  body>*:not(#printRoot){display:none!important}
+  #printRoot{display:block}
+  #printRoot .page{border-radius:0;box-shadow:none;break-after:page;page-break-after:always;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printRoot.A5 .page{width:148mm;height:210mm}
+  #printRoot.A4 .page{width:210mm;height:297mm}
+  #printRoot .page:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+<style id="pageSize">@page{size:A5;margin:0}</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/>
+  </filter>
+  <filter id="roughS" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".12" numOctaves="2" seed="9" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.1"/>
+  </filter>
+</svg>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="brand"><span class="logo">📔</span><div><span id="bookTitle">Our Adventure Journal</span><small id="bookSub"></small></div></div>
+    <div class="tools">
+    <button class="btn sync" id="syncBtn" data-act="sync">☁ Google Drive</button>
+    <div class="tools" id="shelfTools">
+      <button class="btn red" data-act="new">＋ New page</button>
+      <button class="btn yellow" data-act="print">🖨 Print book</button>
+      <button class="btn" data-act="backup">💾 Backup</button>
+      <button class="btn" data-act="settings">⚙ Settings</button>
+    </div>
+    </div>
+  </div>
+
+  <div id="backupNote" class="note hidden"></div>
+
+  <div id="shelfView"><div class="shelf" id="shelf"></div></div>
+
+  <div id="editView" class="hidden">
+    <div class="edit">
+      <div class="form" id="form"></div>
+      <div class="side">
+        <div id="preview"></div>
+        <div id="overflowWarn" class="warn hidden">✂️ This page is too full — the bottom is being cut off. Shorten the story or remove a list item.</div>
+        <div class="tip">Tap a photo on the page to choose which part stays in view.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden"><div class="box" id="modalBox"></div></div>
+<div id="printRoot"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ============================== storage ============================== */
+const DB_NAME = 'adventure-journal', STORE = 'entries';
+let dbp;
+function db(){
+  return dbp ||= new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE, {keyPath:'id'});
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function tx(mode, fn){
+  const d = await db();
+  return new Promise((res, rej) => {
+    const t = d.transaction(STORE, mode), out = fn(t.objectStore(STORE));
+    t.oncomplete = () => res(out && 'result' in out ? out.result : undefined);
+    t.onerror = t.onabort = () => rej(t.error);
+  });
+}
+const dbAll = () => tx('readonly', s => s.getAll());
+const dbPut = e => tx('readwrite', s => s.put(e));
+const dbDel = id => tx('readwrite', s => s.delete(id));
+
+const SET_KEY = 'adventure-journal-settings';
+let settings = {title:'Our Adventure Journal', kids:['Aafi','Aara'], lastBackup:0, changesSinceBackup:0, metaUpdated:0, googleClientId:'', sync:{connected:false, lastSync:0}, pendingDeletes:[]};
+try { Object.assign(settings, JSON.parse(localStorage.getItem(SET_KEY) || '{}')); } catch(e){}
+const saveSettings = () => { try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch(e){} };
+
+/* ============================== helpers ============================== */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const pDate = s => { const [y,m,d] = (s||'').split('-').map(Number); return y ? new Date(y, m-1, d) : null; };
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const fmtDate = s => { const d = pDate(s); return d ? `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}` : 'Someday'; };
+const fmtStamp = s => { const d = pDate(s); return d ? `${d.getDate()} ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}` : ''; };
+
+const FIND_EMOJI = ['🍁','🐚','🌸','🪨','🍂','🦋','🐞','🌼','🪶','🐌','⭐','🍓','🦀','🐸','🌈','🍄','🐟','🐿️','🪁','🎟️','🍦','🧸','🚂','🦖'];
+const WORD_EMOJI = ['','🎋','🚃','🌳','🌊','🏝️','🐒','🐘','🦁','🍜','🍚','⛰️','🏰','🕌','🚌','✈️','⛵','🌙','☀️','🌧️','🐱','🌺','🍉','⚽'];
+
+/* ============================== icons ============================== */
+const I = {
+  sun:'<circle cx="12" cy="12" r="3.6"/><path d="M12 3.2v2.4M12 18.4v2.4M3.2 12h2.4M18.4 12h2.4M5.8 5.8l1.7 1.7M16.5 16.5l1.7 1.7M5.8 18.2l1.7-1.7M16.5 7.5l1.7-1.7"/>',
+  cloud:'<path d="M7 18.5a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 9.6a4.4 4.4 0 0 1 .6 8.9z"/>',
+  rain:'<path d="M7 15a3.6 3.6 0 0 1-.5-7.15A5 5 0 0 1 16.2 7a4 4 0 0 1 .8 7.95z"/><path d="M8.5 18l-.9 2.6M12.5 18l-.9 2.6M16.5 18l-.9 2.6" stroke="#2c6fd1"/>',
+  snow:'<path d="M12 3.5v17M4.6 7.75l14.8 8.5M19.4 7.75l-14.8 8.5M12 6.5l-2-1.8M12 6.5l2-1.8M12 17.5l-2 1.8M12 17.5l2 1.8"/>',
+  happy:'<circle cx="12" cy="12" r="8.6"/><path d="M9 9.6v1.2M15 9.6v1.2M8.2 13.8c1.9 2.7 5.7 2.7 7.6 0"/>',
+  ok:'<circle cx="12" cy="12" r="8.6"/><path d="M9 9.6v1.2M15 9.6v1.2M8.6 15h6.8"/>',
+  sad:'<circle cx="12" cy="12" r="8.6"/><path d="M9 9.6v1.2M15 9.6v1.2M8.2 16.2c1.9-2.6 5.7-2.6 7.6 0"/>'
+};
+const WEATHER = ['sun','cloud','rain','snow'], MOODS = ['happy','ok','sad'];
+const MOOD_EMOJI = {happy:'😊', ok:'😐', sad:'☹️'}, WEATHER_EMOJI = {sun:'☀️', cloud:'☁️', rain:'🌧️', snow:'❄️'};
+const ring = '<svg class="ring" viewBox="0 0 40 40"><path d="M21 3.5C10 2.5 3.5 10 3.6 20.500c.1 10 7.400 16.300 16.900 16.100 9.500-.2 16.200-7 16-16.600C36.300 10.500 30 4 19 4.200" fill="none" stroke="#e2442f" stroke-width="2.200" stroke-linecap="round" filter="url(#roughS)"/></svg>';
+const icon = (k, on) => `<span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#1e1e22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${I[k]}</svg>${on ? ring : ''}</span>`;
+const tick = '<svg viewBox="0 0 24 24"><path d="M5 14.500l4.500 5C12 13 15.500 8 20.500 3.500" fill="none" stroke="#e2442f" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round" filter="url(#roughS)"/></svg>';
+
+function stampSVG(top, mid, bottom){
+  const fit = (s, max) => Math.max(8.5, Math.min(max, 200 / Math.max(1, s.length))).toFixed(1);
+  const id = uid();
+  top = top.toUpperCase().slice(0, 22); bottom = bottom.toUpperCase().slice(0, 22);
+  return `<svg viewBox="0 0 200 140"><g fill="none" stroke="#e2442f" filter="url(#rough)">
+    <ellipse cx="100" cy="70" rx="95" ry="63" stroke-width="3.200"/>
+    <ellipse cx="100" cy="70" rx="87" ry="55.500" stroke-width="1.200"/>
+    <path d="M38 59h124M38 87h124" stroke-width="1.800"/></g>
+    <defs><path id="t${id}" d="M32 66 A68 37 0 0 1 168 66"/><path id="b${id}" d="M30 76 A70 42 0 0 0 170 76"/></defs>
+    <g fill="#e2442f" font-family="Fredoka,Trebuchet MS,sans-serif" font-weight="600" text-anchor="middle">
+      <text font-size="${fit(top, 15)}" letter-spacing="1.500"><textPath href="#t${id}" startOffset="50%">${esc(top)}</textPath></text>
+      <text x="100" y="79" font-size="${fit(mid, 17)}" letter-spacing="1.500">${esc(mid)}</text>
+      <text font-size="${fit(bottom, 14)}" letter-spacing="1.500"><textPath href="#b${id}" startOffset="50%">${esc(bottom)}</textPath></text>
+    </g></svg>`;
+}
+
+/* ============================== page render ============================== */
+function storyHTML(e){
+  let h = esc(e.story || '');
+  if (/\*[^*\n]+\*/.test(h)) return h.replace(/\*([^*\n]+)\*/g, '<mark>$1</mark>');
+  const key = esc((e.spot || '').trim());
+  if (key){
+    const i = h.toLowerCase().indexOf(key.toLowerCase());
+    if (i >= 0) h = h.slice(0, i) + '<mark>' + h.slice(i, i + key.length) + '</mark>' + h.slice(i + key.length);
+  }
+  return h;
+}
+
+function pageHTML(e, ctx = {}){
+  const photos = e.photos || [], n = Math.min(photos.length, 4);
+  const who = e.who || [];
+  const label = e.trip ? `${esc(e.trip)} · Day ${ctx.day || 1}` : 'A day out';
+  const hasWord = e.word && e.word.w;
+  const did = (e.did || []).filter(x => x.t && x.t.trim());
+  const hasQuote = e.quote && e.quote.text && e.quote.text.trim();
+  const hasFind = e.find && e.find.text && e.find.text.trim();
+  const stampTop = (e.spot || e.place || 'Adventure').trim(), stampBottom = (e.spot ? e.place : e.trip) || '';
+
+  let media = '';
+  if (n){
+    media = `<div class="photos n${n}${ctx.edit ? ' can' : ''}"><i class="tape"></i>${n > 1 ? '<i class="tape b"></i>' : ''}` +
+      photos.slice(0, 4).map((p, i) => `<div class="ph"><img data-i="${i}" src="${p.src}" alt="" style="object-position:${p.fx ?? 50}% ${p.fy ?? 50}%"></div>`).join('') + '</div>';
+  }
+  if (!n || e.drawBox){
+    media += `<div class="draw" style="flex:${n ? '0 0 22cqw' : '1 1 0'}"><span>Draw what you saw today!</span><span>✏️</span></div>`;
+  }
+
+  const moods = (who.length ? who : ['Me']).map(k =>
+    `<span class="grp"><span>${esc(k)}</span>${MOODS.map(m => icon(m, (e.moods || {})[k] === m)).join('')}</span>`).join('');
+
+  return `<div class="page${ctx.white ? ' white' : ''}"><div class="pg">
+    <div class="hd">
+      <div><div class="lbl">${label}</div><div class="date">${esc(fmtDate(e.date))}</div>${e.place ? `<div class="city">${esc(e.place)}</div>` : ''}</div>
+      ${hasWord ? `<div class="wotd"><div class="t">WORD OF THE DAY</div><div class="w"><span>${esc(e.word.w)}</span>${e.word.emoji ? `<span>${e.word.emoji}</span>` : ''}</div>${e.word.m ? `<div class="m">${esc(e.word.m)}</div>` : ''}</div>` : ''}
+    </div>
+    ${e.story ? `<p class="story">${storyHTML(e)}</p>` : ''}
+    <div class="media">${media}${hasQuote ? `<div class="bubble"><b>${esc(e.quote.who || 'Someone')} said</b>“${esc(e.quote.text)}”</div>` : ''}</div>
+    <div class="wm"><span class="grp"><span>Weather</span>${WEATHER.map(w => icon(w, e.weather === w)).join('')}</span><i class="sep"></i>${moods}</div>
+    ${did.length ? `<div class="did"><h4>Today we…</h4><ul>${did.map(x => `<li><span class="box">${x.done ? tick : ''}</span><span>${esc(x.t)}</span></li>`).join('')}</ul></div>` : ''}
+    <div class="ft">
+      <div class="stamp">${stampSVG(stampTop, fmtStamp(e.date), stampBottom)}</div>
+      ${hasFind ? `<div class="find"><div class="tx"><span class="tag">A little find</span><p>${esc(e.find.text)}</p></div>${e.find.emoji ? `<span class="em">${e.find.emoji}</span>` : ''}</div>` : ''}
+    </div>
+    ${ctx.pageNo ? `<div class="pn">${ctx.pageNo}</div>` : ''}
+  </div></div>`;
+}
+
+function coverHTML(list, white){
+  const years = [...new Set(list.map(e => (e.date || '').slice(0, 4)).filter(Boolean))].sort();
+  const yr = years.length ? (years.length > 1 ? `${years[0]} – ${years[years.length-1]}` : years[0]) : '';
+  return `<div class="page${white ? ' white' : ''}"><div class="pg cover">
+    <div class="ce">🎒🌈🚂</div>
+    <div class="ct"><span>${esc(settings.title)}</span></div>
+    <div class="cs">${esc(settings.kids.join(' & '))}</div>
+    ${yr ? `<div class="cy">${yr}</div>` : ''}
+    <div class="ce">🍁🐚⭐</div>
+    <div class="cb">Places we went, things we saw,<br>and little treasures we found.</div>
+  </div></div>`;
+}
+
+/* ============================== state ============================== */
+let entries = [], cur = null, curIsNew = false, saveT = null;
+const sorted = () => [...entries].sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.created || 0) - (b.created || 0));
+function ctxFor(e, list = sorted()){
+  let day = 1;
+  if (e.trip){
+    const dates = [...new Set(list.filter(x => x.trip === e.trip).map(x => x.date).concat(e.date))].sort();
+    day = dates.indexOf(e.date) + 1;
+  }
+  const idx = list.findIndex(x => x.id === e.id);
+  return {day, pageNo: (idx < 0 ? list.length : idx) + 2};
+}
+const blank = () => ({id:uid(), created:Date.now(), updated:Date.now(), date:today(), trip:'', place:'', spot:'', story:'', who:[...settings.kids], moods:{}, weather:'',
+  photos:[], word:{w:'', m:'', emoji:''}, did:[{t:'', done:true}], find:{text:'', emoji:'🍁'}, quote:{who:settings.kids[0] || '', text:''}, drawBox:false});
+
+/* ============================== shelf ============================== */
+function renderShelf(){
+  $('#bookTitle').textContent = settings.title;
+  $('#bookSub').textContent = `${settings.kids.join(' & ')} · ${entries.length} page${entries.length === 1 ? '' : 's'}`;
+  const list = sorted();
+  let html = `<button class="addtile" data-act="new"><span>＋</span>New page</button>`, lastTrip = null;
+  if (!list.length){
+    const demo = {...blank(), id:'demo', trip:'Kyoto', place:'Kyoto', spot:'Arashiyama', story:'Today we went to Arashiyama and saw a big bamboo grove!',
+      weather:'sun', moods:Object.fromEntries(settings.kids.map(k => [k, 'happy'])), word:{w:'たけ', m:'take · bamboo', emoji:'🎋'},
+      did:[{t:'walked in the bamboo grove', done:true}, {t:'took the Sagano train', done:false}], find:{text:'A red maple leaf on the ground.', emoji:'🍁'}};
+    html += `<div class="tile">${pageHTML(demo, {day:2, pageNo:2})}<div class="cap">Example — your photos go in the drawing space</div></div>`;
+  }
+  for (const e of list){
+    const g = e.trip || (e.date || '').slice(0, 4) + ' days out';
+    if (g !== lastTrip){ html += `<div class="triphead">${e.trip ? '🧳' : '🎈'} ${esc(g)}</div>`; lastTrip = g; }
+    html += `<button class="tile" data-open="${e.id}">${pageHTML(e, ctxFor(e, list))}<div class="cap">${esc(fmtDate(e.date))} ${esc((e.date || '').slice(0, 4))}</div></button>`;
+  }
+  $('#shelf').innerHTML = html;
+  const n = $('#backupNote'), c = settings.changesSinceBackup;
+  if (entries.length && c >= 3 && !settings.sync.connected && $('#editView').classList.contains('hidden')){
+    n.classList.remove('hidden');
+    n.innerHTML = `<b>⚠️ ${c} changes not backed up.</b> Your pages live only in this browser on this device. Clearing browser data or losing the device erases them. <button class="btn sm" data-act="export">Download backup now</button>`;
+  } else n.classList.add('hidden');
+}
+
+/* ============================== editor ============================== */
+function show(view){
+  $('#shelfView').classList.toggle('hidden', view !== 'shelf');
+  $('#editView').classList.toggle('hidden', view !== 'edit');
+  $('#shelfTools').classList.toggle('hidden', view !== 'shelf');
+  if (view !== 'shelf') $('#backupNote').classList.add('hidden');
+  window.scrollTo(0, 0);
+}
+function openEntry(e, isNew){
+  cur = JSON.parse(JSON.stringify(e)); curIsNew = isNew;
+  cur.word ||= {w:'', m:'', emoji:''}; cur.find ||= {text:'', emoji:''}; cur.quote ||= {who:'', text:''}; cur.did ||= []; cur.moods ||= {}; cur.who ||= []; cur.photos ||= [];
+  renderForm(); renderPreview(); show('edit');
+}
+function renderForm(){
+  const e = cur, trips = [...new Set(entries.map(x => x.trip).filter(Boolean))];
+  const kids = [...new Set([...settings.kids, ...e.who])];
+  $('#form').innerHTML = `
+    <h3>📅 When &amp; where</h3>
+    <div class="g2">
+      <div><label>Date</label><input type="date" data-f="date" value="${esc(e.date)}"></div>
+      <div><label>Trip name (optional)</label><input type="text" data-f="trip" list="tripList" maxlength="22" placeholder="e.g. Japan 2027" value="${esc(e.trip)}"><datalist id="tripList">${trips.map(t => `<option value="${esc(t)}">`).join('')}</datalist></div>
+    </div>
+    <div class="hint">Pages with the same trip name get numbered Day 1, Day 2… automatically.</div>
+    <div class="g2" style="margin-top:10px">
+      <div><label>Town / city</label><input type="text" data-f="place" maxlength="24" placeholder="e.g. Kyoto" value="${esc(e.place)}"></div>
+      <div><label>The special spot</label><input type="text" data-f="spot" maxlength="22" placeholder="e.g. Arashiyama" value="${esc(e.spot)}"></div>
+    </div>
+
+    <h3>📷 Photos <span class="hint" style="margin:0">(up to 4)</span></h3>
+    <label class="drop" id="drop">Tap to add photos, or drop them here<input type="file" id="file" accept="image/*" multiple></label>
+    <div class="thumbs" id="thumbs"></div>
+    <label class="ck" style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px;color:var(--ink)"><input type="checkbox" id="drawBox" ${e.drawBox ? 'checked' : ''} style="width:20px;height:20px"> Leave a blank box for the kids to draw in after printing</label>
+
+    <h3>✏️ What happened</h3>
+    <textarea data-f="story" maxlength="170" placeholder="Today we went to…">${esc(e.story)}</textarea>
+    <div class="hint">Write it the way they'd say it. The special spot gets a yellow underline — or wrap any words in *stars*.</div>
+
+    <h3>🧒 Who came &amp; how they felt</h3>
+    <div class="chips" id="who">${kids.map(k => `<button type="button" class="chip ${e.who.includes(k) ? 'on' : ''}" data-who="${esc(k)}">${esc(k)}</button>`).join('')}</div>
+    <div id="moods"></div>
+    <label style="margin-top:12px">Weather</label>
+    <div class="chips" id="weather">${WEATHER.map(w => `<button type="button" class="chip ico ${e.weather === w ? 'on' : ''}" data-weather="${w}">${WEATHER_EMOJI[w]}</button>`).join('')}</div>
+
+    <h3>☑️ Today we…</h3>
+    <div id="did"></div>
+    <button type="button" class="btn sm" id="addDid">＋ Add a line</button>
+    <div class="hint">Leave a box unticked for things you planned but missed — kids like ticking them next time.</div>
+
+    <h3>💬 Something they said</h3>
+    <div class="g3" style="grid-template-columns:1fr 2.5fr">
+      <div><label>Who</label><select data-f="quote.who">${kids.concat('Mum','Dad').map(k => `<option ${e.quote.who === k ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select></div>
+      <div><label>Their exact words</label><input type="text" data-f="quote.text" maxlength="60" placeholder="e.g. The trees are sooo tall!" value="${esc(e.quote.text)}"></div>
+    </div>
+
+    <h3>🔍 A little find</h3>
+    <input type="text" data-f="find.text" maxlength="60" placeholder="e.g. A red maple leaf on the ground." value="${esc(e.find.text)}">
+    <div class="chips" id="findEmoji" style="margin-top:8px">${FIND_EMOJI.map(x => `<button type="button" class="chip ico ${e.find.emoji === x ? 'on' : ''}" data-find="${x}">${x}</button>`).join('')}</div>
+
+    <h3>🔤 Word of the day <span class="hint" style="margin:0">(optional)</span></h3>
+    <div class="g2">
+      <div><label>The word</label><input type="text" data-f="word.w" maxlength="14" placeholder="e.g. たけ or buluh" value="${esc(e.word.w)}"></div>
+      <div><label>How to say it · meaning</label><input type="text" data-f="word.m" maxlength="24" placeholder="e.g. take · bamboo" value="${esc(e.word.m)}"></div>
+    </div>
+    <div class="chips" id="wordEmoji" style="margin-top:8px">${WORD_EMOJI.map(x => `<button type="button" class="chip ico ${e.word.emoji === x ? 'on' : ''}" data-word="${x}">${x || '∅'}</button>`).join('')}</div>
+
+    <div class="formfoot">
+      <button type="button" class="btn plain" id="delBtn" style="color:var(--red)">Delete page</button>
+      <span style="display:flex;gap:10px;align-items:center"><span class="saved" id="savedMsg"></span>
+      <button type="button" class="btn" id="printOne">🖨 Print this page</button>
+      <button type="button" class="btn blue" id="doneBtn">✓ Done</button></span>
+    </div>`;
+  renderThumbs(); renderMoods(); renderDid();
+}
+function renderThumbs(){
+  $('#thumbs').innerHTML = cur.photos.map((p, i) => `<div class="thumb"><img src="${p.src}" alt=""><button type="button" data-rm="${i}" aria-label="Remove photo">×</button></div>`).join('');
+  $('#drop').classList.toggle('hidden', cur.photos.length >= 4);
+}
+function renderMoods(){
+  const ks = cur.who.length ? cur.who : ['Me'];
+  $('#moods').innerHTML = ks.map(k => `<div class="moodrow"><b>${esc(k)}</b>${MOODS.map(m => `<button type="button" class="chip ico ${cur.moods[k] === m ? 'on' : ''}" data-mood="${m}" data-kid="${esc(k)}">${MOOD_EMOJI[m]}</button>`).join('')}</div>`).join('');
+}
+function renderDid(){
+  $('#did').innerHTML = cur.did.map((x, i) => `<div class="item"><input type="checkbox" data-didc="${i}" ${x.done ? 'checked' : ''} title="Done?"><input type="text" data-didt="${i}" maxlength="34" placeholder="walked in the bamboo grove" value="${esc(x.t)}"><button type="button" class="x" data-didx="${i}" aria-label="Remove line">×</button></div>`).join('');
+  $('#addDid').classList.toggle('hidden', cur.did.length >= 4);
+}
+function renderPreview(){
+  $('#preview').innerHTML = pageHTML(cur, {...ctxFor(cur), edit:true});
+  const pg = $('#preview .pg');
+  requestAnimationFrame(() => $('#overflowWarn').classList.toggle('hidden', !(pg && pg.scrollHeight > pg.clientHeight + 2)));
+}
+function changed(){
+  renderPreview();
+  clearTimeout(saveT);
+  saveT = setTimeout(persist, 500);
+}
+async function persist(){
+  clearTimeout(saveT); saveT = null;
+  if (!cur) return;
+  cur.updated = Date.now();
+  const copy = JSON.parse(JSON.stringify(cur));
+  try {
+    await dbPut(copy);
+    const i = entries.findIndex(x => x.id === copy.id);
+    if (i >= 0) entries[i] = copy; else entries.push(copy);
+    curIsNew = false;
+    settings.changesSinceBackup++; saveSettings();
+    const m = $('#savedMsg'); if (m){ m.textContent = 'Saved ✓'; setTimeout(() => m.textContent = '', 1500); }
+  } catch (err){
+    alert('Could not save this page — the browser storage may be full.\n\n' + err);
+  }
+}
+function setPath(path, v){
+  const ks = path.split('.'); let o = cur;
+  while (ks.length > 1) o = o[ks.shift()];
+  o[ks[0]] = v;
+}
+
+/* photos: shrink to print-friendly size before storing */
+async function shrink(file){
+  let src;
+  try { src = await createImageBitmap(file, {imageOrientation:'from-image'}); }
+  catch(e){
+    src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('unreadable image')); im.src = URL.createObjectURL(file); });
+  }
+  const MAX = 1800, k = Math.min(1, MAX / Math.max(src.width, src.height));
+  const c = document.createElement('canvas'); c.width = Math.round(src.width * k); c.height = Math.round(src.height * k);
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', .86);
+}
+async function addFiles(files){
+  const failed = [];
+  for (const f of [...files]){
+    if (cur.photos.length >= 4) break;
+    if (!f.type.startsWith('image/') && !/\.(heic|heif)$/i.test(f.name)) continue;
+    try { cur.photos.push({pid:uid(), src: await shrink(f), fx:50, fy:50}); } catch(e){ failed.push(f.name); }
+  }
+  if (failed.length) alert('Could not read: ' + failed.join(', ') + '\nTry a JPG or PNG version of the photo.');
+  renderThumbs(); changed();
+}
+
+/* ============================== events ============================== */
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('button, [data-open], .ph img'); if (!t) return;
+  const d = t.dataset;
+  if (d.act === 'new') return openEntry(blank(), true);
+  if (d.act === 'print') return printDialog();
+  if (d.act === 'backup') return backupDialog();
+  if (d.act === 'export') return exportBackup();
+  if (d.act === 'settings') return settingsDialog();
+  if (d.act === 'sync') return syncClicked();
+  if (d.open){ const e = entries.find(x => x.id === d.open); if (e) openEntry(e, false); return; }
+  if (!cur || $('#editView').classList.contains('hidden')) return;
+
+  if (t.matches('.ph img') && t.closest('#preview')){
+    const r = t.getBoundingClientRect(), p = cur.photos[+d.i];
+    p.fx = Math.round((ev.clientX - r.left) / r.width * 100); p.fy = Math.round((ev.clientY - r.top) / r.height * 100);
+    return changed();
+  }
+  if (d.rm !== undefined){ const [gone] = cur.photos.splice(+d.rm, 1); if (gone && gone.driveId) queueTrash(gone.driveId); renderThumbs(); return changed(); }
+  if (d.who !== undefined){
+    const i = cur.who.indexOf(d.who); i >= 0 ? cur.who.splice(i, 1) : cur.who.push(d.who);
+    cur.who.sort((a, b) => settings.kids.indexOf(a) - settings.kids.indexOf(b));
+    t.classList.toggle('on'); renderMoods(); return changed();
+  }
+  if (d.mood){ cur.moods[d.kid] = cur.moods[d.kid] === d.mood ? '' : d.mood; renderMoods(); return changed(); }
+  const pick = (attr, set, root) => { set(d[attr]); root.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === t && c.dataset[attr] === get())); };
+  let get;
+  if (d.weather){ get = () => cur.weather; pick('weather', v => cur.weather = cur.weather === v ? '' : v, $('#weather')); return changed(); }
+  if (d.find !== undefined){ get = () => cur.find.emoji; pick('find', v => cur.find.emoji = cur.find.emoji === v ? '' : v, $('#findEmoji')); return changed(); }
+  if (d.word !== undefined){ get = () => cur.word.emoji; pick('word', v => cur.word.emoji = v, $('#wordEmoji')); return changed(); }
+  if (d.didx !== undefined){ cur.did.splice(+d.didx, 1); renderDid(); return changed(); }
+  if (t.id === 'addDid'){ cur.did.push({t:'', done:true}); renderDid(); const ins = document.querySelectorAll('[data-didt]'); ins[ins.length-1].focus(); return; }
+  if (t.id === 'doneBtn'){ if (saveT || curIsNew && isWorthSaving()) await persist(); cur = null; renderShelf(); show('shelf'); return runSync(false); }
+  if (t.id === 'printOne'){ if (saveT) await persist(); return doPrint([cur], {size:'A5', cover:false, white:false}); }
+  if (t.id === 'delBtn'){
+    if (!confirm(settings.sync.connected
+      ? 'Delete this page on all devices?\n\nIts photos and text move to the Google Drive bin, where you can restore them for 30 days.'
+      : 'Delete this page for good? This cannot be undone.')) return;
+    clearTimeout(saveT); saveT = null;
+    const old = entries.find(x => x.id === cur.id);
+    [cur, old].forEach(x => { if (!x) return; if (x.driveId) queueTrash(x.driveId); (x.photos || []).forEach(p => p.driveId && queueTrash(p.driveId)); });
+    await dbDel(cur.id); entries = entries.filter(x => x.id !== cur.id);
+    settings.changesSinceBackup++; saveSettings();
+    cur = null; renderShelf(); show('shelf'); return runSync(false);
+  }
+});
+const isWorthSaving = () => cur && (cur.story || cur.photos.length || cur.place || cur.spot);
+
+$('#form').addEventListener('input', ev => {
+  const t = ev.target, d = t.dataset;
+  if (d.f) setPath(d.f, t.value);
+  else if (d.didt !== undefined) cur.did[+d.didt].t = t.value;
+  else if (d.didc !== undefined) cur.did[+d.didc].done = t.checked;
+  else if (t.id === 'drawBox') cur.drawBox = t.checked;
+  else return;
+  changed();
+});
+$('#form').addEventListener('change', ev => {
+  if (ev.target.id === 'file'){ addFiles(ev.target.files); ev.target.value = ''; }
+});
+['dragover','dragleave','drop'].forEach(n => $('#form').addEventListener(n, ev => {
+  const z = ev.target.closest('#drop'); if (!z) return;
+  ev.preventDefault(); z.classList.toggle('over', n === 'dragover');
+  if (n === 'drop') addFiles(ev.dataTransfer.files);
+}));
+window.addEventListener('beforeunload', () => { if (saveT) persist(); });
+
+/* ============================== modals ============================== */
+function modal(html){
+  $('#modalBox').innerHTML = html; $('#modal').classList.remove('hidden');
+  return $('#modalBox');
+}
+const closeModal = () => $('#modal').classList.add('hidden');
+$('#modal').addEventListener('click', ev => { if (ev.target.id === 'modal' || ev.target.dataset.close !== undefined) closeModal(); });
+
+function printDialog(){
+  if (!entries.length) return alert('Add a page first — then you can print your book.');
+  const trips = [...new Set(entries.map(x => x.trip).filter(Boolean))];
+  const b = modal(`<h2>🖨 Print the book</h2>
+    <div class="row"><label>Which pages</label><select id="pWhich" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"><option value="">Everything (${entries.length} pages)</option>${trips.map(t => `<option value="${esc(t)}">Only: ${esc(t)}</option>`).join('')}</select></div>
+    <div class="row"><label>Paper size</label><select id="pSize" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"><option value="A5">A5 — small book (best fit)</option><option value="A4">A4 — big pages</option></select></div>
+    <div class="row"><label class="ck"><input type="checkbox" id="pCover" checked> Include a cover page</label></div>
+    <div class="row"><label class="ck"><input type="checkbox" id="pWhite"> White background (saves ink; use if printing on cream paper)</label></div>
+    <div class="hint">In the print window choose <b>Save as PDF</b> to keep a file for a print shop. Set margins to “None” and turn on “Background graphics”.</div>
+    <div class="acts"><button class="btn" data-close>Cancel</button><button class="btn red" id="pGo">Print</button></div>`);
+  $('#pGo', b).onclick = () => {
+    const w = $('#pWhich', b).value, list = sorted().filter(e => !w || e.trip === w);
+    const o = {size:$('#pSize', b).value, cover:$('#pCover', b).checked, white:$('#pWhite', b).checked};
+    closeModal(); doPrint(list, o);
+  };
+}
+async function doPrint(list, o){
+  const all = sorted(), root = $('#printRoot');
+  root.className = o.size;
+  $('#pageSize').textContent = `@page{size:${o.size};margin:0}`;
+  root.innerHTML = (o.cover ? coverHTML(list, o.white) : '') + list.map(e => pageHTML(e, {...ctxFor(e, all), white:o.white})).join('');
+  await Promise.all([...root.querySelectorAll('img')].map(i => i.decode ? i.decode().catch(() => {}) : 0));
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  window.print();
+}
+
+function backupDialog(){
+  const last = settings.lastBackup ? new Date(settings.lastBackup).toLocaleDateString() : 'never';
+  const b = modal(`<h2>💾 Backup</h2>
+    ${settings.sync.connected
+      ? `<p style="font-size:14px;margin:0 0 12px">✅ Google Drive is connected, so your pages and photos are already kept in the <b>Adventure Journal</b> folder of your Drive. A backup file is an extra copy you can keep anywhere.</p>`
+      : `<p style="font-size:14px;margin:0 0 12px">Everything is stored <b>only in this browser on this device</b>. Connect Google Drive (the ☁ button) to keep a copy in the cloud, or download a backup file and keep it somewhere safe.</p>`}
+    <p style="font-size:14px;margin:0 0 12px">Last backup: <b>${last}</b></p>
+    <div class="row"><button class="btn blue" id="bExp" style="width:100%">⬇ Download backup file</button></div>
+    <div class="row"><label class="btn" style="display:block;text-align:center">⬆ Restore from a backup file<input type="file" id="bImp" accept=".json,application/json" style="display:none"></label></div>
+    <div class="hint">Restoring adds the pages from the file. Pages you already have are kept; if the same page is in both, the newer copy from the file replaces it only if you confirm.</div>
+    <div class="acts"><button class="btn" data-close>Close</button></div>`);
+  $('#bExp', b).onclick = () => { exportBackup(); closeModal(); };
+  $('#bImp', b).onchange = async ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (!data || data.app !== 'adventure-journal' || !Array.isArray(data.entries)) throw new Error('This is not an Adventure Journal backup file.');
+      const have = new Set(entries.map(e => e.id));
+      const dup = data.entries.filter(e => have.has(e.id)).length;
+      const overwrite = dup ? confirm(`${dup} page(s) in this file already exist here.\n\nOK = replace them with the copies from the file.\nCancel = keep the ones here and only add the new pages.`) : false;
+      let n = 0;
+      for (const e of data.entries){
+        if (!e || !e.id) continue;
+        if (have.has(e.id) && !overwrite) continue;
+        const was = entries.find(x => x.id === e.id);
+        e.driveId = was ? was.driveId : null; e.syncedUpdated = -1; e.updated = Date.now();
+        (e.photos || []).forEach(p => { p.pid ||= uid(); const m = was && was.photos.find(x => x.pid === p.pid); p.driveId = m ? m.driveId : null; });
+        await dbPut(e); n++;
+      }
+      entries = await dbAll();
+      if (!localStorage.getItem(SET_KEY) && data.settings){ settings.title = data.settings.title || settings.title; settings.kids = data.settings.kids || settings.kids; saveSettings(); }
+      closeModal(); renderShelf(); alert(`Restored ${n} page(s).`); runSync(false);
+    } catch (err){ alert('Could not restore: ' + err.message); }
+  };
+}
+function exportBackup(){
+  const blob = new Blob([JSON.stringify({app:'adventure-journal', version:1, exported:new Date().toISOString(), settings:{title:settings.title, kids:settings.kids}, entries})], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `adventure-journal-backup-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  settings.lastBackup = Date.now(); settings.changesSinceBackup = 0; saveSettings(); renderShelf();
+}
+
+function settingsDialog(){
+  const b = modal(`<h2>⚙ Settings</h2>
+    <div class="row"><label>Book title</label><input type="text" id="sTitle" maxlength="30" value="${esc(settings.title)}" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"></div>
+    <div class="row"><label>Children's names (comma separated)</label><input type="text" id="sKids" maxlength="60" value="${esc(settings.kids.join(', '))}" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"></div>
+    <div class="hint">Up to 3 names fit nicely on a page.</div>
+    <div class="acts"><button class="btn" data-close>Cancel</button><button class="btn blue" id="sGo">Save</button></div>`);
+  $('#sGo', b).onclick = () => {
+    settings.title = $('#sTitle', b).value.trim() || 'Our Adventure Journal';
+    const kids = $('#sKids', b).value.split(',').map(s => s.trim().slice(0, 12)).filter(Boolean).slice(0, 4);
+    if (kids.length) settings.kids = kids;
+    settings.metaUpdated = Date.now();
+    saveSettings(); closeModal(); renderShelf(); runSync(false);
+  };
+}
+
+
+/* ============================== Google Drive sync ==============================
+   Photos are saved as ordinary JPG files in a Drive folder called "Adventure Journal",
+   so they stay readable in Drive even without this app. Page text lives in a subfolder.
+   Uses the drive.file permission: the app can only see files it created itself.        */
+
+// Paste your OAuth Client ID here once (see "Set up Google Drive" in the app), so every
+// device picks it up automatically. It is not a secret.
+const GOOGLE_CLIENT_ID = '';
+
+const SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const API = 'https://www.googleapis.com/drive/v3', UP = 'https://www.googleapis.com/upload/drive/v3';
+const ROOT_FOLDER = 'Adventure Journal', DATA_FOLDER = 'journal pages (keep this folder)';
+const TOK_KEY = 'adventure-journal-token';
+const clientId = () => (GOOGLE_CLIENT_ID || settings.googleClientId || '').trim();
+let tok = null; try { tok = JSON.parse(localStorage.getItem(TOK_KEY) || 'null'); } catch(e){}
+const tokValid = () => !!(tok && tok.exp > Date.now() + 60000);
+const saveTok = () => { try { tok ? localStorage.setItem(TOK_KEY, JSON.stringify(tok)) : localStorage.removeItem(TOK_KEY); } catch(e){} };
+const sync = {state:'off', msg:'', running:false, again:false};
+class AuthNeeded extends Error {}
+
+function queueTrash(id){ if (id && !settings.pendingDeletes.includes(id)){ settings.pendingDeletes.push(id); saveSettings(); } }
+const dirty = e => !e.driveId || (e.updated || 0) !== (e.syncedUpdated ?? -1);
+
+let gisP = null;
+function loadGIS(){
+  return gisP ||= new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = res; s.onerror = () => { gisP = null; rej(new Error('Could not reach Google. Check the internet connection.')); };
+    document.head.appendChild(s);
+  });
+}
+async function signIn(){
+  await loadGIS();
+  return new Promise((res, rej) => {
+    const c = google.accounts.oauth2.initTokenClient({
+      client_id: clientId(), scope: SCOPE,
+      callback: r => {
+        if (r.error) return rej(new Error(r.error_description || r.error));
+        if (!google.accounts.oauth2.hasGrantedAllScopes(r, SCOPE)) return rej(new Error('Google Drive access was not allowed. Try again and tick the Google Drive box.'));
+        tok = {token: r.access_token, exp: Date.now() + (+r.expires_in || 3600) * 1000}; saveTok(); res();
+      },
+      error_callback: e => rej(new Error(e && e.type === 'popup_closed' ? 'The Google sign-in window was closed.' : e && e.type === 'popup_failed_to_open' ? 'The browser blocked the Google sign-in window. Allow pop-ups for this site and try again.' : 'Google sign-in failed.'))
+    });
+    c.requestAccessToken({prompt: settings.sync.connected ? '' : 'consent'});
+  });
+}
+
+async function api(url, opt = {}){
+  if (!tokValid()) throw new AuthNeeded();
+  const {allow404, ...o} = opt;
+  const r = await fetch(url, {...o, headers: {Authorization: 'Bearer ' + tok.token, ...(o.headers || {})}});
+  if (r.status === 401){ tok = null; saveTok(); throw new AuthNeeded(); }
+  if (r.status === 404 && allow404) return null;
+  if (!r.ok){ let m = 'error ' + r.status; try { m = (await r.json()).error.message || m; } catch(e){} throw new Error('Google Drive: ' + m); }
+  return r;
+}
+const enc = encodeURIComponent;
+async function listFiles(query, fields){
+  const out = []; let page = '';
+  do {
+    const r = await (await api(`${API}/files?q=${enc(query)}&spaces=drive&pageSize=1000&fields=${enc('nextPageToken,files(' + fields + ')')}${page ? '&pageToken=' + enc(page) : ''}`)).json();
+    out.push(...(r.files || [])); page = r.nextPageToken;
+  } while (page);
+  return out;
+}
+async function ensureFolder(name, parent){
+  const q = `name='${name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false` + (parent ? ` and '${parent}' in parents` : '');
+  const found = await listFiles(q, 'id,createdTime');
+  if (found.length) return found.sort((a, b) => (a.createdTime || '').localeCompare(b.createdTime || ''))[0].id;
+  const r = await api(`${API}/files?fields=id`, {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, mimeType: 'application/vnd.google-apps.folder', ...(parent ? {parents: [parent]} : {})})});
+  return (await r.json()).id;
+}
+async function upload(meta, blob, id){
+  const b = 'aj' + uid();
+  const body = new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: ${blob.type || 'application/octet-stream'}\r\n\r\n`, blob, `\r\n--${b}--`]);
+  const r = await api(`${UP}/files${id ? '/' + id : ''}?uploadType=multipart&fields=id`, {method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'multipart/related; boundary=' + b}, body, allow404: !!id});
+  return r ? (await r.json()).id : null;
+}
+const trashFile = id => api(`${API}/files/${id}?fields=id`, {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({trashed: true}), allow404: true});
+const toBlob = u => fetch(u).then(r => r.blob());
+const toDataURL = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(f.result); f.onerror = () => rej(f.error); f.readAsDataURL(b); });
+const jsonBlob = o => new Blob([JSON.stringify(o)], {type: 'application/json'});
+
+async function saveLocal(e){
+  await dbPut(e);
+  const i = entries.findIndex(x => x.id === e.id);
+  if (i >= 0) entries[i] = e; else entries.push(e);
+  if (cur && cur.id === e.id){   // keep Drive ids on the copy open in the editor
+    cur.driveId = e.driveId; cur.syncedUpdated = e.syncedUpdated;
+    for (const p of cur.photos){ const m = e.photos.find(x => x.pid && x.pid === p.pid); if (m && m.driveId) p.driveId = m.driveId; }
+  }
+}
+async function pushEntry(e, F){
+  for (const [i, p] of e.photos.entries()){
+    p.pid ||= uid();
+    if (p.driveId || !p.src) continue;
+    const name = `${e.date || 'undated'} ${(e.spot || e.place || 'outing').replace(/[\\/:*?"<>|]/g, '').trim()} ${i + 1}.jpg`;
+    p.driveId = await upload({name, parents: [F.root], appProperties: {entryId: e.id}}, await toBlob(p.src));
+    await saveLocal(e);
+  }
+  const {driveId, syncedUpdated, ...rest} = e;
+  const data = {...rest, updated: e.updated || 0, photos: e.photos.map(({src, ...p}) => p)};
+  const meta = {name: `page-${e.id}.json`, appProperties: {entryId: e.id, updated: String(e.updated || 0)}};
+  let id = driveId ? await upload(meta, jsonBlob(data), driveId) : null;
+  if (!id) id = await upload({...meta, parents: [F.data]}, jsonBlob(data));
+  e.driveId = id; e.syncedUpdated = e.updated || 0;
+  await saveLocal(e);
+}
+async function pullEntry(rf, local){
+  const data = await (await api(`${API}/files/${rf.id}?alt=media`)).json();
+  if (!data || data.id !== rf.appProperties.entryId) throw new Error('A page file in Drive looks damaged: ' + rf.name);
+  const photos = [];
+  for (const p of data.photos || []){
+    const have = local && local.photos.find(x => x.driveId && x.driveId === p.driveId && x.src);
+    let src = have && have.src;
+    if (!src && p.driveId){
+      const r = await api(`${API}/files/${p.driveId}?alt=media`, {allow404: true});
+      if (!r) continue;
+      src = await toDataURL(await r.blob());
+    }
+    if (src) photos.push({...p, src});
+  }
+  const u = +rf.appProperties.updated || data.updated || 0;
+  await saveLocal({...data, photos, driveId: rf.id, updated: u, syncedUpdated: u});
+}
+
+async function runSync(interactive){
+  if (!clientId()) return renderSyncBtn();
+  if (!interactive && !settings.sync.connected) return renderSyncBtn();
+  if (sync.running){ sync.again = true; return; }
+  if (!tokValid()){
+    if (!interactive) return setSync('signin');
+    try { await signIn(); } catch (err){ return setSync('error', err.message); }
+  }
+  sync.running = true; setSync('busy');
+  let touched = false;
+  try {
+    const F = {root: await ensureFolder(ROOT_FOLDER)};
+    F.data = await ensureFolder(DATA_FOLDER, F.root);
+    settings.sync.connected = true; saveSettings();
+
+    for (const id of [...settings.pendingDeletes]){
+      await trashFile(id);
+      settings.pendingDeletes = settings.pendingDeletes.filter(x => x !== id); saveSettings();
+    }
+
+    const files = await listFiles(`'${F.data}' in parents and trashed=false`, 'id,name,appProperties');
+
+    // book title & names
+    const sf = files.find(f => f.name === 'book-settings.json');
+    const su = sf ? +(sf.appProperties || {}).updated || 0 : -1;
+    if (sf && su > (settings.metaUpdated || 0)){
+      const d = await (await api(`${API}/files/${sf.id}?alt=media`)).json();
+      if (d.title) settings.title = d.title;
+      if (Array.isArray(d.kids) && d.kids.length) settings.kids = d.kids;
+      settings.metaUpdated = su; saveSettings(); touched = true;
+    } else if (settings.metaUpdated && settings.metaUpdated > su){
+      const meta = {name: 'book-settings.json', appProperties: {updated: String(settings.metaUpdated)}};
+      const body = jsonBlob({title: settings.title, kids: settings.kids});
+      if (!sf || !(await upload(meta, body, sf.id))) await upload({...meta, parents: [F.data]}, body);
+    }
+
+    // pages
+    const remote = new Map();
+    for (const f of files){
+      const id = f.appProperties && f.appProperties.entryId; if (!id) continue;
+      const prev = remote.get(id);
+      if (!prev){ remote.set(id, f); continue; }
+      const keepNew = +f.appProperties.updated > +prev.appProperties.updated;
+      remote.set(id, keepNew ? f : prev);
+      await trashFile(keepNew ? prev.id : f.id);
+    }
+    for (const [id, rf] of remote){
+      if (cur && cur.id === id) continue;              // page is open in the editor: next time
+      const local = entries.find(e => e.id === id), ru = +rf.appProperties.updated || 0;
+      if (!local){ await pullEntry(rf, null); touched = true; continue; }
+      const remoteChanged = rf.id !== local.driveId || ru !== local.syncedUpdated;
+      if (remoteChanged && (!dirty(local) || ru > (local.updated || 0))){ await pullEntry(rf, local); touched = true; }
+      else if (dirty(local)){ local.driveId = rf.id; await pushEntry(local, F); }
+    }
+    for (const e of [...entries]){
+      if (remote.has(e.id) || (cur && cur.id === e.id)) continue;
+      if (e.driveId && !dirty(e)){                      // deleted on another device
+        await dbDel(e.id); entries = entries.filter(x => x.id !== e.id); touched = true; continue;
+      }
+      if (e.driveId){ e.driveId = null; e.photos.forEach(p => p.driveId = null); }  // edited here after being deleted elsewhere: keep it
+      await pushEntry(e, F);
+    }
+    settings.sync.lastSync = Date.now(); saveSettings();
+    setSync('ok');
+  } catch (err){
+    if (err instanceof AuthNeeded) setSync('signin');
+    else { console.error(err); setSync('error', err.message || String(err)); }
+  } finally {
+    sync.running = false;
+    if (touched) renderShelf();
+    if (sync.again){ sync.again = false; runSync(false); }
+  }
+}
+
+function setSync(state, msg = ''){ sync.state = state; sync.msg = msg; renderSyncBtn(); }
+function ago(t){
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(t).toLocaleDateString();
+}
+function renderSyncBtn(){
+  const b = $('#syncBtn'); if (!b) return;
+  let st = sync.state;
+  if (!clientId()) st = 'setup';
+  else if (st === 'off' && settings.sync.connected) st = tokValid() ? 'ok' : 'signin';
+  const label = {
+    setup: '☁ Set up Google Drive',
+    off: '☁ Connect Google Drive',
+    busy: '⟳ Syncing…',
+    ok: settings.sync.lastSync ? `☁ Synced ${ago(settings.sync.lastSync)}` : '☁ Synced',
+    signin: '☁ Tap to sync',
+    error: '⚠ Sync problem — tap'
+  }[st];
+  b.textContent = label;
+  b.title = st === 'error' ? sync.msg : st === 'signin' ? 'Google needs you to sign in again (about once an hour)' : '';
+  b.classList.toggle('err', st === 'error');
+  b.classList.toggle('busy', st === 'busy');
+}
+function syncClicked(){
+  if (sync.running) return;
+  if (!clientId() || !settings.sync.connected) return driveDialog();
+  if (sync.state === 'error'){ alert('Last sync failed:\n\n' + sync.msg + '\n\nTrying again now.'); return runSync(true); }
+  if (!tokValid()) return runSync(true);       // "Tap to sync": sign in again, straight away
+  driveDialog();
+}
+function driveDialog(){
+  const origin = location.origin && location.origin !== 'null' ? location.origin : '';
+  const okOrigin = /^https:\/\//.test(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const b = modal(`<div class="setup"><h2>☁ Google Drive</h2>
+    ${settings.sync.connected ? `
+      <p style="font-size:14px;margin:0 0 12px">Connected. Pages and photos are kept in the <b>${esc(ROOT_FOLDER)}</b> folder of your Google Drive and appear on any device where you open this journal and connect the <b>same Google account</b>.</p>
+      <p style="font-size:14px;margin:0 0 12px">Last sync: <b>${settings.sync.lastSync ? ago(settings.sync.lastSync) : 'not yet'}</b></p>
+      <div class="acts" style="justify-content:space-between"><button class="btn plain" id="dOff" style="color:var(--red)">Disconnect this device</button><span style="display:flex;gap:10px"><button class="btn" data-close>Close</button><button class="btn blue" id="dNow">Sync now</button></span></div>`
+    : clientId() ? `
+      <p style="font-size:14px;margin:0 0 12px">Sign in with Google to keep your journal in your Drive and see it on your other devices. Use the <b>same Google account</b> on every device.</p>
+      <p style="font-size:14px;margin:0 0 12px">The journal can only see files it made itself — not the rest of your Drive.</p>
+      <div class="acts"><button class="btn" data-close>Not now</button><button class="btn blue" id="dGo">Sign in with Google</button></div>`
+    : `
+      <p style="font-size:14px;margin:0 0 10px">One-time setup (about 10 minutes, free). Do this on a computer:</p>
+      <ol>
+        <li>Open <b>console.cloud.google.com</b> and create a project called <i>Adventure Journal</i>.</li>
+        <li>Menu → <b>APIs &amp; Services → Library</b> → search <b>Google Drive API</b> → <b>Enable</b>.</li>
+        <li>Menu → <b>Google Auth Platform</b> (or “OAuth consent screen”) → Get started. App name: <i>Adventure Journal</i>, your email, Audience: <b>External</b>.</li>
+        <li>In <b>Audience → Test users</b>, add the Google account(s) you will sign in with.</li>
+        <li>In <b>Clients → Create client</b>: type <b>Web application</b>. Under <b>Authorized JavaScript origins</b> add:<br><code>${esc(origin || '(open this page from its web address first)')}</code></li>
+        <li>Copy the <b>Client ID</b> (ends in <code>.apps.googleusercontent.com</code>) and paste it below.</li>
+      </ol>
+      ${okOrigin ? '' : `<div class="warn" style="background:#fdeae6;border:2px solid var(--red);border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:12px">This page is not running from a normal web address, so Google sign-in will not work here. Open the journal from its website (for example GitHub Pages) and set it up there.</div>`}
+      <div class="row"><label>Client ID</label><input type="text" id="dCid" placeholder="1234-abc.apps.googleusercontent.com" style="width:100%;padding:8px;border-radius:10px;border:2px solid var(--line)"></div>
+      <div class="hint">Tip: to avoid pasting it on every device, ask for it to be written into the journal file once.</div>
+      <div class="acts"><button class="btn" data-close>Cancel</button><button class="btn blue" id="dSave">Save &amp; sign in</button></div>`}
+  </div>`);
+  const go = () => { closeModal(); runSync(true); };
+  if ($('#dGo', b)) $('#dGo', b).onclick = go;
+  if ($('#dNow', b)) $('#dNow', b).onclick = go;
+  if ($('#dSave', b)) $('#dSave', b).onclick = () => {
+    const v = $('#dCid', b).value.trim();
+    if (!/\.apps\.googleusercontent\.com$/.test(v)) return alert('That does not look like a Client ID. It should end in .apps.googleusercontent.com');
+    settings.googleClientId = v; saveSettings(); go();
+  };
+  if ($('#dOff', b)) $('#dOff', b).onclick = () => {
+    if (!confirm('Stop syncing on this device? Your pages stay here and in Google Drive.')) return;
+    try { if (tok && window.google && google.accounts) google.accounts.oauth2.revoke(tok.token, () => {}); } catch(e){}
+    tok = null; saveTok(); settings.sync.connected = false; saveSettings(); setSync('off'); closeModal(); renderShelf();
+  };
+}
+
+/* ============================== boot ============================== */
+(async () => {
+  try { entries = await dbAll(); }
+  catch (e){ $('#backupNote').classList.remove('hidden'); $('#backupNote').textContent = 'This browser is blocking storage (private window?). Pages cannot be saved here.'; }
+  renderShelf();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  renderSyncBtn();
+  if (clientId() && settings.sync.connected){ loadGIS().catch(() => {}); runSync(false); }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') runSync(false); });
+  setInterval(() => { renderSyncBtn(); if (!sync.running) runSync(false); }, 5 * 60000);
+})();
+})();
+</script>
+</body>
+</html>
